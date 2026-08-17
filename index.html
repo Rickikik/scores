@@ -110,21 +110,51 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
 .seuils button[aria-pressed="true"]{background:var(--encre);color:#16232B;border-color:var(--encre)}
 
 /* ---------- saisie de manche ---------- */
-.saisie{border-top:1px solid var(--trait);padding:14px 0}
-.saisie:last-of-type{border-bottom:1px solid var(--trait)}
-.saisie .haut{display:flex;align-items:center;gap:10px}
-.saisie .nom{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.champ{display:flex;gap:8px;align-items:center}
-.champ input{width:88px;text-align:center;font-size:19px;font-weight:800}
-.signe{width:44px;height:48px;border-radius:10px;background:var(--ardoise);border:1px solid var(--trait);font-size:20px;font-weight:800}
-.ferme{
-  margin-top:9px;display:flex;align-items:center;gap:9px;
-  font-size:13px;color:var(--gris);font-weight:600
+.jr{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:6px;
+  border-radius:12px;background:var(--ardoise);border:1px solid transparent
 }
-.case{width:22px;height:22px;border-radius:6px;border:2px solid var(--trait);flex:0 0 auto;display:grid;place-items:center}
-.ferme[aria-pressed="true"]{color:var(--encre)}
-.ferme[aria-pressed="true"] .case{background:var(--cyan);border-color:var(--cyan)}
-.ferme[aria-pressed="true"] .case::after{content:"";width:6px;height:11px;border:solid #0C1A22;border-width:0 3px 3px 0;transform:rotate(43deg) translate(-1px,-2px)}
+.jr.actif{background:var(--ardoise-clair);border-color:var(--cyan)}
+.jr.incomplet{border-color:var(--rouge)}
+.jr .nm{flex:1;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr .fm{
+  font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 9px;border-radius:9px;border:1px solid var(--trait);color:var(--gris)
+}
+.jr .fm[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:#0C1A22}
+.jr .tt{
+  min-width:64px;height:42px;border-radius:10px;background:var(--nuit);
+  border:1px solid var(--trait);display:grid;place-items:center;
+  font-size:19px;font-weight:800;font-variant-numeric:tabular-nums
+}
+.jr .tt.vide{color:var(--gris)}
+.jr.actif .tt{border-color:var(--cyan)}
+
+/* ---------- pavé de cartes ---------- */
+.pave-tete{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.pave-tete .qui{font-size:13px;font-weight:800}
+.pave-tete .nb{font-size:11px;color:var(--gris);font-weight:700}
+.pave-tete .tot{margin-left:auto;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.pave-suite{
+  font-size:12px;color:var(--gris);font-weight:700;margin-bottom:8px;min-height:16px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums
+}
+.pave{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pave button{
+  height:46px;border-radius:10px;background:var(--ardoise-clair);
+  border:1px solid var(--trait);font-size:17px;font-weight:800;
+  font-variant-numeric:tabular-nums
+}
+.pave button:active{background:var(--cyan);color:#0C1A22}
+.pave button.neg{color:#8FD4E8}
+.outils{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.outils button{
+  height:44px;border-radius:10px;border:1px solid var(--trait);
+  font-size:13px;font-weight:700;background:transparent
+}
+.outils button.ok{background:var(--cyan);border-color:var(--cyan);color:#0C1A22;font-weight:800}
+.saisie-directe{display:flex;gap:6px;align-items:center}
+.saisie-directe input{flex:1;text-align:center;font-size:20px;font-weight:800}
 .penalite{
   margin-top:8px;font-size:12.5px;font-weight:700;color:#0C1A22;background:var(--rouge);
   border-radius:8px;padding:7px 10px;display:none
@@ -135,8 +165,6 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
   background:var(--jaune);border-radius:10px;padding:9px 12px;text-align:center
 }
 .manque-alerte.on{display:block}
-.saisie.incomplet{background:rgba(224,69,59,.14)}
-.saisie.incomplet .champ input{border-color:var(--rouge)}
 
 /* ---------- historique ---------- */
 .tableau{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -228,7 +256,7 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
       </div>
       <button class="retour" id="btn-annuler-saisie">Retour</button>
     </div>
-    <p class="sous">Note les points de chacun, puis coche celui qui a retourné toutes ses cartes en premier.</p>
+    <p class="sous">Touche le total d’un joueur pour saisir ses cartes une par une, puis marque celui qui a fermé.</p>
     <div id="lignes-saisie"></div>
     <div class="penalite" id="alerte-penalite"></div>
   </section>
@@ -264,7 +292,9 @@ var S = {
   seuil:100,
   manches:[],                 // [{scores:[..], ferme:idx}]
   edition:null,               // index de la manche en cours d'édition, ou null
-  brouillon:{scores:[], ferme:null}
+  brouillon:{scores:[], ferme:null, cartes:[]},
+  actif:null,                 // joueur dont on saisit le score, ou null
+  clavier:false               // true = total tapé à la main, false = pavé de cartes
 };
 
 var COULEURS = ["#2FA8D4","#4CAF3E","#F2C230","#E0453B","#2A4C8F","#8E5BC7","#E07A2F","#2FB79A"];
@@ -477,10 +507,14 @@ function abrege(n){ return n.length>7 ? n.slice(0,6)+"." : n; }
 /* ---- saisie ---- */
 function ouvrirSaisie(index){
   S.edition = index;
-  if (index===null) S.brouillon = { scores:new Array(S.nb).fill(null), ferme:null };
-  else S.brouillon = { scores:S.manches[index].scores.slice(), ferme:S.manches[index].ferme };
+  if (index===null) S.brouillon = { scores:new Array(S.nb).fill(null), ferme:null, cartes:[] };
+  else S.brouillon = { scores:S.manches[index].scores.slice(), ferme:S.manches[index].ferme, cartes:[] };
+  for (var i=0;i<S.nb;i++) S.brouillon.cartes[i] = [];
+  S.actif = null; S.clavier = false;
   S.phase="saisie"; rendre();
 }
+
+var refs = [];
 
 function rendreSaisie(){
   montrer("v-saisie");
@@ -488,52 +522,167 @@ function rendreSaisie(){
   $("saisie-titre").textContent = "Manche "+n;
   $("saisie-eyebrow").textContent = (S.edition===null) ? "Fin de manche" : "Correction";
 
-  var z=$("lignes-saisie"); z.innerHTML="";
+  var z=$("lignes-saisie"); z.innerHTML=""; refs=[];
   for (var i=0;i<S.nb;i++){
     (function(i){
-      var d=document.createElement("div"); d.className="saisie";
+      var d=document.createElement("div"); d.className="jr";
 
-      var haut=document.createElement("div"); haut.className="haut";
       var p=document.createElement("span"); p.className="pastille";
       p.style.background=COULEURS[i%COULEURS.length];
-      var nom=document.createElement("span"); nom.className="nom"; nom.textContent=nomDe(i);
 
-      var champ=document.createElement("div"); champ.className="champ";
-      var signe=document.createElement("button"); signe.className="signe"; signe.textContent="±";
-      signe.setAttribute("aria-label","Inverser le signe de "+nomDe(i));
-      var inp=document.createElement("input");
-      inp.type="number"; inp.inputMode="numeric"; inp.placeholder="0"; inp.step="1";
-      inp.value = (S.brouillon.scores[i]===null||S.brouillon.scores[i]===undefined)?"":S.brouillon.scores[i];
-      inp.oninput=function(){
-        var v=parseInt(inp.value,10);
-        S.brouillon.scores[i]= isNaN(v)? null : v;
-        d.classList.remove("incomplet");
-        if (typeof S.brouillon.scores[i]==="number") $("manque-alerte").classList.remove("on");
-        majPenalite();
-      };
-      signe.onclick=function(){
-        var v=parseInt(inp.value,10); if (isNaN(v)) return;
-        inp.value = -v; S.brouillon.scores[i] = -v; majPenalite();
-      };
-      champ.appendChild(signe); champ.appendChild(inp);
-      haut.appendChild(p); haut.appendChild(nom); haut.appendChild(champ);
+      var nom=document.createElement("span"); nom.className="nm"; nom.textContent=nomDe(i);
 
-      var f=document.createElement("button");
-      f.className="ferme"; f.type="button";
+      var f=document.createElement("button"); f.className="fm"; f.type="button";
+      f.textContent="a fermé";
       f.setAttribute("aria-pressed", S.brouillon.ferme===i ? "true":"false");
-      f.innerHTML='<span class="case"></span><span>A retourné toutes ses cartes en premier</span>';
       f.onclick=function(){
         S.brouillon.ferme = (S.brouillon.ferme===i)? null : i;
-        rendreSaisie();
+        majAffichage(); majPenalite();
       };
 
-      d.appendChild(haut); d.appendChild(f); z.appendChild(d);
+      var t=document.createElement("button"); t.className="tt"; t.type="button";
+      t.setAttribute("aria-label","Saisir le score de "+nomDe(i));
+      t.onclick=function(){
+        S.actif = i; S.clavier = false;
+        majAffichage(); rendreBarreSaisie();
+        d.scrollIntoView({block:"center",behavior:"smooth"});
+      };
+
+      d.appendChild(p); d.appendChild(nom); d.appendChild(f); d.appendChild(t);
+      z.appendChild(d);
+      refs[i] = {l:d, f:f, t:t};
     })(i);
   }
+  majAffichage();
   majPenalite();
   effacerManque();
+  rendreBarreSaisie();
+}
 
-  barre([{txt: S.edition===null? "Valider la manche" : "Enregistrer la correction", act:validerManche}]);
+function majAffichage(){
+  for (var i=0;i<S.nb;i++){
+    if (!refs[i]) continue;
+    var v = S.brouillon.scores[i];
+    var ok = typeof v === "number";
+    refs[i].t.textContent = ok ? v : "–";
+    refs[i].t.classList.toggle("vide", !ok);
+    if (ok) refs[i].l.classList.remove("incomplet");
+    refs[i].l.classList.toggle("actif", S.actif===i);
+    refs[i].f.setAttribute("aria-pressed", S.brouillon.ferme===i ? "true":"false");
+  }
+  majEtatPave();
+}
+
+/* ---- pavé de cartes ---- */
+var VALEURS = [-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12];
+
+function rendreBarreSaisie(){
+  var b=$("barre"); b.innerHTML="";
+
+  if (S.actif === null){
+    var el=document.createElement("button");
+    el.className="btn";
+    el.textContent = S.edition===null ? "Valider la manche" : "Enregistrer la correction";
+    el.onclick=validerManche;
+    b.appendChild(el);
+    majBarre();
+    return;
+  }
+
+  var tete=document.createElement("div"); tete.className="pave-tete";
+  tete.innerHTML='<span class="qui" id="pave-qui"></span>'+
+                 '<span class="nb" id="pave-nb"></span>'+
+                 '<span class="tot" id="pave-tot"></span>';
+  b.appendChild(tete);
+
+  var suite=document.createElement("div"); suite.className="pave-suite"; suite.id="pave-suite";
+  b.appendChild(suite);
+
+  if (S.clavier){
+    var bloc=document.createElement("div"); bloc.className="saisie-directe";
+    var inp=document.createElement("input");
+    inp.type="number"; inp.inputMode="numeric"; inp.step="1"; inp.placeholder="Total";
+    var cur=S.brouillon.scores[S.actif];
+    inp.value = (typeof cur==="number") ? cur : "";
+    inp.oninput=function(){
+      var v=parseInt(inp.value,10);
+      S.brouillon.cartes[S.actif]=[];
+      S.brouillon.scores[S.actif]= isNaN(v)? null : v;
+      $("manque-alerte").classList.remove("on");
+      majAffichage(); majPenalite();
+    };
+    var okc=document.createElement("button"); okc.className="btn"; okc.style.width="auto";
+    okc.style.padding="14px 20px"; okc.textContent="OK";
+    okc.onclick=function(){ S.actif=null; S.clavier=false; majAffichage(); rendreBarreSaisie(); };
+    bloc.appendChild(inp); bloc.appendChild(okc);
+    b.appendChild(bloc);
+    majEtatPave(); majBarre();
+    setTimeout(function(){ inp.focus(); }, 30);
+    return;
+  }
+
+  var g=document.createElement("div"); g.className="pave";
+  VALEURS.forEach(function(v){
+    var k=document.createElement("button"); k.type="button";
+    k.textContent = v; if (v<0) k.className="neg";
+    k.onclick=function(){ taperCarte(v); };
+    g.appendChild(k);
+  });
+  b.appendChild(g);
+
+  var o=document.createElement("div"); o.className="outils";
+  o.appendChild(outil("Effacer", function(){
+    var c=S.brouillon.cartes[S.actif];
+    if (!c.length) return;
+    c.pop();
+    S.brouillon.scores[S.actif] = c.length ? somme(c) : null;
+    majAffichage(); majPenalite();
+  }));
+  o.appendChild(outil("Tout vider", function(){
+    S.brouillon.cartes[S.actif]=[];
+    S.brouillon.scores[S.actif]=null;
+    majAffichage(); majPenalite();
+  }));
+  o.appendChild(outil("Total direct", function(){
+    S.clavier=true; rendreBarreSaisie();
+  }));
+  var ok=outil("OK", function(){ S.actif=null; majAffichage(); rendreBarreSaisie(); });
+  ok.className="ok";
+  o.appendChild(ok);
+  b.appendChild(o);
+
+  majEtatPave();
+  majBarre();
+}
+
+function outil(txt, act){
+  var el=document.createElement("button"); el.type="button";
+  el.textContent=txt; el.onclick=act;
+  return el;
+}
+function somme(a){ return a.reduce(function(x,y){ return x+y; }, 0); }
+
+function taperCarte(v){
+  var i=S.actif, c=S.brouillon.cartes[i];
+  if (typeof S.brouillon.scores[i]==="number" && !c.length){
+    c.length=0;                       // total saisi à la main : le pavé repart de zéro
+    S.brouillon.scores[i]=null;
+  }
+  c.push(v);
+  S.brouillon.scores[i]=somme(c);
+  $("manque-alerte").classList.remove("on");
+  majAffichage(); majPenalite();
+}
+
+function majEtatPave(){
+  if (S.actif===null || !$("pave-qui")) return;
+  var i=S.actif, c=S.brouillon.cartes[i], v=S.brouillon.scores[i];
+  $("pave-qui").textContent = nomDe(i);
+  $("pave-nb").textContent = c.length ? (c.length + (c.length>1?" cartes":" carte")) : "";
+  $("pave-tot").textContent = (typeof v==="number") ? v : "–";
+  $("pave-suite").textContent = c.length
+    ? c.map(function(x){ return x<0 ? "−"+(-x) : ""+x; }).join("  ·  ")
+    : "";
 }
 
 function majPenalite(){
@@ -549,22 +698,18 @@ function majPenalite(){
 /* Signalement de ce qui manque, au lieu d'un bouton inerte. */
 function effacerManque(){
   $("manque-alerte").classList.remove("on");
-  Array.prototype.forEach.call(
-    document.querySelectorAll("#lignes-saisie .saisie"),
-    function(el){ el.classList.remove("incomplet"); }
-  );
+  refs.forEach(function(r){ if (r) r.l.classList.remove("incomplet"); });
   majBarre();
 }
 function signalerManque(txt, indices){
   $("manque-alerte").textContent = txt;
   $("manque-alerte").classList.add("on");
-  var lignes = document.querySelectorAll("#lignes-saisie .saisie");
   (indices||[]).forEach(function(i){
-    if (lignes[i]) lignes[i].classList.add("incomplet");
+    if (refs[i]) refs[i].l.classList.add("incomplet");
   });
   majBarre();
-  if (indices && indices.length && lignes[indices[0]]){
-    lignes[indices[0]].scrollIntoView({block:"center",behavior:"smooth"});
+  if (indices && indices.length && refs[indices[0]]){
+    refs[indices[0]].l.scrollIntoView({block:"center",behavior:"smooth"});
   }
 }
 function enumerer(indices){
@@ -575,6 +720,7 @@ function enumerer(indices){
 }
 
 function validerManche(){
+  S.actif = null; S.clavier = false;
   var absents = [];
   for (var i=0;i<S.nb;i++){
     if (typeof S.brouillon.scores[i] !== "number") absents.push(i);
