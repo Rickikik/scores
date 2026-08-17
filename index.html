@@ -82,6 +82,7 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   position:fixed;left:0;right:0;bottom:0;z-index:20;
   background:linear-gradient(180deg,rgba(22,35,43,0) 0%,var(--nuit) 34%);
   padding:22px 16px calc(16px + env(safe-area-inset-bottom));
+  will-change:transform;transition:transform .16s ease-out;
 }
 .barre-bas .inner{max-width:620px;margin:0 auto}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -237,7 +238,7 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
 
 </div>
 
-<div class="barre-bas"><div class="inner" id="barre"></div></div>
+<div class="barre-bas" id="barre-bas"><div class="inner" id="barre"></div></div>
 
 <script>
 (function(){
@@ -599,6 +600,29 @@ function echap(s){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
   });
 }
+
+/* ---------------------------------------------------------------
+   CLAVIER VIRTUEL
+   Le clavier recouvre la barre du bas : elle est fixée au bas du
+   layout viewport, que le clavier ne réduit pas. On la remonte
+   manuellement de la hauteur masquée, mesurée sur visualViewport.
+   --------------------------------------------------------------- */
+(function(){
+  var vv = window.visualViewport;
+  if (!vv) return;
+  var barre = $("barre-bas"), dernier = -1;
+  function suivre(){
+    var cache = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    if (cache < 60) cache = 0;              // bruit des barres du navigateur
+    if (cache === dernier) return;
+    dernier = cache;
+    barre.style.transform = cache ? "translateY(-"+cache+"px)" : "";
+    document.body.style.paddingBottom = cache ? cache+"px" : "";
+  }
+  vv.addEventListener("resize", suivre);
+  vv.addEventListener("scroll", suivre);
+  suivre();
+})();
 
 /* ---- navigation ---- */
 $("btn-reglages").onclick=function(){ S.phase="reglages"; rendre(); };
