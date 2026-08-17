@@ -130,6 +130,13 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
   border-radius:8px;padding:7px 10px;display:none
 }
 .penalite.on{display:block}
+.manque-alerte{
+  display:none;margin-bottom:9px;font-size:13px;font-weight:700;color:#0C1A22;
+  background:var(--jaune);border-radius:10px;padding:9px 12px;text-align:center
+}
+.manque-alerte.on{display:block}
+.saisie.incomplet{background:rgba(224,69,59,.14)}
+.saisie.incomplet .champ input{border-color:var(--rouge)}
 
 /* ---------- historique ---------- */
 .tableau{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -238,7 +245,10 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-o
 
 </div>
 
-<div class="barre-bas" id="barre-bas"><div class="inner" id="barre"></div></div>
+<div class="barre-bas" id="barre-bas"><div class="inner">
+  <div class="manque-alerte" id="manque-alerte"></div>
+  <div id="barre"></div>
+</div></div>
 
 <script>
 (function(){
@@ -497,6 +507,8 @@ function rendreSaisie(){
       inp.oninput=function(){
         var v=parseInt(inp.value,10);
         S.brouillon.scores[i]= isNaN(v)? null : v;
+        d.classList.remove("incomplet");
+        if (typeof S.brouillon.scores[i]==="number") $("manque-alerte").classList.remove("on");
         majPenalite();
       };
       signe.onclick=function(){
@@ -519,6 +531,7 @@ function rendreSaisie(){
     })(i);
   }
   majPenalite();
+  effacerManque();
 
   barre([{txt: S.edition===null? "Valider la manche" : "Enregistrer la correction", act:validerManche}]);
 }
@@ -531,12 +544,50 @@ function majPenalite(){
     a.textContent = nomDe(S.brouillon.ferme)+" a fermé sans le plus petit score : "+v+" devient "+(v*2)+".";
     a.classList.add("on");
   } else a.classList.remove("on");
-  var pret = S.brouillon.ferme!==null && S.brouillon.scores.every(function(v){ return typeof v==="number"; });
-  var b=document.querySelector("#barre .btn");
-  if (b) b.disabled = !pret;
+}
+
+/* Signalement de ce qui manque, au lieu d'un bouton inerte. */
+function effacerManque(){
+  $("manque-alerte").classList.remove("on");
+  Array.prototype.forEach.call(
+    document.querySelectorAll("#lignes-saisie .saisie"),
+    function(el){ el.classList.remove("incomplet"); }
+  );
+  majBarre();
+}
+function signalerManque(txt, indices){
+  $("manque-alerte").textContent = txt;
+  $("manque-alerte").classList.add("on");
+  var lignes = document.querySelectorAll("#lignes-saisie .saisie");
+  (indices||[]).forEach(function(i){
+    if (lignes[i]) lignes[i].classList.add("incomplet");
+  });
+  majBarre();
+  if (indices && indices.length && lignes[indices[0]]){
+    lignes[indices[0]].scrollIntoView({block:"center",behavior:"smooth"});
+  }
+}
+function enumerer(indices){
+  var noms = indices.map(nomDe);
+  if (noms.length === 1) return noms[0];
+  if (noms.length <= 3) return noms.slice(0,-1).join(", ")+" et "+noms[noms.length-1];
+  return noms.length+" joueurs";
 }
 
 function validerManche(){
+  var absents = [];
+  for (var i=0;i<S.nb;i++){
+    if (typeof S.brouillon.scores[i] !== "number") absents.push(i);
+  }
+  if (absents.length){
+    signalerManque("Il manque le score de "+enumerer(absents)+".", absents);
+    return;
+  }
+  if (S.brouillon.ferme === null){
+    signalerManque("Coche le joueur qui a retourné toutes ses cartes en premier.", []);
+    return;
+  }
+  effacerManque();
   var m = { scores:S.brouillon.scores.slice(), ferme:S.brouillon.ferme };
   if (S.edition===null) S.manches.push(m); else S.manches[S.edition]=m;
   S.edition=null;
@@ -603,25 +654,35 @@ function echap(s){
 
 /* ---------------------------------------------------------------
    CLAVIER VIRTUEL
-   Le clavier recouvre la barre du bas : elle est fixée au bas du
-   layout viewport, que le clavier ne réduit pas. On la remonte
-   manuellement de la hauteur masquée, mesurée sur visualViewport.
+   La barre est fixée au bas du layout viewport, que le clavier ne
+   réduit pas. Une simple translation ne suffit pas : dès que la
+   page défile, vv.offsetTop compense le décalage et la barre
+   retombe sous le clavier. On la positionne donc directement sur
+   le bas de la zone réellement visible.
    --------------------------------------------------------------- */
+var majBarre = function(){};
 (function(){
   var vv = window.visualViewport;
   if (!vv) return;
-  var barre = $("barre-bas"), dernier = -1;
-  function suivre(){
-    var cache = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    if (cache < 60) cache = 0;              // bruit des barres du navigateur
-    if (cache === dernier) return;
-    dernier = cache;
-    barre.style.transform = cache ? "translateY(-"+cache+"px)" : "";
-    document.body.style.paddingBottom = cache ? cache+"px" : "";
-  }
-  vv.addEventListener("resize", suivre);
-  vv.addEventListener("scroll", suivre);
-  suivre();
+  var boite = $("barre-bas");
+  majBarre = function(){
+    var h = boite.offsetHeight;
+    var bas = vv.offsetTop + vv.height;          // bas de la zone visible
+    var cache = Math.max(0, window.innerHeight - bas);
+    if (cache < 60){                             // pas de clavier : ancrage normal
+      boite.style.top = "auto";
+      boite.style.bottom = "0";
+      document.body.style.paddingBottom = "";
+      return;
+    }
+    boite.style.bottom = "auto";
+    boite.style.top = (bas - h) + "px";
+    document.body.style.paddingBottom = (cache + h) + "px";
+  };
+  vv.addEventListener("resize", majBarre);
+  vv.addEventListener("scroll", majBarre);
+  window.addEventListener("resize", majBarre);
+  majBarre();
 })();
 
 /* ---- navigation ---- */
