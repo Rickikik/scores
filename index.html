@@ -73,6 +73,19 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .mini i:nth-child(2){left:21px;transform:rotate(1deg);color:var(--sk-vert)}
 .mini i:nth-child(3){left:42px;transform:rotate(14deg);color:var(--sk-rouge)}
 
+/* Compteur simple : une page de carnet */
+.carnet{
+  width:62px;height:72px;border-radius:6px;background:#FBF6EA;
+  box-shadow:0 2px 5px rgba(0,0,0,.32);padding:9px 8px;
+  display:flex;flex-direction:column;gap:6px;justify-content:center
+}
+.carnet i{display:block;height:3px;border-radius:2px;background:#8FA6C0}
+.carnet i:nth-child(1){width:100%}
+.carnet i:nth-child(2){width:74%}
+.carnet i:nth-child(3){width:88%}
+.carnet i:nth-child(4){width:56%}
+.carnet i:nth-child(5){width:100%;background:#2F4A8C;height:4px}
+
 /* Belote : les quatre enseignes */
 .ens{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:23px;line-height:1}
 .ens span{width:31px;height:31px;border-radius:7px;background:#fff;display:grid;place-items:center}
@@ -116,7 +129,14 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       </div>
     </div>
 
-    <div class="tuile libre"><span>À venir</span></div>
+    <a class="tuile" href="simple.html">
+      <div class="vignette"><div class="carnet"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div>
+        <div class="jeu">Compteur</div>
+        <div class="det">Tous les autres jeux</div>
+      </div>
+    </a>
+
     <div class="tuile libre"><span>À venir</span></div>
   </div>
 
