@@ -3,893 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#D8BE97">
+<meta name="theme-color" content="#123726">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Skyjo">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scores">
 <meta name="format-detection" content="telephone=no">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEX09/XO1+JLaKAqTI9ZukWGAAAB5klEQVR42u2ZQUrDQBSG/0nSILXQbgRduekBvEFyBNfqwoUH8AZ6BA/gwpUgLjxCs/AAPYIbRcFFhYBS0zwXnUqSzmTeRHEhb6BQyMfjf3/emxnyFMFjBRBaaKH1Ir0yDrT6M2sNGTZoh4KkRhcOerjEdJb3DvqtloDTjKSipHDSw4qS3Ennnd/l1MktKlkywiYVB33qpGBwQ//YHeicAebS80ILLbTQdlod3JY3qXG3Xz/ke3dERC/No95M9ybLQ/eCRetjnT4adHuWccrRvYpNU5/YGHv5HXnRPSZ9HZwaHluyfAQCIqKUkyUdAuU5gJSj5CkDcMWtqiMAeGXGnmcAUAAYMej3Dt1QeNHkRSvvvpyx6QhA9gMaLVf13epN0dkNI6DkZ7kPfIKrRBFRzlYS68LiKdk2FK1dyRlR2bpXJZX7tfLaq/oAntl1Mjb1mlXJpCbboSROgTm7YncMsu30sf6xdCsiWoCru2/s/KDFv0twlTT8az2lENdfu0P3lsk/q+4To3+Wil3zr1VJbNk5zfQGgE0iInqQm9I/pSPz5xIlDgottNBC/xI9YICDP1ESMsA9/9hwjw8qHBjzg+/LTKfvyAOe3ZoOeZasJggZK8lus4yQJ6TbDIY331EySRVaaL2+ADjhu7X86eZKAAAAAElFTkSuQmCC">
-<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEX09/XO1+JLaKAqTI9ZukWGAAAB5klEQVR42u2ZQUrDQBSG/0nSILXQbgRduekBvEFyBNfqwoUH8AZ6BA/gwpUgLjxCs/AAPYIbRcFFhYBS0zwXnUqSzmTeRHEhb6BQyMfjf3/emxnyFMFjBRBaaKH1Ir0yDrT6M2sNGTZoh4KkRhcOerjEdJb3DvqtloDTjKSipHDSw4qS3Ennnd/l1MktKlkywiYVB33qpGBwQ//YHeicAebS80ILLbTQdlod3JY3qXG3Xz/ke3dERC/No95M9ybLQ/eCRetjnT4adHuWccrRvYpNU5/YGHv5HXnRPSZ9HZwaHluyfAQCIqKUkyUdAuU5gJSj5CkDcMWtqiMAeGXGnmcAUAAYMej3Dt1QeNHkRSvvvpyx6QhA9gMaLVf13epN0dkNI6DkZ7kPfIKrRBFRzlYS68LiKdk2FK1dyRlR2bpXJZX7tfLaq/oAntl1Mjb1mlXJpCbboSROgTm7YncMsu30sf6xdCsiWoCru2/s/KDFv0twlTT8az2lENdfu0P3lsk/q+4To3+Wil3zr1VJbNk5zfQGgE0iInqQm9I/pSPz5xIlDgottNBC/xI9YICDP1ESMsA9/9hwjw8qHBjzg+/LTKfvyAOe3ZoOeZasJggZK8lus4yQJ6TbDIY331EySRVaaL2+ADjhu7X86eZKAAAAAElFTkSuQmCC">
-<title>Skyjo – feuille de scores</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>Scores</title>
 <style>
 :root{
-  /* Palette relevée sur les cartes Skyjo elles-mêmes. */
-  --bleu:#3A4EA1; --cyan:#5BC0E8; --vert:#63BB47; --jaune:#F2CB3B; --rouge:#E2564C;
-  /* Le bois de la table. */
-  --bois:#D8BE97; --bois-clair:#E4CFAE; --encre:#2A2118; --sepia:#7A6444;
-  --voile:rgba(255,255,255,.74); --ombre:rgba(90,66,36,.24);
-  --r:14px;
-  /* Nid d'abeille : la texture qui court sur toutes les cartes du jeu. */
-  --nid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='42' viewBox='0 0 24 42'%3E%3Cg fill='none' stroke='white' stroke-opacity='.38' stroke-width='1'%3E%3Cpath d='M12 0 L24 7 L24 21 L12 28 L0 21 L0 7 Z'/%3E%3Cpath d='M0 21 L12 28 L12 42 L0 49 L-12 42 L-12 28 Z'/%3E%3Cpath d='M24 21 L36 28 L36 42 L24 49 L12 42 L12 28 Z'/%3E%3Cpath d='M0 -21 L12 -14 L12 0 L0 7 L-12 0 L-12 -14 Z'/%3E%3Cpath d='M24 -21 L36 -14 L36 0 L24 7 L12 0 L12 -14 Z'/%3E%3C/g%3E%3C/svg%3E");
+  --feutre:#123726; --feutre-clair:#1E5B43;
+  --encre:#F0F4EE; --menthe:#8FBCA5;
+  --sk-bleu:#3A4EA1; --sk-vert:#63BB47; --sk-rouge:#E2564C;
+  --nid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='42' viewBox='0 0 24 42'%3E%3Cg fill='none' stroke='white' stroke-opacity='.4' stroke-width='1'%3E%3Cpath d='M12 0 L24 7 L24 21 L12 28 L0 21 L0 7 Z'/%3E%3Cpath d='M0 21 L12 28 L12 42 L0 49 L-12 42 L-12 28 Z'/%3E%3Cpath d='M24 21 L36 28 L36 42 L24 49 L12 42 L12 28 Z'/%3E%3Cpath d='M0 -21 L12 -14 L12 0 L0 7 L-12 0 L-12 -14 Z'/%3E%3Cpath d='M24 -21 L36 -14 L36 0 L24 7 L12 0 L12 -14 Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   color:var(--encre);
   background:
-    repeating-linear-gradient(91deg, rgba(120,80,40,.07) 0 3px, transparent 3px 9px),
-    linear-gradient(var(--bois-clair),var(--bois));
+    repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 2px, transparent 2px 5px),
+    radial-gradient(120% 90% at 50% 0%, var(--feutre-clair) 0%, var(--feutre) 100%);
   background-attachment:fixed;
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  font-size:16px;line-height:1.4;
+  font-size:16px;line-height:1.45;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   -webkit-user-select:none;user-select:none;
   -webkit-text-size-adjust:100%;
   overscroll-behavior:none;
-  touch-action:manipulation;
   min-height:100vh;min-height:100dvh;
 }
-.wrap{max-width:620px;margin:0 auto;padding:18px 16px 96px}
+.wrap{max-width:620px;margin:0 auto;padding:30px 18px 40px}
+.marque{font-size:11px;letter-spacing:.26em;text-transform:uppercase;font-weight:800;color:var(--menthe);margin:0}
+h1{font-size:36px;font-weight:800;letter-spacing:-.03em;margin:3px 0 4px}
+.st{font-size:14px;color:var(--menthe);margin:0 0 28px}
 
-/* ---------- typographie ---------- */
-.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--sepia);font-weight:700}
-h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
-h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
-.sous{color:var(--sepia);font-size:14px;margin:0 0 22px}
-.num{font-variant-numeric:tabular-nums}
+.grille{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:560px){.grille{grid-template-columns:repeat(3,1fr)}}
+.tuile{
+  aspect-ratio:1;border-radius:16px;padding:13px;display:flex;
+  flex-direction:column;justify-content:space-between;overflow:hidden;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  color:inherit;text-decoration:none;
+  transition:transform .13s ease,background .13s ease
+}
+a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
+.tuile .jeu{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.tuile .det{font-size:11px;font-weight:600;color:var(--menthe)}
+.vignette{flex:1;display:grid;place-items:center;margin:2px 0 6px}
+.tuile.futur{opacity:.62}
+.tuile.libre{
+  display:grid;place-content:center;place-items:center;font-size:12px;font-weight:700;
+  border:2px dashed rgba(255,255,255,.3);background:transparent;color:var(--menthe);opacity:.55
+}
 
-/* ---------- carte joueur (élément signature) ----------
-   Fidèle au jeu : liseré blanc arrondi, texture en nid
-   d'abeille, chiffre noir dans un ovale blanc. */
-.grille-cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:9px}
-.carte{
-  border-radius:13px;padding:4px;background:#FFFFFF;
-  box-shadow:0 3px 7px rgba(0,0,0,.28)
+/* Skyjo : trois cartes du jeu en eventail */
+.mini{position:relative;width:78px;height:64px}
+.mini i{
+  position:absolute;top:0;width:36px;height:52px;border-radius:7px;padding:3px;
+  background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.32);display:block
 }
-.carte .interieur{
-  border-radius:10px;padding:12px 5px;
-  background-image:var(--nid);background-color:currentColor;background-size:17px 30px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  transition:background-color .45s ease
+.mini i::after{
+  content:"";display:block;width:100%;height:100%;border-radius:5px;
+  background-image:var(--nid);background-color:currentColor;background-size:11px 19px
 }
-.carte .nom{
-  font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
-  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);
-  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-}
-.carte .total{
-  background:#fff;border-radius:50%;min-width:52px;height:38px;padding:0 7px;
-  display:grid;place-items:center;color:#141414;line-height:1;
-  font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums
-}
-.carte .rang{
-  font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(255,255,255,.92);text-shadow:0 1px 2px rgba(0,0,0,.35);
-  white-space:nowrap;line-height:1.2
-}
-.carte.leader{box-shadow:0 0 0 3px var(--encre),0 3px 7px rgba(0,0,0,.28)}
-.carte.finit .rang{font-size:8px;letter-spacing:.04em}
-.carte.finit .rang::after{content:" · a fermé"}
+.mini i:nth-child(1){left:0;transform:rotate(-13deg);color:var(--sk-bleu)}
+.mini i:nth-child(2){left:21px;transform:rotate(1deg);color:var(--sk-vert)}
+.mini i:nth-child(3){left:42px;transform:rotate(14deg);color:var(--sk-rouge)}
 
-/* ---------- boutons ---------- */
-button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
-.btn{
-  display:block;width:100%;padding:16px;border-radius:var(--r);
-  background:var(--bleu);color:#fff;font-weight:800;font-size:16px;
-  letter-spacing:.02em;transition:transform .12s ease,filter .12s ease;
-  box-shadow:0 2px 5px rgba(0,0,0,.24)
-}
-.btn:active{transform:scale(.985);filter:brightness(1.12)}
-.btn[disabled]{background:var(--voile);color:var(--sepia);box-shadow:none}
-.btn.secondaire{background:var(--voile);color:var(--encre);font-weight:700;box-shadow:none}
-.btn.danger{background:var(--voile);color:#A33529;font-weight:700;box-shadow:none}
-.barre-bas{
-  position:fixed;left:0;right:0;bottom:0;z-index:20;
-  background:linear-gradient(180deg,rgba(216,190,151,0) 0%,var(--bois) 30%);
-  padding:22px 16px calc(16px + env(safe-area-inset-bottom));
-  will-change:transform;transition:transform .16s ease-out;
-}
-.barre-bas .inner{max-width:620px;margin:0 auto}
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+/* Belote : les quatre enseignes */
+.ens{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:23px;line-height:1}
+.ens span{width:31px;height:31px;border-radius:7px;background:#fff;display:grid;place-items:center}
+.ens .n{color:#1A1A1A}
+.ens .r{color:#C62828}
 
-/* ---------- réglages ---------- */
-.choix{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 26px}
-.jeton{
-  aspect-ratio:3/4;border-radius:11px;background:var(--voile);
-  display:grid;place-items:center;font-size:22px;font-weight:800;
-  color:var(--encre);transition:background .15s,color .15s;
-  box-shadow:0 2px 4px rgba(0,0,0,.16)
+.mot{
+  margin-top:26px;padding:14px 16px;border-radius:14px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  font-size:13.5px;color:var(--menthe)
 }
-.jeton[aria-pressed="true"]{background:var(--bleu);color:#fff}
-.ligne-nom{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.pastille{width:11px;height:34px;border-radius:3px;flex:0 0 auto}
-input[type="text"],input[type="number"]{
-  width:100%;background:#fff;border:1px solid var(--ombre);color:var(--encre);
-  border-radius:10px;padding:13px 14px;font:inherit;font-weight:600;-webkit-user-select:text;user-select:text
-}
-input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
-.seuils{display:flex;gap:8px;margin:10px 0 4px}
-.seuils button{
-  flex:1;padding:12px;border-radius:10px;background:var(--voile);
-  font-weight:700;color:var(--encre)
-}
-.seuils button[aria-pressed="true"]{background:var(--encre);color:var(--bois-clair)}
-
-/* ---------- saisie de manche ---------- */
-.jr{
-  display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:6px;
-  border-radius:12px;background:var(--voile);border:2px solid transparent
-}
-.jr.actif{border-color:var(--bleu);background:#fff}
-.jr.incomplet{border-color:var(--rouge)}
-.jr .nm{flex:1;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.jr .fm{
-  font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
-  padding:8px 9px;border-radius:9px;border:1px solid var(--ombre);color:var(--sepia)
-}
-.jr .fm[aria-pressed="true"]{background:var(--bleu);border-color:var(--bleu);color:#fff}
-.jr .tt{
-  min-width:64px;height:42px;border-radius:10px;background:#fff;
-  border:1px solid var(--ombre);display:grid;place-items:center;color:#141414;
-  font-size:19px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums
-}
-.jr .tt.vide{color:#A8A093}
-.jr.actif .tt{border-color:var(--bleu)}
-
-/* ---------- pavé : chaque touche est une carte du jeu ---------- */
-.pave-tete{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
-.pave-tete .qui{font-size:13px;font-weight:800}
-.pave-tete .nb{font-size:11px;color:var(--sepia);font-weight:700}
-.pave-tete .tot{margin-left:auto;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-.pave-suite{
-  font-size:12px;color:var(--sepia);font-weight:700;margin-bottom:8px;min-height:16px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums
-}
-.pave{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.pave button{
-  border-radius:10px;padding:3px;background:#fff;
-  box-shadow:0 2px 4px rgba(0,0,0,.22)
-}
-.pave button .pate{
-  border-radius:8px;padding:7px 0;display:grid;place-items:center;
-  background-image:var(--nid);background-color:currentColor;background-size:13px 23px
-}
-.pave button .val{
-  background:#fff;border-radius:50%;min-width:34px;height:26px;padding:0 4px;
-  display:grid;place-items:center;color:#141414;
-  font-size:15px;font-weight:800;font-variant-numeric:tabular-nums
-}
-.pave button:active{transform:scale(.94)}
-.outils{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px}
-.outils button{
-  height:44px;border-radius:10px;background:var(--voile);
-  font-size:13px;font-weight:700;color:var(--encre)
-}
-.outils button.ok{background:var(--bleu);color:#fff;font-weight:800}
-.saisie-directe{display:flex;gap:6px;align-items:center}
-.saisie-directe input{flex:1;text-align:center;font-size:20px;font-weight:800}
-.penalite{
-  margin-top:8px;font-size:12.5px;font-weight:700;color:#fff;background:var(--rouge);
-  border-radius:8px;padding:8px 11px;display:none
-}
-.penalite.on{display:block}
-.manque-alerte{
-  display:none;margin-bottom:9px;font-size:13px;font-weight:700;color:#2A2118;
-  background:var(--jaune);border-radius:10px;padding:9px 12px;text-align:center
-}
-.manque-alerte.on{display:block}
-
-/* ---------- historique ---------- */
-.tableau{
-  width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums;
-  background:var(--voile);border-radius:12px;overflow:hidden
-}
-.tableau th,.tableau td{padding:9px 4px;text-align:center;font-size:14px}
-.tableau thead th{
-  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sepia);
-  border-bottom:1px solid var(--ombre);font-weight:800
-}
-.tableau tbody tr{border-bottom:1px solid rgba(90,66,36,.14)}
-.tableau tbody tr:active{background:rgba(255,255,255,.6)}
-.tableau .mn{color:var(--sepia);font-size:11px;font-weight:800;letter-spacing:.08em}
-.tableau .x2{color:#B8362B;font-weight:800}
-.tableau .x2::after{content:" ×2";font-size:10px}
-.tableau .clos{position:relative}
-.tableau .clos::before{
-  content:"";position:absolute;left:50%;top:3px;transform:translateX(-50%);
-  width:5px;height:5px;border-radius:50%;background:var(--bleu)
-}
-.tableau tfoot td{padding-top:12px;font-weight:800;font-size:16px;border-top:1px solid var(--ombre)}
-.vide{color:var(--sepia);font-size:14px;text-align:center;padding:26px 0}
-
-/* ---------- fin de partie ---------- */
-.sacre{text-align:center;padding:6px 0 18px}
-.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--sepia);font-weight:800}
-.sacre .gagnant{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:6px 0 2px}
-.classement{margin-top:6px}
-.rangee{
-  display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:6px;
-  border-radius:12px;background:var(--voile)
-}
-.rangee .pos{width:24px;font-weight:800;color:var(--sepia);font-variant-numeric:tabular-nums}
-.rangee .n{flex:1;font-weight:700}
-.rangee .p{font-weight:800;font-variant-numeric:tabular-nums;font-size:19px}
-
-.vue{display:none}
-.vue.actif{display:block}
-.entete{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
-.retour{font-size:13px;font-weight:700;color:var(--bleu)}
-.section-titre{margin:26px 0 8px;display:flex;align-items:baseline;justify-content:space-between}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.mot b{color:var(--encre);font-weight:700}
+.pied{margin-top:22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(143,188,165,.6);text-align:center}
 </style>
 </head>
 <body>
-
 <div class="wrap">
+  <p class="marque">Maison</p>
+  <h1>Scores</h1>
+  <p class="st">Choisis le jeu. Le compteur s’occupe du reste.</p>
 
-  <!-- ============ VUE RÉGLAGES ============ -->
-  <section id="v-reglages" class="vue actif">
-    <p class="eyebrow">Feuille de scores</p>
-    <h1>Skyjo</h1>
-    <p class="sous">Le compteur tient les totaux, la règle du score doublé et la fin de partie. Toi, tu joues.</p>
-
-    <p class="eyebrow">Combien de joueurs</p>
-    <div class="choix" id="choix-joueurs"></div>
-
-    <p class="eyebrow">Qui joue</p>
-    <div id="liste-noms" style="margin-top:10px"></div>
-
-    <p class="eyebrow" style="margin-top:26px">Fin de partie</p>
-    <div class="seuils" id="choix-seuil">
-      <button data-seuil="100" aria-pressed="true">100 points</button>
-      <button data-seuil="50" aria-pressed="false">50 points</button>
-    </div>
-    <p class="sous" style="margin-top:8px">50 points raccourcit la partie – pratique avec des enfants.</p>
-  </section>
-
-  <!-- ============ VUE PARTIE ============ -->
-  <section id="v-partie" class="vue">
-    <div class="entete">
+  <div class="grille">
+    <a class="tuile" href="skyjo.html">
+      <div class="vignette"><div class="mini"><i></i><i></i><i></i></div></div>
       <div>
-        <p class="eyebrow">Manche <span id="num-manche" class="num">1</span></p>
-        <h2>En cours</h2>
+        <div class="jeu">Skyjo</div>
+        <div class="det">2 à 8 joueurs</div>
       </div>
-      <button class="retour" id="btn-reglages">Nouvelle partie</button>
-    </div>
+    </a>
 
-    <div class="grille-cartes" id="cartes"></div>
-
-    <div class="section-titre">
-      <p class="eyebrow">Manches jouées</p>
-      <span class="eyebrow" id="astuce-edit"></span>
-    </div>
-    <div id="zone-historique"></div>
-  </section>
-
-  <!-- ============ VUE SAISIE ============ -->
-  <section id="v-saisie" class="vue">
-    <div class="entete">
+    <div class="tuile futur">
+      <div class="vignette">
+        <div class="ens">
+          <span class="n">♠</span><span class="r">♥</span>
+          <span class="r">♦</span><span class="n">♣</span>
+        </div>
+      </div>
       <div>
-        <p class="eyebrow" id="saisie-eyebrow">Fin de manche</p>
-        <h2 id="saisie-titre">Manche 1</h2>
+        <div class="jeu">Belote</div>
+        <div class="det">Bientôt</div>
       </div>
-      <button class="retour" id="btn-annuler-saisie">Retour</button>
     </div>
-    <p class="sous">Touche le total d’un joueur pour saisir ses cartes une par une, puis marque celui qui a fermé.</p>
-    <div id="lignes-saisie"></div>
-    <div class="penalite" id="alerte-penalite"></div>
-  </section>
 
-  <!-- ============ VUE FIN ============ -->
-  <section id="v-fin" class="vue">
-    <div class="sacre">
-      <p class="titre">Partie terminée</p>
-      <p class="gagnant" id="nom-gagnant">—</p>
-      <p class="sous" id="detail-gagnant" style="margin:0"></p>
-    </div>
-    <div class="classement" id="classement"></div>
-  </section>
+    <div class="tuile libre"><span>À venir</span></div>
+    <div class="tuile libre"><span>À venir</span></div>
+  </div>
 
+  <p class="mot"><b>Il manque un jeu ?</b> Faites-moi signe si vous avez besoin
+  d’un autre compteur, je l’ajoute ici.</p>
+
+  <p class="pied">Rien n’est enregistré · tout reste sur l’appareil</p>
 </div>
-
-<div class="barre-bas" id="barre-bas"><div class="inner">
-  <div class="manque-alerte" id="manque-alerte"></div>
-  <div id="barre"></div>
-</div></div>
-
-<script>
-(function(){
-"use strict";
-
-/* ---------------------------------------------------------------
-   ÉTAT
-   --------------------------------------------------------------- */
-var S = {
-  phase:"reglages",           // reglages | partie | saisie | fin
-  nb:3,
-  noms:["","",""],
-  seuil:100,
-  manches:[],                 // [{scores:[..], ferme:idx}]
-  edition:null,               // index de la manche en cours d'édition, ou null
-  brouillon:{scores:[], ferme:null, cartes:[]},
-  actif:null,                 // joueur dont on saisit le score, ou null
-  clavier:false               // true = total tapé à la main, false = pavé de cartes
-};
-
-var COULEURS = ["#3A4EA1","#63BB47","#E2564C","#5BC0E8","#F2CB3B","#8E5BC7","#E07A2F","#2FB79A"];
-var CLE = "skyjo-partie";
-
-/* Les cinq couleurs des cartes, relevées sur le jeu. */
-var SK = {bleu:"#3A4EA1", cyan:"#5BC0E8", vert:"#63BB47", jaune:"#F2CB3B", rouge:"#E2564C"};
-
-/* ---------------------------------------------------------------
-   PERSISTANCE (window.storage si présent, sinon mémoire seule)
-   --------------------------------------------------------------- */
-function sauver(){
-  try{
-    if (window.storage && window.storage.set){
-      window.storage.set(CLE, JSON.stringify({
-        phase:S.phase==="saisie"?"partie":S.phase,
-        nb:S.nb, noms:S.noms, seuil:S.seuil, manches:S.manches
-      }));
-    }
-  }catch(e){}
-}
-function charger(){
-  return new Promise(function(res){
-    if (!(window.storage && window.storage.get)) return res(null);
-    try{
-      Promise.resolve(window.storage.get(CLE)).then(function(r){
-        if(!r||!r.value) return res(null);
-        try{ res(JSON.parse(r.value)); }catch(e){ res(null); }
-      }, function(){ res(null); });
-    }catch(e){ res(null); }
-  });
-}
-
-/* ---------------------------------------------------------------
-   RÈGLES SKYJO
-   Le joueur qui ferme la manche doit avoir STRICTEMENT le plus
-   petit score. Sinon son score est doublé — uniquement s'il est
-   positif. Partie finie dès qu'un total atteint le seuil.
-   --------------------------------------------------------------- */
-function doubleQui(scores, ferme){
-  if (ferme === null || ferme === undefined) return false;
-  var v = scores[ferme];
-  if (typeof v !== "number" || v <= 0) return false;
-  for (var i=0;i<scores.length;i++){
-    if (i!==ferme && typeof scores[i]==="number" && scores[i] <= v) return true;
-  }
-  return false;
-}
-function pointsManche(m){
-  var out = m.scores.map(function(v){ return typeof v==="number"? v : 0; });
-  if (doubleQui(out, m.ferme)) out[m.ferme] = out[m.ferme]*2;
-  return out;
-}
-function totaux(){
-  var t = new Array(S.nb).fill(0);
-  S.manches.forEach(function(m){
-    pointsManche(m).forEach(function(v,i){ t[i]+=v; });
-  });
-  return t;
-}
-function nomDe(i){ return (S.noms[i]||"").trim() || ("Joueur "+(i+1)); }
-
-/* Couleur d'un total, selon la marche vers le seuil. */
-function teinte(total){
-  if (total < 0) return SK.bleu;
-  var r = total / S.seuil;
-  if (r < .28) return SK.cyan;
-  if (r < .55) return SK.vert;
-  if (r < .82) return SK.jaune;
-  return SK.rouge;
-}
-/* Couleur d'une carte, exactement comme dans le jeu. */
-function couleurCarte(v){
-  if (v <= -1) return SK.bleu;
-  if (v === 0) return SK.cyan;
-  if (v <= 4)  return SK.vert;
-  if (v <= 8)  return SK.jaune;
-  return SK.rouge;
-}
-
-/* ---------------------------------------------------------------
-   RENDU
-   --------------------------------------------------------------- */
-var $ = function(id){ return document.getElementById(id); };
-
-function montrer(vue){
-  ["v-reglages","v-partie","v-saisie","v-fin"].forEach(function(id){
-    $(id).classList.toggle("actif", id === vue);
-  });
-  window.scrollTo(0,0);
-}
-
-function rendre(){
-  if (S.phase === "reglages") rendreReglages();
-  else if (S.phase === "partie") rendrePartie();
-  else if (S.phase === "saisie") rendreSaisie();
-  else rendreFin();
-}
-
-/* ---- réglages ---- */
-function rendreReglages(){
-  montrer("v-reglages");
-
-  var c = $("choix-joueurs");
-  if (!c.childElementCount){
-    for (var n=2;n<=8;n++){
-      (function(n){
-        var b = document.createElement("button");
-        b.className="jeton"; b.textContent=n; b.setAttribute("aria-pressed","false");
-        b.setAttribute("aria-label", n+" joueurs");
-        b.onclick=function(){ S.nb=n; ajusterNoms(); rendreReglages(); };
-        c.appendChild(b);
-      })(n);
-    }
-  }
-  Array.prototype.forEach.call(c.children,function(b,k){
-    b.setAttribute("aria-pressed", (k+2)===S.nb ? "true":"false");
-  });
-
-  var l = $("liste-noms");
-  l.innerHTML="";
-  for (var i=0;i<S.nb;i++){
-    (function(i){
-      var d=document.createElement("div"); d.className="ligne-nom";
-      var p=document.createElement("span"); p.className="pastille";
-      p.style.background=COULEURS[i%COULEURS.length];
-      var inp=document.createElement("input");
-      inp.type="text"; inp.value=S.noms[i]||""; inp.placeholder="Joueur "+(i+1);
-      inp.maxLength=14; inp.autocomplete="off";
-      inp.oninput=function(){ S.noms[i]=inp.value; };
-      d.appendChild(p); d.appendChild(inp); l.appendChild(d);
-    })(i);
-  }
-
-  Array.prototype.forEach.call($("choix-seuil").children,function(b){
-    b.setAttribute("aria-pressed", (+b.dataset.seuil===S.seuil)?"true":"false");
-    b.onclick=function(){ S.seuil=+b.dataset.seuil; rendreReglages(); };
-  });
-
-  barre([{txt:"Commencer la partie", act:function(){
-    ajusterNoms(); S.manches=[]; S.phase="partie"; sauver(); rendre();
-  }}]);
-}
-function ajusterNoms(){
-  while (S.noms.length < S.nb) S.noms.push("");
-  S.noms.length = S.nb;
-}
-
-/* ---- partie ---- */
-function rendrePartie(){
-  montrer("v-partie");
-  var t = totaux();
-  var mini = Math.min.apply(null,t);
-  var ordre = t.slice().sort(function(a,b){return a-b;});
-  var dernier = S.manches.length ? S.manches[S.manches.length-1] : null;
-
-  $("num-manche").textContent = S.manches.length + 1;
-
-  var g = $("cartes"); g.innerHTML="";
-  for (var i=0;i<S.nb;i++){
-    (function(i){
-      var col = teinte(t[i]);
-      var c=document.createElement("div"); c.className="carte";
-      if (t[i]===mini) c.classList.add("leader");
-      if (dernier && dernier.ferme===i) c.classList.add("finit");
-      var rang = ordre.indexOf(t[i])+1;
-      c.innerHTML =
-        '<div class="interieur" style="color:'+col+'">'+
-          '<div class="nom">'+echap(nomDe(i))+'</div>'+
-          '<div class="total num">'+t[i]+'</div>'+
-          '<div class="rang">'+rang+(rang===1?"er":"e")+'</div>'+
-        '</div>';
-      g.appendChild(c);
-    })(i);
-  }
-
-  $("astuce-edit").textContent = S.manches.length ? "Touche une ligne pour corriger" : "";
-  rendreHistorique();
-
-  var actions=[{txt:"Saisir la manche "+(S.manches.length+1), act:function(){ ouvrirSaisie(null); }}];
-  if (S.manches.length){
-    actions.push({txt:"Annuler la dernière manche", cls:"btn secondaire", act:function(){
-      S.manches.pop(); sauver(); rendre();
-    }});
-  }
-  barre(actions);
-}
-
-function rendreHistorique(){
-  var z=$("zone-historique");
-  if (!S.manches.length){
-    z.innerHTML='<p class="vide">Aucune manche enregistrée pour l’instant.</p>';
-    return;
-  }
-  var t=totaux();
-  var h='<table class="tableau"><thead><tr><th style="text-align:left">Mn</th>';
-  for (var i=0;i<S.nb;i++) h+='<th>'+echap(abrege(nomDe(i)))+'</th>';
-  h+='</tr></thead><tbody>';
-  S.manches.forEach(function(m,k){
-    var pts=pointsManche(m), dbl=doubleQui(m.scores.map(function(v){return typeof v==="number"?v:0;}), m.ferme);
-    h+='<tr data-manche="'+k+'"><td class="mn" style="text-align:left">'+(k+1)+'</td>';
-    for (var i=0;i<S.nb;i++){
-      var cls=[];
-      if (m.ferme===i) cls.push("clos");
-      if (dbl && m.ferme===i) cls.push("x2");
-      h+='<td class="'+cls.join(" ")+'">'+pts[i]+'</td>';
-    }
-    h+='</tr>';
-  });
-  h+='</tbody><tfoot><tr><td class="mn" style="text-align:left">Tot</td>';
-  for (var j=0;j<S.nb;j++) h+='<td>'+t[j]+'</td>';
-  h+='</tr></tfoot></table>';
-  z.innerHTML=h;
-  Array.prototype.forEach.call(z.querySelectorAll("tbody tr"),function(tr){
-    tr.onclick=function(){ ouvrirSaisie(+tr.dataset.manche); };
-  });
-}
-function abrege(n){ return n.length>7 ? n.slice(0,6)+"." : n; }
-
-/* ---- saisie ---- */
-function ouvrirSaisie(index){
-  S.edition = index;
-  if (index===null) S.brouillon = { scores:new Array(S.nb).fill(null), ferme:null, cartes:[] };
-  else S.brouillon = { scores:S.manches[index].scores.slice(), ferme:S.manches[index].ferme, cartes:[] };
-  for (var i=0;i<S.nb;i++) S.brouillon.cartes[i] = [];
-  S.actif = null; S.clavier = false;
-  S.phase="saisie"; rendre();
-}
-
-var refs = [];
-
-function rendreSaisie(){
-  montrer("v-saisie");
-  var n = (S.edition===null) ? S.manches.length+1 : S.edition+1;
-  $("saisie-titre").textContent = "Manche "+n;
-  $("saisie-eyebrow").textContent = (S.edition===null) ? "Fin de manche" : "Correction";
-
-  var z=$("lignes-saisie"); z.innerHTML=""; refs=[];
-  for (var i=0;i<S.nb;i++){
-    (function(i){
-      var d=document.createElement("div"); d.className="jr";
-
-      var p=document.createElement("span"); p.className="pastille";
-      p.style.background=COULEURS[i%COULEURS.length];
-
-      var nom=document.createElement("span"); nom.className="nm"; nom.textContent=nomDe(i);
-
-      var f=document.createElement("button"); f.className="fm"; f.type="button";
-      f.textContent="a fermé";
-      f.setAttribute("aria-pressed", S.brouillon.ferme===i ? "true":"false");
-      f.onclick=function(){
-        S.brouillon.ferme = (S.brouillon.ferme===i)? null : i;
-        majAffichage(); majPenalite();
-      };
-
-      var t=document.createElement("button"); t.className="tt"; t.type="button";
-      t.setAttribute("aria-label","Saisir le score de "+nomDe(i));
-      t.onclick=function(){
-        S.actif = i; S.clavier = false;
-        majAffichage(); rendreBarreSaisie();
-        d.scrollIntoView({block:"center",behavior:"smooth"});
-      };
-
-      d.appendChild(p); d.appendChild(nom); d.appendChild(f); d.appendChild(t);
-      z.appendChild(d);
-      refs[i] = {l:d, f:f, t:t};
-    })(i);
-  }
-  majAffichage();
-  majPenalite();
-  effacerManque();
-  rendreBarreSaisie();
-}
-
-function majAffichage(){
-  for (var i=0;i<S.nb;i++){
-    if (!refs[i]) continue;
-    var v = S.brouillon.scores[i];
-    var ok = typeof v === "number";
-    refs[i].t.textContent = ok ? v : "–";
-    refs[i].t.classList.toggle("vide", !ok);
-    if (ok) refs[i].l.classList.remove("incomplet");
-    refs[i].l.classList.toggle("actif", S.actif===i);
-    refs[i].f.setAttribute("aria-pressed", S.brouillon.ferme===i ? "true":"false");
-  }
-  majEtatPave();
-}
-
-/* ---- pavé de cartes ---- */
-var VALEURS = [-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12];
-
-function rendreBarreSaisie(){
-  var b=$("barre"); b.innerHTML="";
-
-  if (S.actif === null){
-    var el=document.createElement("button");
-    el.className="btn";
-    el.textContent = S.edition===null ? "Valider la manche" : "Enregistrer la correction";
-    el.onclick=validerManche;
-    b.appendChild(el);
-    majBarre();
-    return;
-  }
-
-  var tete=document.createElement("div"); tete.className="pave-tete";
-  tete.innerHTML='<span class="qui" id="pave-qui"></span>'+
-                 '<span class="nb" id="pave-nb"></span>'+
-                 '<span class="tot" id="pave-tot"></span>';
-  b.appendChild(tete);
-
-  var suite=document.createElement("div"); suite.className="pave-suite"; suite.id="pave-suite";
-  b.appendChild(suite);
-
-  if (S.clavier){
-    var bloc=document.createElement("div"); bloc.className="saisie-directe";
-    var inp=document.createElement("input");
-    inp.type="number"; inp.inputMode="numeric"; inp.step="1"; inp.placeholder="Total";
-    var cur=S.brouillon.scores[S.actif];
-    inp.value = (typeof cur==="number") ? cur : "";
-    inp.oninput=function(){
-      var v=parseInt(inp.value,10);
-      S.brouillon.cartes[S.actif]=[];
-      S.brouillon.scores[S.actif]= isNaN(v)? null : v;
-      $("manque-alerte").classList.remove("on");
-      majAffichage(); majPenalite();
-    };
-    var okc=document.createElement("button"); okc.className="btn"; okc.style.width="auto";
-    okc.style.padding="14px 20px"; okc.textContent="OK";
-    okc.onclick=function(){ S.actif=null; S.clavier=false; majAffichage(); rendreBarreSaisie(); };
-    bloc.appendChild(inp); bloc.appendChild(okc);
-    b.appendChild(bloc);
-    majEtatPave(); majBarre();
-    setTimeout(function(){ inp.focus(); }, 30);
-    return;
-  }
-
-  var g=document.createElement("div"); g.className="pave";
-  VALEURS.forEach(function(v){
-    var k=document.createElement("button"); k.type="button";
-    k.setAttribute("aria-label","Carte "+v);
-    k.innerHTML='<span class="pate" style="color:'+couleurCarte(v)+'">'+
-                  '<span class="val">'+v+'</span></span>';
-    k.onclick=function(){ taperCarte(v); };
-    g.appendChild(k);
-  });
-  b.appendChild(g);
-
-  var o=document.createElement("div"); o.className="outils";
-  o.appendChild(outil("Effacer", function(){
-    var c=S.brouillon.cartes[S.actif];
-    if (!c.length) return;
-    c.pop();
-    S.brouillon.scores[S.actif] = c.length ? somme(c) : null;
-    majAffichage(); majPenalite();
-  }));
-  o.appendChild(outil("Tout vider", function(){
-    S.brouillon.cartes[S.actif]=[];
-    S.brouillon.scores[S.actif]=null;
-    majAffichage(); majPenalite();
-  }));
-  o.appendChild(outil("Total", function(){
-    S.clavier=true; rendreBarreSaisie();
-  }));
-  var ok=outil("OK", function(){ S.actif=null; majAffichage(); rendreBarreSaisie(); });
-  ok.className="ok";
-  o.appendChild(ok);
-  b.appendChild(o);
-
-  majEtatPave();
-  majBarre();
-}
-
-function outil(txt, act){
-  var el=document.createElement("button"); el.type="button";
-  el.textContent=txt; el.onclick=act;
-  return el;
-}
-function somme(a){ return a.reduce(function(x,y){ return x+y; }, 0); }
-
-function taperCarte(v){
-  var i=S.actif, c=S.brouillon.cartes[i];
-  if (typeof S.brouillon.scores[i]==="number" && !c.length){
-    c.length=0;                       // total saisi à la main : le pavé repart de zéro
-    S.brouillon.scores[i]=null;
-  }
-  c.push(v);
-  S.brouillon.scores[i]=somme(c);
-  $("manque-alerte").classList.remove("on");
-  majAffichage(); majPenalite();
-}
-
-function majEtatPave(){
-  if (S.actif===null || !$("pave-qui")) return;
-  var i=S.actif, c=S.brouillon.cartes[i], v=S.brouillon.scores[i];
-  $("pave-qui").textContent = nomDe(i);
-  $("pave-nb").textContent = c.length ? (c.length + (c.length>1?" cartes":" carte")) : "";
-  $("pave-tot").textContent = (typeof v==="number") ? v : "–";
-  $("pave-suite").textContent = c.length
-    ? c.map(function(x){ return x<0 ? "−"+(-x) : ""+x; }).join("  ·  ")
-    : "";
-}
-
-function majPenalite(){
-  var a=$("alerte-penalite");
-  var sc=S.brouillon.scores.map(function(v){return typeof v==="number"?v:0;});
-  if (S.brouillon.ferme!==null && doubleQui(sc,S.brouillon.ferme)){
-    var v=sc[S.brouillon.ferme];
-    a.textContent = nomDe(S.brouillon.ferme)+" a fermé sans le plus petit score : "+v+" devient "+(v*2)+".";
-    a.classList.add("on");
-  } else a.classList.remove("on");
-}
-
-/* Signalement de ce qui manque, au lieu d'un bouton inerte. */
-function effacerManque(){
-  $("manque-alerte").classList.remove("on");
-  refs.forEach(function(r){ if (r) r.l.classList.remove("incomplet"); });
-  majBarre();
-}
-function signalerManque(txt, indices){
-  $("manque-alerte").textContent = txt;
-  $("manque-alerte").classList.add("on");
-  (indices||[]).forEach(function(i){
-    if (refs[i]) refs[i].l.classList.add("incomplet");
-  });
-  majBarre();
-  if (indices && indices.length && refs[indices[0]]){
-    refs[indices[0]].l.scrollIntoView({block:"center",behavior:"smooth"});
-  }
-}
-function enumerer(indices){
-  var noms = indices.map(nomDe);
-  if (noms.length === 1) return noms[0];
-  if (noms.length <= 3) return noms.slice(0,-1).join(", ")+" et "+noms[noms.length-1];
-  return noms.length+" joueurs";
-}
-
-function validerManche(){
-  S.actif = null; S.clavier = false;
-  var absents = [];
-  for (var i=0;i<S.nb;i++){
-    if (typeof S.brouillon.scores[i] !== "number") absents.push(i);
-  }
-  if (absents.length){
-    signalerManque("Il manque le score de "+enumerer(absents)+".", absents);
-    return;
-  }
-  if (S.brouillon.ferme === null){
-    signalerManque("Coche le joueur qui a retourné toutes ses cartes en premier.", []);
-    return;
-  }
-  effacerManque();
-  var m = { scores:S.brouillon.scores.slice(), ferme:S.brouillon.ferme };
-  if (S.edition===null) S.manches.push(m); else S.manches[S.edition]=m;
-  S.edition=null;
-  var t=totaux();
-  S.phase = (Math.max.apply(null,t) >= S.seuil) ? "fin" : "partie";
-  sauver(); rendre();
-}
-
-/* ---- fin ---- */
-function rendreFin(){
-  montrer("v-fin");
-  var t=totaux(), idx=[];
-  for (var i=0;i<S.nb;i++) idx.push(i);
-  idx.sort(function(a,b){ return t[a]-t[b]; });
-
-  var mini=t[idx[0]];
-  var exaequo=idx.filter(function(i){ return t[i]===mini; });
-  $("nom-gagnant").textContent = exaequo.length>1
-    ? exaequo.map(nomDe).join(" & ")
-    : nomDe(idx[0]);
-  $("detail-gagnant").textContent = (exaequo.length>1?"À égalité avec ":"")+mini+" points en "+S.manches.length+" manche"+(S.manches.length>1?"s":"")+".";
-
-  var c=$("classement"); c.innerHTML="";
-  idx.forEach(function(i,k){
-    var r=document.createElement("div"); r.className="rangee";
-    r.innerHTML='<span class="pos">'+(k+1)+'</span>'+
-      '<span class="pastille" style="background:'+COULEURS[i%COULEURS.length]+';height:26px"></span>'+
-      '<span class="n">'+echap(nomDe(i))+'</span>'+
-      '<span class="p" style="color:'+teinte(t[i])+'">'+t[i]+'</span>';
-    c.appendChild(r);
-  });
-
-  barre([
-    {txt:"Rejouer avec les mêmes joueurs", act:function(){
-      S.manches=[]; S.phase="partie"; sauver(); rendre();
-    }},
-    {txt:"Revoir le détail des manches", cls:"btn secondaire", act:function(){
-      S.phase="partie"; rendre();
-    }},
-    {txt:"Changer les joueurs", cls:"btn secondaire", act:function(){
-      S.phase="reglages"; rendre();
-    }}
-  ]);
-}
-
-/* ---- barre d'actions ---- */
-function barre(actions){
-  var b=$("barre"); b.innerHTML="";
-  actions.forEach(function(a,k){
-    var el=document.createElement("button");
-    el.className = a.cls || "btn";
-    if (!a.cls) el.className="btn";
-    el.textContent=a.txt; el.onclick=a.act;
-    if (k>0) el.style.marginTop="9px";
-    b.appendChild(el);
-  });
-}
-
-function echap(s){
-  return String(s).replace(/[&<>"]/g,function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
-  });
-}
-
-/* ---------------------------------------------------------------
-   CLAVIER VIRTUEL
-   La barre est fixée au bas du layout viewport, que le clavier ne
-   réduit pas. Une simple translation ne suffit pas : dès que la
-   page défile, vv.offsetTop compense le décalage et la barre
-   retombe sous le clavier. On la positionne donc directement sur
-   le bas de la zone réellement visible.
-   --------------------------------------------------------------- */
-var majBarre = function(){};
-(function(){
-  var vv = window.visualViewport;
-  if (!vv) return;
-  var boite = $("barre-bas");
-  majBarre = function(){
-    var h = boite.offsetHeight;
-    var bas = vv.offsetTop + vv.height;          // bas de la zone visible
-    var cache = Math.max(0, window.innerHeight - bas);
-    if (cache < 60){                             // pas de clavier : ancrage normal
-      boite.style.top = "auto";
-      boite.style.bottom = "0";
-      document.body.style.paddingBottom = "";
-      return;
-    }
-    boite.style.bottom = "auto";
-    boite.style.top = (bas - h) + "px";
-    document.body.style.paddingBottom = (cache + h) + "px";
-  };
-  vv.addEventListener("resize", majBarre);
-  vv.addEventListener("scroll", majBarre);
-  window.addEventListener("resize", majBarre);
-  majBarre();
-})();
-
-/* ---- navigation ---- */
-$("btn-reglages").onclick=function(){ S.phase="reglages"; rendre(); };
-$("btn-annuler-saisie").onclick=function(){ S.edition=null; S.phase="partie"; rendre(); };
-
-/* ---- démarrage ---- */
-charger().then(function(d){
-  if (d && d.nb){
-    S.nb=d.nb; S.noms=d.noms||[]; S.seuil=d.seuil||100;
-    S.manches=d.manches||[]; ajusterNoms();
-    var t=totaux();
-    S.phase = (S.manches.length && Math.max.apply(null,t)>=S.seuil) ? "fin"
-            : (S.manches.length ? "partie" : d.phase||"reglages");
-  }
-  rendre();
-});
-
-})();
-</script>
 </body>
 </html>
