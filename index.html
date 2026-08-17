@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#16232B">
+<meta name="theme-color" content="#D8BE97">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Skyjo">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEX09/XO1+JLaKAqTI9ZukWGAAAB5klEQVR42u2ZQUrDQBSG/0nSILXQbgRduekBvEFyBNfqwoUH8AZ6BA/gwpUgLjxCs/AAPYIbRcFFhYBS0zwXnUqSzmTeRHEhb6BQyMfjf3/emxnyFMFjBRBaaKH1Ir0yDrT6M2sNGTZoh4KkRhcOerjEdJb3DvqtloDTjKSipHDSw4qS3Ennnd/l1MktKlkywiYVB33qpGBwQ//YHeicAebS80ILLbTQdlod3JY3qXG3Xz/ke3dERC/No95M9ybLQ/eCRetjnT4adHuWccrRvYpNU5/YGHv5HXnRPSZ9HZwaHluyfAQCIqKUkyUdAuU5gJSj5CkDcMWtqiMAeGXGnmcAUAAYMej3Dt1QeNHkRSvvvpyx6QhA9gMaLVf13epN0dkNI6DkZ7kPfIKrRBFRzlYS68LiKdk2FK1dyRlR2bpXJZX7tfLaq/oAntl1Mjb1mlXJpCbboSROgTm7YncMsu30sf6xdCsiWoCru2/s/KDFv0twlTT8az2lENdfu0P3lsk/q+4To3+Wil3zr1VJbNk5zfQGgE0iInqQm9I/pSPz5xIlDgottNBC/xI9YICDP1ESMsA9/9hwjw8qHBjzg+/LTKfvyAOe3ZoOeZasJggZK8lus4yQJ6TbDIY331EySRVaaL2+ADjhu7X86eZKAAAAAElFTkSuQmCC">
@@ -14,16 +14,23 @@
 <title>Skyjo – feuille de scores</title>
 <style>
 :root{
-  --nuit:#16232B; --ardoise:#1F323C; --ardoise-clair:#2A4451;
-  --trait:#3A5768;
-  --indigo:#2A4C8F; --cyan:#2FA8D4; --vert:#4CAF3E; --jaune:#F2C230; --rouge:#E0453B;
-  --encre:#F4F7F5; --gris:#93AAB5;
+  /* Palette relevée sur les cartes Skyjo elles-mêmes. */
+  --bleu:#3A4EA1; --cyan:#5BC0E8; --vert:#63BB47; --jaune:#F2CB3B; --rouge:#E2564C;
+  /* Le bois de la table. */
+  --bois:#D8BE97; --bois-clair:#E4CFAE; --encre:#2A2118; --sepia:#7A6444;
+  --voile:rgba(255,255,255,.74); --ombre:rgba(90,66,36,.24);
   --r:14px;
+  /* Nid d'abeille : la texture qui court sur toutes les cartes du jeu. */
+  --nid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='42' viewBox='0 0 24 42'%3E%3Cg fill='none' stroke='white' stroke-opacity='.38' stroke-width='1'%3E%3Cpath d='M12 0 L24 7 L24 21 L12 28 L0 21 L0 7 Z'/%3E%3Cpath d='M0 21 L12 28 L12 42 L0 49 L-12 42 L-12 28 Z'/%3E%3Cpath d='M24 21 L36 28 L36 42 L24 49 L12 42 L12 28 Z'/%3E%3Cpath d='M0 -21 L12 -14 L12 0 L0 7 L-12 0 L-12 -14 Z'/%3E%3Cpath d='M24 -21 L36 -14 L36 0 L24 7 L12 0 L12 -14 Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
-  background:var(--nuit);color:var(--encre);
+  color:var(--encre);
+  background:
+    repeating-linear-gradient(91deg, rgba(120,80,40,.07) 0 3px, transparent 3px 9px),
+    linear-gradient(var(--bois-clair),var(--bois));
+  background-attachment:fixed;
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   font-size:16px;line-height:1.4;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -36,51 +43,60 @@ body{
 .wrap{max-width:620px;margin:0 auto;padding:18px 16px 96px}
 
 /* ---------- typographie ---------- */
-.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gris);font-weight:700}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--sepia);font-weight:700}
 h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
 h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
-.sous{color:var(--gris);font-size:14px;margin:0 0 22px}
+.sous{color:var(--sepia);font-size:14px;margin:0 0 22px}
 .num{font-variant-numeric:tabular-nums}
 
-/* ---------- carte joueur (élément signature) ---------- */
-.grille-cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+/* ---------- carte joueur (élément signature) ----------
+   Fidèle au jeu : liseré blanc arrondi, texture en nid
+   d'abeille, chiffre noir dans un ovale blanc. */
+.grille-cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:9px}
 .carte{
-  position:relative;border-radius:var(--r);padding:5px;
-  background:var(--ardoise);transition:background .45s ease;
-  box-shadow:0 2px 0 rgba(0,0,0,.35);
+  border-radius:13px;padding:4px;background:#FFFFFF;
+  box-shadow:0 3px 7px rgba(0,0,0,.28)
 }
 .carte .interieur{
-  background:rgba(255,255,255,.93);border-radius:9px;padding:9px 6px 8px;
-  text-align:center;color:#16232B;
+  border-radius:10px;padding:12px 5px;
+  background-image:var(--nid);background-color:currentColor;background-size:17px 30px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:background-color .45s ease
 }
 .carte .nom{
-  font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-  color:#4A6470;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
-.carte .total{font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-top:1px}
-.carte .rang{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7D959F}
-.carte .jauge{height:4px;border-radius:2px;background:rgba(0,0,0,.12);margin:7px 4px 1px;overflow:hidden}
-.carte .jauge i{display:block;height:100%;background:currentColor;transition:width .45s ease}
-.carte.leader{box-shadow:0 0 0 2px var(--encre),0 2px 0 rgba(0,0,0,.35)}
-.carte.finit .interieur::after{
-  content:"a fermé";display:block;margin-top:5px;font-size:9px;font-weight:800;
-  letter-spacing:.1em;text-transform:uppercase;color:#4A6470
+.carte .total{
+  background:#fff;border-radius:50%;min-width:52px;height:38px;padding:0 7px;
+  display:grid;place-items:center;color:#141414;line-height:1;
+  font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums
 }
+.carte .rang{
+  font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.92);text-shadow:0 1px 2px rgba(0,0,0,.35);
+  white-space:nowrap;line-height:1.2
+}
+.carte.leader{box-shadow:0 0 0 3px var(--encre),0 3px 7px rgba(0,0,0,.28)}
+.carte.finit .rang{font-size:8px;letter-spacing:.04em}
+.carte.finit .rang::after{content:" · a fermé"}
 
 /* ---------- boutons ---------- */
 button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 .btn{
   display:block;width:100%;padding:16px;border-radius:var(--r);
-  background:var(--cyan);color:#0C1A22;font-weight:800;font-size:16px;
+  background:var(--bleu);color:#fff;font-weight:800;font-size:16px;
   letter-spacing:.02em;transition:transform .12s ease,filter .12s ease;
+  box-shadow:0 2px 5px rgba(0,0,0,.24)
 }
-.btn:active{transform:scale(.985);filter:brightness(1.08)}
-.btn[disabled]{background:var(--ardoise-clair);color:var(--gris)}
-.btn.secondaire{background:transparent;border:1px solid var(--trait);color:var(--encre);font-weight:600}
-.btn.danger{background:transparent;border:1px solid var(--trait);color:#E58C86;font-weight:600}
+.btn:active{transform:scale(.985);filter:brightness(1.12)}
+.btn[disabled]{background:var(--voile);color:var(--sepia);box-shadow:none}
+.btn.secondaire{background:var(--voile);color:var(--encre);font-weight:700;box-shadow:none}
+.btn.danger{background:var(--voile);color:#A33529;font-weight:700;box-shadow:none}
 .barre-bas{
   position:fixed;left:0;right:0;bottom:0;z-index:20;
-  background:linear-gradient(180deg,rgba(22,35,43,0) 0%,var(--nuit) 34%);
+  background:linear-gradient(180deg,rgba(216,190,151,0) 0%,var(--bois) 30%);
   padding:22px 16px calc(16px + env(safe-area-inset-bottom));
   will-change:transform;transition:transform .16s ease-out;
 }
@@ -90,116 +106,130 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 /* ---------- réglages ---------- */
 .choix{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 26px}
 .jeton{
-  aspect-ratio:3/4;border-radius:10px;background:var(--ardoise);
+  aspect-ratio:3/4;border-radius:11px;background:var(--voile);
   display:grid;place-items:center;font-size:22px;font-weight:800;
-  border:1px solid var(--trait);transition:background .15s,color .15s
+  color:var(--encre);transition:background .15s,color .15s;
+  box-shadow:0 2px 4px rgba(0,0,0,.16)
 }
-.jeton[aria-pressed="true"]{background:var(--cyan);color:#0C1A22;border-color:var(--cyan)}
+.jeton[aria-pressed="true"]{background:var(--bleu);color:#fff}
 .ligne-nom{display:flex;align-items:center;gap:10px;margin-bottom:9px}
 .pastille{width:11px;height:34px;border-radius:3px;flex:0 0 auto}
 input[type="text"],input[type="number"]{
-  width:100%;background:var(--ardoise);border:1px solid var(--trait);color:var(--encre);
+  width:100%;background:#fff;border:1px solid var(--ombre);color:var(--encre);
   border-radius:10px;padding:13px 14px;font:inherit;font-weight:600;-webkit-user-select:text;user-select:text
 }
-input:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
 .seuils{display:flex;gap:8px;margin:10px 0 4px}
 .seuils button{
-  flex:1;padding:12px;border-radius:10px;background:var(--ardoise);
-  border:1px solid var(--trait);font-weight:700
+  flex:1;padding:12px;border-radius:10px;background:var(--voile);
+  font-weight:700;color:var(--encre)
 }
-.seuils button[aria-pressed="true"]{background:var(--encre);color:#16232B;border-color:var(--encre)}
+.seuils button[aria-pressed="true"]{background:var(--encre);color:var(--bois-clair)}
 
 /* ---------- saisie de manche ---------- */
 .jr{
   display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:6px;
-  border-radius:12px;background:var(--ardoise);border:1px solid transparent
+  border-radius:12px;background:var(--voile);border:2px solid transparent
 }
-.jr.actif{background:var(--ardoise-clair);border-color:var(--cyan)}
+.jr.actif{border-color:var(--bleu);background:#fff}
 .jr.incomplet{border-color:var(--rouge)}
 .jr .nm{flex:1;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .jr .fm{
   font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
-  padding:8px 9px;border-radius:9px;border:1px solid var(--trait);color:var(--gris)
+  padding:8px 9px;border-radius:9px;border:1px solid var(--ombre);color:var(--sepia)
 }
-.jr .fm[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:#0C1A22}
+.jr .fm[aria-pressed="true"]{background:var(--bleu);border-color:var(--bleu);color:#fff}
 .jr .tt{
-  min-width:64px;height:42px;border-radius:10px;background:var(--nuit);
-  border:1px solid var(--trait);display:grid;place-items:center;
-  font-size:19px;font-weight:800;font-variant-numeric:tabular-nums
+  min-width:64px;height:42px;border-radius:10px;background:#fff;
+  border:1px solid var(--ombre);display:grid;place-items:center;color:#141414;
+  font-size:19px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums
 }
-.jr .tt.vide{color:var(--gris)}
-.jr.actif .tt{border-color:var(--cyan)}
+.jr .tt.vide{color:#A8A093}
+.jr.actif .tt{border-color:var(--bleu)}
 
-/* ---------- pavé de cartes ---------- */
+/* ---------- pavé : chaque touche est une carte du jeu ---------- */
 .pave-tete{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
 .pave-tete .qui{font-size:13px;font-weight:800}
-.pave-tete .nb{font-size:11px;color:var(--gris);font-weight:700}
+.pave-tete .nb{font-size:11px;color:var(--sepia);font-weight:700}
 .pave-tete .tot{margin-left:auto;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
 .pave-suite{
-  font-size:12px;color:var(--gris);font-weight:700;margin-bottom:8px;min-height:16px;
+  font-size:12px;color:var(--sepia);font-weight:700;margin-bottom:8px;min-height:16px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums
 }
 .pave{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .pave button{
-  height:46px;border-radius:10px;background:var(--ardoise-clair);
-  border:1px solid var(--trait);font-size:17px;font-weight:800;
-  font-variant-numeric:tabular-nums
+  border-radius:10px;padding:3px;background:#fff;
+  box-shadow:0 2px 4px rgba(0,0,0,.22)
 }
-.pave button:active{background:var(--cyan);color:#0C1A22}
-.pave button.neg{color:#8FD4E8}
-.outils{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.pave button .pate{
+  border-radius:8px;padding:7px 0;display:grid;place-items:center;
+  background-image:var(--nid);background-color:currentColor;background-size:13px 23px
+}
+.pave button .val{
+  background:#fff;border-radius:50%;min-width:34px;height:26px;padding:0 4px;
+  display:grid;place-items:center;color:#141414;
+  font-size:15px;font-weight:800;font-variant-numeric:tabular-nums
+}
+.pave button:active{transform:scale(.94)}
+.outils{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px}
 .outils button{
-  height:44px;border-radius:10px;border:1px solid var(--trait);
-  font-size:13px;font-weight:700;background:transparent
+  height:44px;border-radius:10px;background:var(--voile);
+  font-size:13px;font-weight:700;color:var(--encre)
 }
-.outils button.ok{background:var(--cyan);border-color:var(--cyan);color:#0C1A22;font-weight:800}
+.outils button.ok{background:var(--bleu);color:#fff;font-weight:800}
 .saisie-directe{display:flex;gap:6px;align-items:center}
 .saisie-directe input{flex:1;text-align:center;font-size:20px;font-weight:800}
 .penalite{
-  margin-top:8px;font-size:12.5px;font-weight:700;color:#0C1A22;background:var(--rouge);
-  border-radius:8px;padding:7px 10px;display:none
+  margin-top:8px;font-size:12.5px;font-weight:700;color:#fff;background:var(--rouge);
+  border-radius:8px;padding:8px 11px;display:none
 }
 .penalite.on{display:block}
 .manque-alerte{
-  display:none;margin-bottom:9px;font-size:13px;font-weight:700;color:#0C1A22;
+  display:none;margin-bottom:9px;font-size:13px;font-weight:700;color:#2A2118;
   background:var(--jaune);border-radius:10px;padding:9px 12px;text-align:center
 }
 .manque-alerte.on{display:block}
 
 /* ---------- historique ---------- */
-.tableau{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+.tableau{
+  width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums;
+  background:var(--voile);border-radius:12px;overflow:hidden
+}
 .tableau th,.tableau td{padding:9px 4px;text-align:center;font-size:14px}
 .tableau thead th{
-  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);
-  border-bottom:1px solid var(--trait);font-weight:800
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sepia);
+  border-bottom:1px solid var(--ombre);font-weight:800
 }
-.tableau tbody tr{border-bottom:1px solid rgba(58,87,104,.45)}
-.tableau tbody tr:active{background:var(--ardoise)}
-.tableau .mn{color:var(--gris);font-size:11px;font-weight:800;letter-spacing:.08em}
-.tableau .x2{color:var(--rouge);font-weight:800}
+.tableau tbody tr{border-bottom:1px solid rgba(90,66,36,.14)}
+.tableau tbody tr:active{background:rgba(255,255,255,.6)}
+.tableau .mn{color:var(--sepia);font-size:11px;font-weight:800;letter-spacing:.08em}
+.tableau .x2{color:#B8362B;font-weight:800}
 .tableau .x2::after{content:" ×2";font-size:10px}
 .tableau .clos{position:relative}
 .tableau .clos::before{
   content:"";position:absolute;left:50%;top:3px;transform:translateX(-50%);
-  width:5px;height:5px;border-radius:50%;background:var(--cyan)
+  width:5px;height:5px;border-radius:50%;background:var(--bleu)
 }
-.tableau tfoot td{padding-top:12px;font-weight:800;font-size:16px;border-top:1px solid var(--trait)}
-.vide{color:var(--gris);font-size:14px;text-align:center;padding:26px 0}
+.tableau tfoot td{padding-top:12px;font-weight:800;font-size:16px;border-top:1px solid var(--ombre)}
+.vide{color:var(--sepia);font-size:14px;text-align:center;padding:26px 0}
 
 /* ---------- fin de partie ---------- */
 .sacre{text-align:center;padding:6px 0 18px}
-.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gris);font-weight:800}
+.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--sepia);font-weight:800}
 .sacre .gagnant{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:6px 0 2px}
 .classement{margin-top:6px}
-.rangee{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(58,87,104,.45)}
-.rangee .pos{width:24px;font-weight:800;color:var(--gris);font-variant-numeric:tabular-nums}
+.rangee{
+  display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:6px;
+  border-radius:12px;background:var(--voile)
+}
+.rangee .pos{width:24px;font-weight:800;color:var(--sepia);font-variant-numeric:tabular-nums}
 .rangee .n{flex:1;font-weight:700}
 .rangee .p{font-weight:800;font-variant-numeric:tabular-nums;font-size:19px}
 
 .vue{display:none}
 .vue.actif{display:block}
 .entete{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
-.retour{font-size:13px;font-weight:700;color:var(--cyan)}
+.retour{font-size:13px;font-weight:700;color:var(--bleu)}
 .section-titre{margin:26px 0 8px;display:flex;align-items:baseline;justify-content:space-between}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -297,8 +327,11 @@ var S = {
   clavier:false               // true = total tapé à la main, false = pavé de cartes
 };
 
-var COULEURS = ["#2FA8D4","#4CAF3E","#F2C230","#E0453B","#2A4C8F","#8E5BC7","#E07A2F","#2FB79A"];
+var COULEURS = ["#3A4EA1","#63BB47","#E2564C","#5BC0E8","#F2CB3B","#8E5BC7","#E07A2F","#2FB79A"];
 var CLE = "skyjo-partie";
+
+/* Les cinq couleurs des cartes, relevées sur le jeu. */
+var SK = {bleu:"#3A4EA1", cyan:"#5BC0E8", vert:"#63BB47", jaune:"#F2CB3B", rouge:"#E2564C"};
 
 /* ---------------------------------------------------------------
    PERSISTANCE (window.storage si présent, sinon mémoire seule)
@@ -354,13 +387,22 @@ function totaux(){
 }
 function nomDe(i){ return (S.noms[i]||"").trim() || ("Joueur "+(i+1)); }
 
+/* Couleur d'un total, selon la marche vers le seuil. */
 function teinte(total){
-  if (total < 0) return "#2A4C8F";
+  if (total < 0) return SK.bleu;
   var r = total / S.seuil;
-  if (r < .28) return "#2FA8D4";
-  if (r < .55) return "#4CAF3E";
-  if (r < .82) return "#F2C230";
-  return "#E0453B";
+  if (r < .28) return SK.cyan;
+  if (r < .55) return SK.vert;
+  if (r < .82) return SK.jaune;
+  return SK.rouge;
+}
+/* Couleur d'une carte, exactement comme dans le jeu. */
+function couleurCarte(v){
+  if (v <= -1) return SK.bleu;
+  if (v === 0) return SK.cyan;
+  if (v <= 4)  return SK.vert;
+  if (v <= 8)  return SK.jaune;
+  return SK.rouge;
 }
 
 /* ---------------------------------------------------------------
@@ -446,16 +488,14 @@ function rendrePartie(){
     (function(i){
       var col = teinte(t[i]);
       var c=document.createElement("div"); c.className="carte";
-      c.style.background=col; c.style.color=col;
       if (t[i]===mini) c.classList.add("leader");
       if (dernier && dernier.ferme===i) c.classList.add("finit");
-      var pct = Math.max(0, Math.min(100, (t[i]/S.seuil)*100));
+      var rang = ordre.indexOf(t[i])+1;
       c.innerHTML =
-        '<div class="interieur">'+
+        '<div class="interieur" style="color:'+col+'">'+
           '<div class="nom">'+echap(nomDe(i))+'</div>'+
           '<div class="total num">'+t[i]+'</div>'+
-          '<div class="rang">'+(ordre.indexOf(t[i])+1)+'<sup>'+(ordre.indexOf(t[i])===0?"er":"e")+'</sup></div>'+
-          '<div class="jauge"><i style="width:'+pct+'%"></i></div>'+
+          '<div class="rang">'+rang+(rang===1?"er":"e")+'</div>'+
         '</div>';
       g.appendChild(c);
     })(i);
@@ -624,7 +664,9 @@ function rendreBarreSaisie(){
   var g=document.createElement("div"); g.className="pave";
   VALEURS.forEach(function(v){
     var k=document.createElement("button"); k.type="button";
-    k.textContent = v; if (v<0) k.className="neg";
+    k.setAttribute("aria-label","Carte "+v);
+    k.innerHTML='<span class="pate" style="color:'+couleurCarte(v)+'">'+
+                  '<span class="val">'+v+'</span></span>';
     k.onclick=function(){ taperCarte(v); };
     g.appendChild(k);
   });
@@ -643,7 +685,7 @@ function rendreBarreSaisie(){
     S.brouillon.scores[S.actif]=null;
     majAffichage(); majPenalite();
   }));
-  o.appendChild(outil("Total direct", function(){
+  o.appendChild(outil("Total", function(){
     S.clavier=true; rendreBarreSaisie();
   }));
   var ok=outil("OK", function(){ S.actif=null; majAffichage(); rendreBarreSaisie(); });
