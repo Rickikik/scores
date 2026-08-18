@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2B3138">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Belote">
+<meta name="format-detection" content="telephone=no">
+<title>Belote – Scores</title>
+<style>
+:root{
+  --ardoise:#2B3138; --ardoise-clair:#39414A; --relief:#4A5560;
+  --craie:#EDE9E0; --craie-pale:#9AA3AC;
+  --rouge:#D4564E; --or:#D9B24C; --vert:#5AA06B;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--craie);
+  background:
+    repeating-linear-gradient(102deg, rgba(255,255,255,.014) 0 2px, transparent 2px 7px),
+    radial-gradient(130% 80% at 50% 0%, #353C44 0%, #24292F 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior:none;
+  touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:620px;margin:0 auto;padding:14px 16px 140px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--craie);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-size:13.5px;font-weight:800;letter-spacing:.02em;
+  color:#2B3138;text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--craie-pale);font-weight:700}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
+h2{font-size:19px;font-weight:700;margin:0}
+.sous{color:var(--craie-pale);font-size:14px;margin:0 0 22px}
+.num{font-variant-numeric:tabular-nums}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.btn{
+  display:block;width:100%;padding:16px;border-radius:var(--r);
+  background:var(--craie);color:#2B3138;font-weight:800;font-size:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .12s ease,filter .12s ease
+}
+.btn:active{transform:scale(.985);filter:brightness(.94)}
+.btn.secondaire{background:var(--ardoise-clair);color:var(--craie);font-weight:700;box-shadow:none}
+.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,rgba(38,43,49,0) 0%,#262B31 30%);
+  padding:22px 16px calc(16px + env(safe-area-inset-bottom));
+  will-change:transform;transition:transform .16s ease-out
+}
+.barre-bas .inner{max-width:620px;margin:0 auto}
+
+/* ---------- réglages ---------- */
+.reglage{margin-bottom:22px}
+.ligne-nom{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.pastille{width:11px;height:36px;border-radius:3px;flex:0 0 auto}
+input[type="text"],input[type="number"]{
+  width:100%;background:var(--ardoise-clair);border:1px solid var(--relief);color:var(--craie);
+  border-radius:10px;padding:13px 14px;font:inherit;font-weight:600;
+  -webkit-user-select:text;user-select:text
+}
+input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+.duo{display:flex;gap:8px;margin:10px 0 6px}
+.duo button{
+  flex:1;padding:13px 10px;border-radius:11px;background:var(--ardoise-clair);
+  border:1px solid var(--relief);font-weight:700;font-size:14px;color:var(--craie)
+}
+.duo button[aria-pressed="true"]{background:var(--craie);color:#2B3138;border-color:var(--craie)}
+.compteur{
+  display:flex;align-items:center;gap:10px;margin-top:10px;
+  background:var(--ardoise-clair);border:1px solid var(--relief);border-radius:12px;padding:8px 10px
+}
+.compteur .val{flex:1;text-align:center;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.compteur .pm{
+  width:52px;height:48px;border-radius:10px;background:var(--craie);color:#2B3138;
+  font-size:24px;font-weight:800;display:grid;place-items:center
+}
+.compteur .pm[disabled]{background:var(--relief);color:var(--craie-pale)}
+
+/* ---------- partie ---------- */
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.eq{
+  border-radius:14px;padding:14px 12px;text-align:center;
+  background:var(--ardoise-clair);border:2px solid transparent
+}
+.eq.mene{border-color:var(--or)}
+.eq .nm{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--craie-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq .pt{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.05;
+  font-variant-numeric:tabular-nums;margin-top:2px}
+.eq .jauge{height:4px;border-radius:2px;background:rgba(0,0,0,.28);margin-top:8px;overflow:hidden}
+.eq .jauge i{display:block;height:100%;background:var(--or)}
+.litige{
+  background:var(--or);color:#2B3138;border-radius:10px;padding:9px 12px;
+  font-size:12.5px;font-weight:800;text-align:center;margin-bottom:10px
+}
+
+.tableau{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tableau th,.tableau td{padding:9px 4px;text-align:center;font-size:14px}
+.tableau thead th{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--craie-pale);
+  border-bottom:1px solid var(--relief);font-weight:800
+}
+.tableau tbody tr{border-bottom:1px solid rgba(255,255,255,.07)}
+.tableau tbody tr:active{background:var(--ardoise-clair)}
+.tableau .mn{color:var(--craie-pale);font-size:11px;font-weight:800}
+.tableau .pris{position:relative}
+.tableau .pris::before{
+  content:"";position:absolute;left:50%;top:2px;transform:translateX(-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--or)
+}
+.tableau .chute{color:var(--rouge);font-weight:800}
+.tableau tfoot td{padding-top:12px;font-weight:800;font-size:16px;border-top:1px solid var(--relief)}
+.vide{color:var(--craie-pale);font-size:14px;text-align:center;padding:24px 0}
+.section-titre{margin:24px 0 8px;display:flex;align-items:baseline;justify-content:space-between}
+.feuille{background:rgba(255,255,255,.05);border-radius:var(--r);padding:10px 12px}
+
+/* ---------- saisie ---------- */
+.bloc{margin-bottom:20px}
+.pts-preneur{
+  display:flex;align-items:center;gap:10px;margin-top:10px;
+  background:var(--ardoise-clair);border:1px solid var(--relief);border-radius:12px;padding:10px 12px
+}
+.pts-preneur input{width:96px;text-align:center;font-size:24px;font-weight:800;padding:10px 4px}
+.pts-preneur .contre{flex:1;text-align:right;font-size:13px;color:var(--craie-pale);font-weight:700}
+.pts-preneur .contre b{display:block;font-size:22px;color:var(--craie);font-variant-numeric:tabular-nums}
+.annonces{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+.annonces button{
+  padding:11px 2px;border-radius:10px;background:var(--ardoise-clair);
+  border:1px solid var(--relief);font-size:13px;font-weight:800;color:var(--craie)
+}
+.annonces button:active{background:var(--or);color:#2B3138}
+.tot-annonce{
+  display:flex;align-items:center;justify-content:space-between;margin-top:7px;
+  font-size:13px;font-weight:700;color:var(--craie-pale)
+}
+.tot-annonce b{font-size:19px;color:var(--craie);font-variant-numeric:tabular-nums}
+.tot-annonce button{
+  font-size:12px;font-weight:800;color:var(--rouge);padding:6px 10px;
+  border-radius:8px;background:rgba(212,86,78,.14)
+}
+.trio{display:flex;gap:8px;margin-top:9px}
+.trio button{
+  flex:1;padding:12px 6px;border-radius:11px;background:var(--ardoise-clair);
+  border:1px solid var(--relief);font-weight:700;font-size:13px;color:var(--craie)
+}
+.trio button[aria-pressed="true"]{background:var(--craie);color:#2B3138;border-color:var(--craie)}
+.apercu{
+  border-radius:12px;padding:11px 13px;margin-bottom:9px;font-size:13.5px;font-weight:700;
+  background:var(--ardoise-clair);border-left:4px solid var(--relief)
+}
+.apercu.reussi{border-left-color:var(--vert)}
+.apercu.chute{border-left-color:var(--rouge)}
+.apercu.litige{border-left-color:var(--or)}
+.apercu .det{display:block;margin-top:5px;font-size:13px;font-weight:600;color:var(--craie-pale)}
+.alerte{
+  display:none;margin-bottom:9px;font-size:13px;font-weight:800;color:#2B3138;
+  background:var(--or);border-radius:10px;padding:9px 12px;text-align:center
+}
+.alerte.on{display:block}
+
+/* ---------- fin ---------- */
+.sacre{text-align:center;padding:6px 0 18px}
+.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--craie-pale);font-weight:800}
+.sacre .gagnant{font-size:33px;font-weight:800;letter-spacing:-.02em;margin:6px 0 2px}
+
+.vue{display:none}
+.vue.actif{display:block}
+.entete{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.retour{font-size:13px;font-weight:700;color:var(--or)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+
+  <!-- ============ RÉGLAGES ============ -->
+  <section id="v-reglages" class="vue actif">
+    <p class="eyebrow">Feuille de scores</p>
+    <h1>Belote</h1>
+    <p class="sous">Classique à quatre, en deux équipes. Le compteur applique la chute, le capot et le litige.</p>
+
+    <div class="reglage">
+      <p class="eyebrow">Les deux équipes</p>
+      <div id="liste-equipes" style="margin-top:10px"></div>
+    </div>
+
+    <div class="reglage">
+      <p class="eyebrow">Annonces</p>
+      <div class="duo" id="choix-annonces">
+        <button data-a="non" aria-pressed="true">Sans annonces</button>
+        <button data-a="oui" aria-pressed="false">Avec annonces</button>
+      </div>
+      <p class="sous" id="explique-annonces" style="margin:9px 0 0"></p>
+    </div>
+
+    <div class="reglage">
+      <p class="eyebrow">Partie en</p>
+      <div id="zone-cible"></div>
+      <p class="sous" id="explique-cible" style="margin:9px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- ============ PARTIE ============ -->
+  <section id="v-partie" class="vue">
+    <div class="entete">
+      <div>
+        <p class="eyebrow">Donne <span id="num-donne" class="num">1</span></p>
+        <h2 id="etat-partie">En cours</h2>
+      </div>
+      <button class="retour" id="btn-reglages">Nouvelle partie</button>
+    </div>
+    <div id="bandeau-litige"></div>
+    <div class="scores" id="scores"></div>
+    <div class="section-titre">
+      <p class="eyebrow">Donnes jouées</p>
+      <span class="eyebrow" id="astuce-edit"></span>
+    </div>
+    <div id="zone-historique"></div>
+  </section>
+
+  <!-- ============ SAISIE ============ -->
+  <section id="v-saisie" class="vue">
+    <div class="entete">
+      <div>
+        <p class="eyebrow" id="saisie-eyebrow">Fin de donne</p>
+        <h2 id="saisie-titre">Donne 1</h2>
+      </div>
+      <button class="retour" id="btn-annuler-saisie">Retour</button>
+    </div>
+
+    <div class="bloc">
+      <p class="eyebrow">Qui a pris</p>
+      <div class="duo" id="choix-preneur"></div>
+    </div>
+
+    <div class="bloc" id="bloc-points">
+      <p class="eyebrow">Points de cartes du preneur</p>
+      <div class="pts-preneur">
+        <input id="pts" type="number" inputmode="numeric" step="1" min="0" max="162" placeholder="0">
+        <span class="contre" id="contre"></span>
+      </div>
+    </div>
+
+    <div class="bloc" id="bloc-annonces"></div>
+
+    <div class="bloc">
+      <p class="eyebrow">Belote-rebelote</p>
+      <div class="trio" id="choix-belote"></div>
+    </div>
+
+    <div class="bloc">
+      <p class="eyebrow">Capot</p>
+      <div class="trio" id="choix-capot"></div>
+    </div>
+
+  </section>
+
+  <!-- ============ FIN ============ -->
+  <section id="v-fin" class="vue">
+    <div class="sacre">
+      <p class="titre">Partie terminée</p>
+      <p class="gagnant" id="nom-gagnant">—</p>
+      <p class="sous" id="detail-gagnant" style="margin:0"></p>
+    </div>
+    <div class="scores" id="scores-fin"></div>
+  </section>
+</div>
+
+<div class="barre-bas" id="barre-bas"><div class="inner">
+  <div class="alerte" id="alerte"></div>
+  <div id="apercu"></div>
+  <div id="barre"></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------------
+   RÈGLES – belote classique à quatre, vérifiées le 2026-08-17
+   162 points par donne : 152 de cartes + 10 de der.
+   Le preneur doit totaliser STRICTEMENT plus que la défense.
+   Chute : le preneur ne marque rien (sauf sa belote, imprenable),
+   la défense marque 162 + toutes les annonces des deux camps.
+   Capot : 252 au camp qui fait tous les plis, 0 à l'autre.
+   Litige (égalité) : la défense garde ses points, ceux du preneur
+   sont remis en jeu pour la donne suivante.
+   --------------------------------------------------------------- */
+var TOTAL_DONNE = 162, TOTAL_CAPOT = 252, BELOTE = 20;
+
+var S = {
+  phase:"reglages",
+  noms:["",""],
+  annonces:false,
+  cible:1000,
+  donnes:[],        // {preneur, pts, anA, anB, belote, capot, gainA, gainB, issue}
+  litige:0,         // points remis en jeu, reportés sur la donne suivante
+  edition:null,
+  b:{preneur:0, pts:null, an:[0,0], belote:-1, capot:-1}
+};
+
+var COULEURS=["#D4564E","#5AA06B"];
+var $=function(id){ return document.getElementById(id); };
+function nomDe(i){ return (S.noms[i]||"").trim() || ("Équipe "+(i===0?"A":"B")); }
+
+/* ---------------------------------------------------------------
+   CALCUL D'UNE DONNE
+   Rend les points gagnés par chaque camp, plus l'issue en clair.
+   --------------------------------------------------------------- */
+function calculer(d){
+  var p=d.preneur, def=1-p;
+  var g=[0,0], issue, detail;
+  var belP = (d.belote===p) ? BELOTE : 0;
+  var belD = (d.belote===def) ? BELOTE : 0;
+  var anP = d.an[p]||0, anD = d.an[def]||0;
+
+  if (d.capot===p){
+    g[p] = TOTAL_CAPOT + anP + anD + belP;
+    g[def] = belD;
+    issue="capot";
+    detail = nomDe(p)+" fait capot : "+TOTAL_CAPOT+" points.";
+    return {g:g, issue:issue, detail:detail};
+  }
+  if (d.capot===def){
+    g[def] = TOTAL_CAPOT + anP + anD + belD;
+    g[p] = belP;
+    issue="capot-defense";
+    detail = nomDe(def)+" fait capot : "+TOTAL_CAPOT+" points, le preneur chute.";
+    return {g:g, issue:issue, detail:detail};
+  }
+
+  var cartesP = d.pts, cartesD = TOTAL_DONNE - d.pts;
+  var totP = cartesP + anP + belP;
+  var totD = cartesD + anD + belD;
+
+  if (totP > totD){
+    g[p]=totP; g[def]=totD;
+    issue="reussi";
+    detail = nomDe(p)+" tient son contrat : "+totP+" contre "+totD+".";
+  } else if (totP === totD){
+    g[p]=0; g[def]=totD;
+    issue="litige";
+    detail = "Litige à "+totP+" partout : les "+totP+" points du preneur sont remis en jeu.";
+  } else {
+    g[p]=belP; g[def]=TOTAL_DONNE + anP + anD + belD;
+    issue="chute";
+    detail = nomDe(p)+" chute : "+totP+" contre "+totD+". "+nomDe(def)+" marque "+g[def]+".";
+  }
+  return {g:g, issue:issue, detail:detail, enJeu:(issue==="litige"?totP:0)};
+}
+
+/* Totaux cumulés, en rejouant les donnes dans l'ordre pour que le
+   report de litige reste juste même après une correction. */
+function totaux(){
+  var t=[0,0], report=0;
+  S.donnes.forEach(function(d){
+    var r=calculer(d);
+    var gA=r.g[0], gB=r.g[1];
+    if (report){                       // le report va au camp qui remporte la donne
+      if (gA>gB) gA+=report; else if (gB>gA) gB+=report;
+      if (gA!==gB) report=0;
+    }
+    if (r.issue==="litige") report += r.enJeu;
+    t[0]+=gA; t[1]+=gB;
+  });
+  S.litige=report;
+  return t;
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function montrer(v){
+  ["v-reglages","v-partie","v-saisie","v-fin"].forEach(function(id){
+    $(id).classList.toggle("actif", id===v);
+  });
+  window.scrollTo(0,0);
+}
+function rendre(){
+  if (S.phase==="reglages") rendreReglages();
+  else if (S.phase==="partie") rendrePartie();
+  else if (S.phase==="saisie") rendreSaisie();
+  else rendreFin();
+}
+
+/* ---- réglages ---- */
+function rendreReglages(){
+  montrer("v-reglages");
+  var l=$("liste-equipes"); l.innerHTML="";
+  for (var i=0;i<2;i++){
+    (function(i){
+      var d=document.createElement("div"); d.className="ligne-nom";
+      var p=document.createElement("span"); p.className="pastille";
+      p.style.background=COULEURS[i];
+      var inp=document.createElement("input");
+      inp.type="text"; inp.value=S.noms[i]||"";
+      inp.placeholder = "Équipe "+(i===0?"A":"B");
+      inp.maxLength=16; inp.autocomplete="off";
+      inp.oninput=function(){ S.noms[i]=inp.value; };
+      d.appendChild(p); d.appendChild(inp); l.appendChild(d);
+    })(i);
+  }
+
+  Array.prototype.forEach.call($("choix-annonces").children,function(b){
+    b.setAttribute("aria-pressed",(b.dataset.a==="oui")===S.annonces?"true":"false");
+    b.onclick=function(){ S.annonces=(b.dataset.a==="oui"); rendreReglages(); };
+  });
+  $("explique-annonces").textContent = S.annonces
+    ? "Tierce 20, cinquante 50, cent 100, carré de valets 200, carré de neufs 150, autres carrés 100."
+    : "Seule la belote-rebelote compte, comme dans la règle classique.";
+
+  var z=$("zone-cible"); z.innerHTML="";
+  var box=document.createElement("div"); box.className="compteur";
+  var moins=document.createElement("button"); moins.className="pm"; moins.textContent="−";
+  moins.setAttribute("aria-label","Diminuer");
+  var aff=document.createElement("div"); aff.className="val num";
+  var plus=document.createElement("button"); plus.className="pm"; plus.textContent="+";
+  plus.setAttribute("aria-label","Augmenter");
+  function peindre(){
+    aff.textContent=S.cible+" pts";
+    moins.disabled=S.cible<=300; plus.disabled=S.cible>=3000;
+    $("explique-cible").textContent="Le premier camp à atteindre "+S.cible+" points gagne la partie.";
+  }
+  moins.onclick=function(){ S.cible=Math.max(300,S.cible-100); peindre(); };
+  plus.onclick=function(){ S.cible=Math.min(3000,S.cible+100); peindre(); };
+  box.appendChild(moins); box.appendChild(aff); box.appendChild(plus);
+  z.appendChild(box); peindre();
+
+  barre([{txt:"Commencer la partie", act:function(){
+    S.donnes=[]; S.litige=0; S.phase="partie"; rendre();
+  }}]);
+}
+
+/* ---- partie ---- */
+function rendrePartie(){
+  montrer("v-partie");
+  var t=totaux();
+  $("num-donne").textContent=S.donnes.length+1;
+  $("etat-partie").textContent = S.donnes.length ? "En cours" : "Prêt à jouer";
+
+  $("bandeau-litige").innerHTML = S.litige
+    ? '<div class="litige">'+S.litige+' points en jeu, ils iront au camp qui remporte la prochaine donne</div>'
+    : "";
+
+  var z=$("scores"); z.innerHTML="";
+  for (var i=0;i<2;i++){
+    var pct=Math.max(0,Math.min(100,(t[i]/S.cible)*100));
+    var d=document.createElement("div"); d.className="eq";
+    if (t[i]===Math.max(t[0],t[1]) && t[0]!==t[1]) d.classList.add("mene");
+    d.innerHTML='<div class="nm">'+echap(nomDe(i))+'</div>'+
+      '<div class="pt">'+t[i]+'</div>'+
+      '<div class="jauge"><i style="width:'+pct+'%"></i></div>';
+    z.appendChild(d);
+  }
+
+  $("astuce-edit").textContent = S.donnes.length ? "Touche une ligne pour corriger" : "";
+  rendreHistorique();
+
+  var actions=[{txt:"Saisir la donne "+(S.donnes.length+1), act:function(){ ouvrirSaisie(null); }}];
+  if (S.donnes.length){
+    actions.push({txt:"Annuler la dernière donne", cls:"btn secondaire", act:function(){
+      S.donnes.pop(); rendre();
+    }});
+  }
+  barre(actions);
+}
+
+function rendreHistorique(){
+  var z=$("zone-historique");
+  if (!S.donnes.length){
+    z.innerHTML='<div class="feuille"><p class="vide">Aucune donne notée pour l’instant.</p></div>';
+    return;
+  }
+  var t=totaux();
+  var h='<div class="feuille"><table class="tableau"><thead><tr><th style="text-align:left">Dn</th>'+
+        '<th>'+echap(abrege(nomDe(0)))+'</th><th>'+echap(abrege(nomDe(1)))+'</th></tr></thead><tbody>';
+  var report=0;
+  S.donnes.forEach(function(d,k){
+    var r=calculer(d);
+    var gA=r.g[0], gB=r.g[1];
+    if (report){
+      if (gA>gB) gA+=report; else if (gB>gA) gB+=report;
+      if (gA!==gB) report=0;
+    }
+    if (r.issue==="litige") report+=r.enJeu;
+    var cls=(r.issue==="chute"||r.issue==="capot-defense")?" chute":"";
+    h+='<tr data-donne="'+k+'"><td class="mn" style="text-align:left">'+(k+1)+'</td>'+
+       '<td class="'+(d.preneur===0?"pris":"")+(d.preneur===0?cls:"")+'">'+gA+'</td>'+
+       '<td class="'+(d.preneur===1?"pris":"")+(d.preneur===1?cls:"")+'">'+gB+'</td></tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="mn" style="text-align:left">Tot</td>'+
+     '<td>'+t[0]+'</td><td>'+t[1]+'</td></tr></tfoot></table></div>';
+  z.innerHTML=h;
+  Array.prototype.forEach.call(z.querySelectorAll("tbody tr"),function(tr){
+    tr.onclick=function(){ ouvrirSaisie(+tr.dataset.donne); };
+  });
+}
+function abrege(n){ return n.length>9 ? n.slice(0,8)+"." : n; }
+
+/* ---- saisie ---- */
+function ouvrirSaisie(index){
+  S.edition=index;
+  if (index===null) S.b={preneur:0, pts:null, an:[0,0], belote:-1, capot:-1};
+  else {
+    var d=S.donnes[index];
+    S.b={preneur:d.preneur, pts:d.pts, an:d.an.slice(), belote:d.belote, capot:d.capot};
+  }
+  S.phase="saisie"; rendre();
+}
+
+function rendreSaisie(){
+  montrer("v-saisie");
+  var n=(S.edition===null)?S.donnes.length+1:S.edition+1;
+  $("saisie-titre").textContent="Donne "+n;
+  $("saisie-eyebrow").textContent=(S.edition===null)?"Fin de donne":"Correction";
+
+  trio("choix-preneur", [nomDe(0), nomDe(1)], [0,1],
+       function(){ return S.b.preneur; },
+       function(v){ S.b.preneur=v; rendreSaisie(); }, true);
+
+  var inp=$("pts");
+  inp.value = (typeof S.b.pts==="number") ? S.b.pts : "";
+  inp.oninput=function(){
+    var v=parseInt(inp.value,10);
+    if (!isNaN(v)) v=Math.max(0,Math.min(TOTAL_DONNE,v));
+    S.b.pts = isNaN(v)? null : v;
+    $("alerte").classList.remove("on");
+    majContre(); majApercu(); majBarre();
+  };
+  majContre();
+
+  rendreAnnonces();
+
+  trio("choix-belote", ["Personne", nomDe(0), nomDe(1)], [-1,0,1],
+       function(){ return S.b.belote; },
+       function(v){ S.b.belote=v; majApercu(); });
+
+  trio("choix-capot", ["Aucun", nomDe(0), nomDe(1)], [-1,0,1],
+       function(){ return S.b.capot; },
+       function(v){ S.b.capot=v; majBlocPoints(); majApercu(); });
+
+  majBlocPoints();
+  majApercu();
+  $("alerte").classList.remove("on");
+  barre([{txt: S.edition===null?"Valider la donne":"Enregistrer la correction", act:valider}]);
+}
+
+function trio(id, libelles, valeurs, lire, ecrire, remplacer){
+  var z=$(id);
+  if (remplacer) z.innerHTML="";
+  if (!z.childElementCount){
+    libelles.forEach(function(txt,k){
+      var b=document.createElement("button"); b.type="button";
+      b.textContent=txt;
+      b.onclick=function(){ ecrire(valeurs[k]); peindre(); };
+      z.appendChild(b);
+    });
+  }
+  function peindre(){
+    Array.prototype.forEach.call(z.children,function(b,k){
+      b.setAttribute("aria-pressed", lire()===valeurs[k]?"true":"false");
+      b.textContent=libelles[k];
+    });
+  }
+  peindre();
+}
+
+/* En capot, les points de cartes ne servent plus à rien. */
+function majBlocPoints(){
+  $("bloc-points").style.display = (S.b.capot===-1) ? "" : "none";
+}
+function majContre(){
+  var c=$("contre");
+  if (typeof S.b.pts!=="number"){ c.innerHTML="sur 162"; return; }
+  c.innerHTML = echap(nomDe(1-S.b.preneur))+"<b>"+(TOTAL_DONNE-S.b.pts)+"</b>";
+}
+
+function rendreAnnonces(){
+  var z=$("bloc-annonces");
+  if (!S.annonces){ z.innerHTML=""; S.b.an=[0,0]; return; }
+  z.innerHTML='<p class="eyebrow">Annonces</p>';
+  [0,1].forEach(function(i){
+    var t=document.createElement("div");
+    t.style.marginTop="10px";
+    t.innerHTML='<div class="tot-annonce"><span>'+echap(nomDe(i))+
+                '</span><b id="an-tot-'+i+'"></b></div>';
+    var g=document.createElement("div"); g.className="annonces";
+    [["20",20],["50",50],["100",100],["150",150],["200",200]].forEach(function(p){
+      var b=document.createElement("button"); b.type="button"; b.textContent=p[0];
+      b.setAttribute("aria-label","Ajouter "+p[1]+" à "+nomDe(i));
+      b.onclick=function(){ S.b.an[i]+=p[1]; majAnnonces(); majApercu(); };
+      g.appendChild(b);
+    });
+    var raz=document.createElement("div"); raz.className="tot-annonce";
+    var rb=document.createElement("button"); rb.type="button"; rb.textContent="Remettre à zéro";
+    rb.onclick=function(){ S.b.an[i]=0; majAnnonces(); majApercu(); };
+    raz.style.justifyContent="flex-end";
+    raz.appendChild(rb);
+    t.appendChild(g); t.appendChild(raz);
+    z.appendChild(t);
+  });
+  majAnnonces();
+}
+function majAnnonces(){
+  [0,1].forEach(function(i){
+    var e=$("an-tot-"+i);
+    if (e) e.textContent=S.b.an[i]+" pts";
+  });
+}
+
+function majApercu(){
+  var z=$("apercu");
+  if (S.b.capot===-1 && typeof S.b.pts!=="number"){
+    z.innerHTML=""; majBarre(); return;
+  }
+  var d={preneur:S.b.preneur, pts:(S.b.pts||0), an:S.b.an.slice(),
+         belote:S.b.belote, capot:S.b.capot};
+  var r=calculer(d);
+  var cls = r.issue==="reussi" ? "reussi"
+          : r.issue==="litige" ? "litige"
+          : r.issue==="capot" ? "reussi" : "chute";
+  z.innerHTML='<div class="apercu '+cls+'">'+echap(r.detail)+
+    '<span class="det">'+echap(nomDe(0))+" marque "+r.g[0]+" · "+
+    echap(nomDe(1))+" marque "+r.g[1]+'</span></div>';
+  majBarre();
+}
+
+function valider(){
+  if (S.b.capot===-1 && typeof S.b.pts!=="number"){
+    $("alerte").textContent="Indique les points de cartes du preneur.";
+    $("alerte").classList.add("on");
+    majBarre();
+    $("pts").scrollIntoView({block:"center",behavior:"smooth"});
+    return;
+  }
+  var d={preneur:S.b.preneur, pts:(S.b.capot===-1? S.b.pts : 0),
+         an:S.b.an.slice(), belote:S.b.belote, capot:S.b.capot};
+  if (S.edition===null) S.donnes.push(d); else S.donnes[S.edition]=d;
+  S.edition=null;
+  var t=totaux();
+  S.phase = (Math.max(t[0],t[1]) >= S.cible) ? "fin" : "partie";
+  rendre();
+}
+
+/* ---- fin ---- */
+function rendreFin(){
+  montrer("v-fin");
+  var t=totaux();
+  var gagnant = t[0]===t[1] ? -1 : (t[0]>t[1] ? 0 : 1);
+  $("nom-gagnant").textContent = gagnant===-1 ? "Égalité" : nomDe(gagnant);
+  $("detail-gagnant").textContent = gagnant===-1
+    ? "Les deux camps à "+t[0]+" points. Une dernière donne les départage."
+    : t[gagnant]+" points contre "+t[1-gagnant]+", en "+S.donnes.length+" donnes.";
+
+  var z=$("scores-fin"); z.innerHTML="";
+  for (var i=0;i<2;i++){
+    var d=document.createElement("div"); d.className="eq";
+    if (i===gagnant) d.classList.add("mene");
+    d.innerHTML='<div class="nm">'+echap(nomDe(i))+'</div><div class="pt">'+t[i]+'</div>';
+    z.appendChild(d);
+  }
+  barre([
+    {txt:"Rejouer avec les mêmes équipes", act:function(){ S.donnes=[]; S.litige=0; S.phase="partie"; rendre(); }},
+    {txt:"Revoir le détail des donnes", cls:"btn secondaire", act:function(){ S.phase="partie"; rendre(); }},
+    {txt:"Changer les réglages", cls:"btn secondaire", act:function(){ S.phase="reglages"; rendre(); }}
+  ]);
+}
+
+/* ---- barre ---- */
+function barre(actions){
+  var b=$("barre"); b.innerHTML="";
+  actions.forEach(function(a,k){
+    var el=document.createElement("button");
+    el.className=a.cls||"btn";
+    el.textContent=a.txt; el.onclick=a.act;
+    if (k>0) el.style.marginTop="9px";
+    b.appendChild(el);
+  });
+  majBarre();
+}
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+var majBarre=function(){};
+(function(){
+  var vv=window.visualViewport;
+  if (!vv) return;
+  var boite=$("barre-bas");
+  majBarre=function(){
+    var h=boite.offsetHeight;
+    var bas=vv.offsetTop+vv.height;
+    var cache=Math.max(0, window.innerHeight-bas);
+    if (cache<60){
+      boite.style.top="auto"; boite.style.bottom="0";
+      document.body.style.paddingBottom="";
+      return;
+    }
+    boite.style.bottom="auto";
+    boite.style.top=(bas-h)+"px";
+    document.body.style.paddingBottom=(cache+h)+"px";
+  };
+  vv.addEventListener("resize",majBarre);
+  vv.addEventListener("scroll",majBarre);
+  window.addEventListener("resize",majBarre);
+  majBarre();
+})();
+
+$("btn-reglages").onclick=function(){ S.phase="reglages"; rendre(); };
+$("btn-annuler-saisie").onclick=function(){ S.edition=null; S.phase="partie"; rendre(); };
+
+rendre();
+})();
+</script>
+</body>
+</html>
