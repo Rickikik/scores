@@ -100,6 +100,28 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-off
   background:var(--ardoise-clair);border:2px solid transparent
 }
 .eq.mene{border-color:var(--or)}
+.eq.prenable{cursor:pointer;transition:transform .12s ease,background .12s ease}
+.eq.prenable:active{transform:scale(.97);background:var(--relief)}
+.eq .prendre{
+  display:block;margin-top:10px;padding:9px 6px;border-radius:9px;
+  background:var(--craie);color:#2B3138;font-size:12px;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase
+}
+.invite{
+  text-align:center;font-size:12.5px;font-weight:700;color:var(--craie-pale);
+  margin:2px 0 14px
+}
+.preneur-ligne{
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+  background:var(--ardoise-clair);border:1px solid var(--relief);
+  border-radius:12px;padding:11px 13px
+}
+.preneur-ligne .qui{flex:1;font-size:14px;font-weight:800}
+.preneur-ligne .qui span{color:var(--craie-pale);font-weight:700}
+.preneur-ligne button{
+  font-size:12px;font-weight:800;color:var(--or);padding:8px 12px;
+  border-radius:9px;background:rgba(217,178,76,.14)
+}
 .eq .nm{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
   color:var(--craie-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .eq .pt{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.05;
@@ -253,6 +275,7 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-off
     </div>
     <div id="bandeau-litige"></div>
     <div class="scores" id="scores"></div>
+    <p class="invite" id="invite"></p>
     <div class="section-titre">
       <p class="eyebrow">Donnes jouées</p>
       <span class="eyebrow" id="astuce-edit"></span>
@@ -270,9 +293,9 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-off
       <button class="retour" id="btn-annuler-saisie">Retour</button>
     </div>
 
-    <div class="bloc">
-      <p class="eyebrow">Qui a pris</p>
-      <div class="duo" id="choix-preneur"></div>
+    <div class="preneur-ligne">
+      <span class="qui" id="qui-a-pris"></span>
+      <button type="button" id="btn-changer-preneur">Changer</button>
     </div>
 
     <div class="bloc" id="bloc-points">
@@ -488,19 +511,26 @@ function rendrePartie(){
 
   var z=$("scores"); z.innerHTML="";
   for (var i=0;i<2;i++){
-    var pct=Math.max(0,Math.min(100,(t[i]/S.cible)*100));
-    var d=document.createElement("div"); d.className="eq";
-    if (t[i]===Math.max(t[0],t[1]) && t[0]!==t[1]) d.classList.add("mene");
-    d.innerHTML='<div class="nm">'+echap(nomDe(i))+'</div>'+
-      '<div class="pt">'+t[i]+'</div>'+
-      '<div class="jauge"><i style="width:'+pct+'%"></i></div>';
-    z.appendChild(d);
+    (function(i){
+      var pct=Math.max(0,Math.min(100,(t[i]/S.cible)*100));
+      var d=document.createElement("div"); d.className="eq prenable";
+      if (t[i]===Math.max(t[0],t[1]) && t[0]!==t[1]) d.classList.add("mene");
+      d.setAttribute("role","button");
+      d.setAttribute("aria-label", nomDe(i)+" a pris cette donne");
+      d.innerHTML='<div class="nm">'+echap(nomDe(i))+'</div>'+
+        '<div class="pt">'+t[i]+'</div>'+
+        '<div class="jauge"><i style="width:'+pct+'%"></i></div>'+
+        '<span class="prendre">A pris</span>';
+      d.onclick=function(){ ouvrirSaisie(null, i); };
+      z.appendChild(d);
+    })(i);
   }
+  $("invite").textContent = "Touche l\u2019\u00e9quipe qui a pris la donne "+(S.donnes.length+1);
 
   $("astuce-edit").textContent = S.donnes.length ? "Touche une ligne pour corriger" : "";
   rendreHistorique();
 
-  var actions=[{txt:"Saisir la donne "+(S.donnes.length+1), act:function(){ ouvrirSaisie(null); }}];
+  var actions=[];
   if (S.donnes.length){
     actions.push({txt:"Annuler la dernière donne", cls:"btn secondaire", act:function(){
       S.donnes.pop(); rendre();
@@ -542,9 +572,9 @@ function rendreHistorique(){
 function abrege(n){ return n.length>9 ? n.slice(0,8)+"." : n; }
 
 /* ---- saisie ---- */
-function ouvrirSaisie(index){
+function ouvrirSaisie(index, preneur){
   S.edition=index;
-  if (index===null) S.b={preneur:0, pts:null, an:[0,0], belote:-1, capot:-1};
+  if (index===null) S.b={preneur:(preneur||0), pts:null, an:[0,0], belote:-1, capot:-1};
   else {
     var d=S.donnes[index];
     S.b={preneur:d.preneur, pts:d.pts, an:d.an.slice(), belote:d.belote, capot:d.capot};
@@ -558,9 +588,11 @@ function rendreSaisie(){
   $("saisie-titre").textContent="Donne "+n;
   $("saisie-eyebrow").textContent=(S.edition===null)?"Fin de donne":"Correction";
 
-  trio("choix-preneur", [nomDe(0), nomDe(1)], [0,1],
-       function(){ return S.b.preneur; },
-       function(v){ S.b.preneur=v; rendreSaisie(); }, true);
+  majQuiAPris();
+  $("btn-changer-preneur").onclick=function(){
+    S.b.preneur = 1-S.b.preneur;
+    majQuiAPris(); majContre(); majApercu();
+  };
 
   var inp=$("pts");
   inp.value = (typeof S.b.pts==="number") ? S.b.pts : "";
@@ -589,7 +621,12 @@ function rendreSaisie(){
   majBlocPoints();
   majApercu();
   $("alerte").classList.remove("on");
+  if (S.b.capot===-1) setTimeout(function(){ inp.focus(); }, 60);
   barre([{txt: S.edition===null?"Valider la donne":"Enregistrer la correction", act:valider}]);
+}
+
+function majQuiAPris(){
+  $("qui-a-pris").innerHTML = '<span>A pris : </span>'+echap(nomDe(S.b.preneur));
 }
 
 /* Belote : une bascule par equipe. Un seul camp peut l'avoir
