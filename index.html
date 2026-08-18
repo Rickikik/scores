@@ -103,6 +103,23 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .ens .n{color:#1A1A1A}
 .ens .r{color:#C62828}
 
+/* Yams : la grille de score et ses des */
+.yams{
+  width:64px;background:#FAF7F0;border-radius:6px;padding:6px 5px;
+  box-shadow:0 2px 5px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:3px
+}
+.yams i{display:flex;gap:3px;align-items:center}
+.yams i b{
+  flex:1;height:3px;border-radius:2px;background:#B9C2CE;display:block
+}
+.yams i s{
+  width:11px;height:11px;border-radius:2px;background:#2E5C8A;display:block;
+  text-decoration:none
+}
+.yams i:nth-child(2) s{background:#3F7D5A}
+.yams i:nth-child(3) s{background:#C08A2E}
+.yams i:nth-child(4) s{background:#B8453C}
+
 /* Mini-jeux : section a part, ce ne sont pas des compteurs */
 .separateur{
   display:flex;align-items:center;gap:12px;margin:30px 0 14px;
@@ -212,6 +229,21 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Compteur</div>
         <div class="det">Tous les autres jeux</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="yams.html">
+      <div class="vignette">
+        <div class="yams">
+          <i><b></b><s></s></i>
+          <i><b></b><s></s></i>
+          <i><b></b><s></s></i>
+          <i><b></b><s></s></i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Yams</div>
+        <div class="det">Grille et prime des 63</div>
       </div>
     </a>
 
