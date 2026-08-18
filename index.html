@@ -120,6 +120,17 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .yams i:nth-child(3) s{background:#C08A2E}
 .yams i:nth-child(4) s{background:#B8453C}
 
+/* Flechettes : la cible, secteurs alternes et anneaux */
+.cible{
+  width:66px;height:66px;border-radius:50%;
+  background:
+    radial-gradient(circle, #C1272D 0 11%, #1E7A4C 11% 18%, transparent 18%),
+    radial-gradient(circle, transparent 0 55%, #C1272D 55% 64%,
+      transparent 64% 84%, #1E7A4C 84% 94%, #17120F 94%),
+    repeating-conic-gradient(#EDE3D0 0 18deg, #22201C 18deg 36deg);
+  box-shadow:0 2px 6px rgba(0,0,0,.38)
+}
+
 /* Mini-jeux : section a part, ce ne sont pas des compteurs */
 .separateur{
   display:flex;align-items:center;gap:12px;margin:30px 0 14px;
@@ -277,6 +288,14 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Tarot</div>
         <div class="det">3, 4 ou 5 joueurs</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="flechettes.html">
+      <div class="vignette"><div class="cible"></div></div>
+      <div>
+        <div class="jeu">Fléchettes</div>
+        <div class="det">301, 501 ou 701</div>
       </div>
     </a>
   </div>
