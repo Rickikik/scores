@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12327A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Puissance 4">
+<meta name="format-detection" content="telephone=no">
+<title>Puissance 4 – Scores</title>
+<style>
+:root{
+  --bleu:#1B45A8; --bleu-fonce:#12327A; --bleu-clair:#2A5CC9;
+  --rouge:#DC3E3E; --jaune:#F0C43C;
+  --clair:#F2F5FA; --pale:#9FB3D9;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--clair);
+  background:radial-gradient(120% 80% at 50% 0%, #23457F 0%, #0E1E3E 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:520px;margin:0 auto;padding:14px 16px 30px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--clair);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-size:13.5px;font-weight:800;color:#12327A;text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pale);font-weight:700}
+h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.duo{display:flex;gap:7px;margin-bottom:9px}
+.duo button{
+  flex:1;padding:11px 6px;border-radius:10px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);font-weight:700;font-size:13px;color:var(--clair)
+}
+.duo button[aria-pressed="true"]{background:var(--clair);color:#12327A;border-color:var(--clair)}
+.niveaux{margin-bottom:14px}
+
+/* marque */
+.marque{display:flex;gap:8px;margin-bottom:12px}
+.camp{
+  flex:1;border-radius:12px;padding:9px 8px;text-align:center;
+  background:rgba(255,255,255,.1);border:2px solid transparent
+}
+.camp.tour{border-color:currentColor}
+.camp.r{color:var(--rouge)} .camp.j{color:var(--jaune)}
+.camp.nul{color:var(--pale);flex:0 0 68px}
+.camp .q{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--pale);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camp .pion{width:20px;height:20px;border-radius:50%;background:currentColor;margin:3px auto 2px}
+.camp .sc{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--clair)}
+
+/* plateau */
+.plateau{
+  background:var(--bleu);border-radius:16px;padding:8px;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:5px;
+  box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 -3px 0 rgba(0,0,0,.2);
+  margin-bottom:12px
+}
+.col{display:grid;grid-template-rows:repeat(6,1fr);gap:5px;cursor:pointer}
+.col:active{background:rgba(255,255,255,.09);border-radius:10px}
+.tr{
+  aspect-ratio:1;border-radius:50%;background:var(--bleu-fonce);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.45)
+}
+.tr.r{background:var(--rouge);box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
+.tr.j{background:var(--jaune);box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
+.tr.gagnant{outline:3px solid #fff;outline-offset:-3px}
+.tr.tombe{animation:chute .26s ease-out}
+@keyframes chute{from{transform:translateY(-160%)}to{transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.tr.tombe{animation:none}}
+
+.annonce{
+  border-radius:12px;padding:12px 14px;margin-bottom:10px;
+  font-size:15px;font-weight:800;text-align:center;background:rgba(255,255,255,.1)
+}
+.annonce.gagne{background:var(--clair);color:#12327A}
+.annonce.nul{background:rgba(255,255,255,.2)}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:var(--r);
+  background:var(--clair);color:#12327A;font-weight:800;font-size:16px;
+  box-shadow:0 3px 8px rgba(0,0,0,.35)
+}
+.btn:active{transform:scale(.985);filter:brightness(.95)}
+.btn.secondaire{
+  background:rgba(255,255,255,.1);color:var(--clair);font-weight:700;
+  box-shadow:none;border:1px solid rgba(255,255,255,.18);margin-top:8px;font-size:14px;padding:12px
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <p class="eyebrow">Mini-jeu</p>
+  <h1>Puissance 4</h1>
+
+  <div class="duo" id="choix-mode">
+    <button data-m="2" aria-pressed="true">À deux</button>
+    <button data-m="1" aria-pressed="false">Contre le téléphone</button>
+  </div>
+  <div class="niveaux" id="zone-niveaux"></div>
+
+  <div class="marque" id="marque"></div>
+  <div class="plateau" id="plateau"></div>
+  <div id="annonce"></div>
+  <div id="actions"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var COL=7, RAN=6;
+var VIDE="", R="R", J="J";
+
+var S={
+  mode:2,
+  niveau:1,            // 0 facile, 1 moyen, 2 difficile
+  g:[],                // g[c][r], r=0 en bas
+  tour:R,
+  debut:R,
+  fini:false,
+  gagnants:null,
+  dernier:null,        // {c,r} pour l'animation
+  scores:{R:0,J:0,nul:0},
+  occupe:false
+};
+var PROFONDEUR=[2,4,6];
+
+var $=function(id){ return document.getElementById(id); };
+
+function grilleVide(){
+  var g=[];
+  for (var c=0;c<COL;c++){ g.push([]); for (var r=0;r<RAN;r++) g[c].push(VIDE); }
+  return g;
+}
+function hauteur(g,c){
+  for (var r=0;r<RAN;r++) if (!g[c][r]) return r;
+  return RAN;
+}
+function jouable(g){
+  var l=[];
+  for (var c=0;c<COL;c++) if (hauteur(g,c)<RAN) l.push(c);
+  return l;
+}
+
+/* ---------------------------------------------------------------
+   DÉTECTION D'ALIGNEMENT
+   Quatre directions ; on rend les cases gagnantes pour les
+   surligner.
+   --------------------------------------------------------------- */
+var DIRS=[[1,0],[0,1],[1,1],[1,-1]];
+function aligne(g){
+  for (var c=0;c<COL;c++){
+    for (var r=0;r<RAN;r++){
+      var v=g[c][r];
+      if (!v) continue;
+      for (var d=0;d<DIRS.length;d++){
+        var dc=DIRS[d][0], dr=DIRS[d][1], cases=[[c,r]];
+        for (var k=1;k<4;k++){
+          var nc=c+dc*k, nr=r+dr*k;
+          if (nc<0||nc>=COL||nr<0||nr>=RAN||g[nc][nr]!==v) break;
+          cases.push([nc,nr]);
+        }
+        if (cases.length===4) return {qui:v, cases:cases};
+      }
+    }
+  }
+  return null;
+}
+
+/* ---------------------------------------------------------------
+   L'ADVERSAIRE
+   Minimax avec élagage alpha-bêta. La grille est trop grande pour
+   être explorée entièrement : on limite la profondeur et on évalue
+   les positions intermédiaires en comptant les fenêtres de quatre
+   cases favorables.
+   --------------------------------------------------------------- */
+function evalFenetre(f, moi){
+  var lui = moi===R?J:R;
+  var a=0,b=0,v=0;
+  for (var i=0;i<4;i++){
+    if (f[i]===moi) a++; else if (f[i]===lui) b++; else v++;
+  }
+  if (a===4) return 10000;
+  if (b===4) return -10000;
+  if (a===3&&v===1) return 60;
+  if (a===2&&v===2) return 8;
+  if (b===3&&v===1) return -80;    // bloquer prime légèrement sur construire
+  if (b===2&&v===2) return -6;
+  return 0;
+}
+function evaluer(g, moi){
+  var s=0, c, r, k, f;
+  // le centre vaut cher : il ouvre le plus d'alignements
+  for (r=0;r<RAN;r++) if (g[3][r]===moi) s+=6;
+  for (c=0;c<COL;c++) for (r=0;r<RAN;r++){
+    for (var d=0;d<DIRS.length;d++){
+      var dc=DIRS[d][0], dr=DIRS[d][1];
+      var fc=c+dc*3, fr=r+dr*3;
+      if (fc<0||fc>=COL||fr<0||fr>=RAN) continue;
+      f=[];
+      for (k=0;k<4;k++) f.push(g[c+dc*k][r+dr*k]);
+      s+=evalFenetre(f, moi);
+    }
+  }
+  return s;
+}
+function minimax(g, prof, alpha, beta, maximise, moi){
+  var fin=aligne(g), l=jouable(g);
+  if (fin) return {score: fin.qui===moi ? 100000+prof : -100000-prof};
+  if (!l.length) return {score:0};
+  if (prof===0) return {score: evaluer(g, moi)};
+
+  // explorer le centre d'abord améliore beaucoup l'élagage
+  l.sort(function(a,b){ return Math.abs(3-a)-Math.abs(3-b); });
+
+  var meilleur={score: maximise?-Infinity:Infinity, coup:l[0]};
+  for (var i=0;i<l.length;i++){
+    var c=l[i], r=hauteur(g,c);
+    g[c][r] = maximise ? moi : (moi===R?J:R);
+    var s=minimax(g, prof-1, alpha, beta, !maximise, moi).score;
+    g[c][r]=VIDE;
+    if (maximise){
+      if (s>meilleur.score) meilleur={score:s, coup:c};
+      alpha=Math.max(alpha,s);
+    } else {
+      if (s<meilleur.score) meilleur={score:s, coup:c};
+      beta=Math.min(beta,s);
+    }
+    if (beta<=alpha) break;
+  }
+  return meilleur;
+}
+
+/* ---------------------------------------------------------------
+   PARTIE
+   --------------------------------------------------------------- */
+function jouer(c){
+  if (S.fini || S.occupe) return;
+  var r=hauteur(S.g,c);
+  if (r>=RAN) return;
+  S.g[c][r]=S.tour;
+  S.dernier={c:c,r:r};
+
+  var a=aligne(S.g);
+  if (a){
+    S.fini=true; S.gagnants=a.cases; S.scores[a.qui]++;
+    S.debut = a.qui===R ? J : R;
+  } else if (!jouable(S.g).length){
+    S.fini=true; S.scores.nul++;
+    S.debut = S.debut===R ? J : R;
+  } else {
+    S.tour = S.tour===R ? J : R;
+  }
+  rendre();
+
+  if (!S.fini && S.mode===1 && S.tour===J){
+    S.occupe=true; rendre();
+    setTimeout(function(){
+      var copie=S.g.map(function(col){ return col.slice(); });
+      var r2=minimax(copie, PROFONDEUR[S.niveau], -Infinity, Infinity, true, J);
+      S.occupe=false;
+      jouer(r2.coup);
+    }, 220);
+  }
+}
+
+function nouvelleManche(){
+  S.g=grilleVide(); S.tour=S.debut; S.fini=false;
+  S.gagnants=null; S.dernier=null; S.occupe=false;
+  rendre();
+  if (S.mode===1 && S.tour===J){
+    setTimeout(function(){ jouer(3); }, 300);
+  }
+}
+function toutRemettre(){ S.scores={R:0,J:0,nul:0}; S.debut=R; nouvelleManche(); }
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function nomDe(s){
+  if (s===R) return "Rouge";
+  return S.mode===1 ? "Téléphone" : "Jaune";
+}
+
+function rendre(){
+  var m=$("marque"); m.innerHTML="";
+  [[R,"r"],["nul","nul"],[J,"j"]].forEach(function(p){
+    var d=document.createElement("div");
+    d.className="camp "+p[1];
+    if (p[0]!=="nul" && !S.fini && S.tour===p[0]) d.classList.add("tour");
+    if (p[0]==="nul"){
+      d.innerHTML='<div class="q">Nuls</div><div class="sc">'+S.scores.nul+'</div>';
+    } else {
+      d.innerHTML='<div class="q">'+echap(nomDe(p[0]))+'</div>'+
+                  '<div class="pion"></div><div class="sc">'+S.scores[p[0]]+'</div>';
+    }
+    m.appendChild(d);
+  });
+
+  var pl=$("plateau"); pl.innerHTML="";
+  for (var c=0;c<COL;c++){
+    (function(c){
+      var col=document.createElement("div"); col.className="col";
+      col.setAttribute("role","button");
+      col.setAttribute("aria-label","Jouer colonne "+(c+1));
+      for (var r=RAN-1;r>=0;r--){
+        var t=document.createElement("div");
+        var v=S.g[c][r];
+        t.className="tr"+(v?" "+v.toLowerCase():"");
+        if (S.gagnants && S.gagnants.some(function(g){ return g[0]===c&&g[1]===r; }))
+          t.classList.add("gagnant");
+        if (S.dernier && S.dernier.c===c && S.dernier.r===r) t.classList.add("tombe");
+        col.appendChild(t);
+      }
+      if (!S.fini && !S.occupe) col.onclick=function(){ jouer(c); };
+      pl.appendChild(col);
+    })(c);
+  }
+
+  var a=$("annonce");
+  if (S.occupe){
+    a.innerHTML='<div class="annonce">Le téléphone réfléchit…</div>';
+  } else if (!S.fini){
+    a.innerHTML='<div class="annonce">Au tour de '+echap(nomDe(S.tour))+'</div>';
+  } else if (S.gagnants){
+    var g=S.g[S.gagnants[0][0]][S.gagnants[0][1]];
+    a.innerHTML='<div class="annonce gagne">'+echap(nomDe(g))+' aligne quatre pions</div>';
+  } else {
+    a.innerHTML='<div class="annonce nul">Grille pleine, match nul</div>';
+  }
+
+  var ac=$("actions"); ac.innerHTML="";
+  if (S.fini){
+    var b1=document.createElement("button");
+    b1.className="btn"; b1.textContent="Manche suivante";
+    b1.onclick=nouvelleManche; ac.appendChild(b1);
+  }
+  var b2=document.createElement("button");
+  b2.className="btn secondaire"; b2.textContent="Remettre les scores à zéro";
+  b2.onclick=toutRemettre; ac.appendChild(b2);
+}
+
+function rendreNiveaux(){
+  var z=$("zone-niveaux");
+  if (S.mode!==1){ z.innerHTML=""; return; }
+  z.innerHTML='<div class="duo" id="choix-niveau"></div>';
+  ["Facile","Moyen","Difficile"].forEach(function(txt,k){
+    var b=document.createElement("button"); b.type="button"; b.textContent=txt;
+    b.setAttribute("aria-pressed", S.niveau===k?"true":"false");
+    b.onclick=function(){ S.niveau=k; rendreNiveaux(); toutRemettre(); };
+    $("choix-niveau").appendChild(b);
+  });
+}
+
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+Array.prototype.forEach.call($("choix-mode").children,function(b){
+  b.onclick=function(){
+    S.mode=+b.dataset.m;
+    Array.prototype.forEach.call($("choix-mode").children,function(e){
+      e.setAttribute("aria-pressed", e.dataset.m===b.dataset.m?"true":"false");
+    });
+    rendreNiveaux(); toutRemettre();
+  };
+});
+
+rendreNiveaux();
+nouvelleManche();
+})();
+</script>
+</body>
+</html>
