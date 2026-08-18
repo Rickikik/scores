@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#131A24">
+<title>2048</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131A24'/%3E%3Crect x='8' y='8' width='21' height='21' rx='4' fill='%232E4257'/%3E%3Crect x='35' y='8' width='21' height='21' rx='4' fill='%234F7183'/%3E%3Crect x='8' y='35' width='21' height='21' rx='4' fill='%23B0A855'/%3E%3Crect x='35' y='35' width='21' height='21' rx='4' fill='%23E08C3C'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#131A24; --plateau:#1B2431; --vide:#243244; --line:#2E3F54;
+  --ink:#EAF0F7; --dim:#8B9BAE; --bleu:#2B5570; --or:#D2A247;
+  --bord:10px; --gap:10px;
+  --taille:min(92vw, 400px);
+  --case:calc((var(--taille) - 2*var(--bord) - 3*var(--gap)) / 4);
+  --pas:calc(var(--case) + var(--gap));
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none;
+  touch-action:manipulation}
+body{min-height:100vh;padding-bottom:24px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 0 6px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  background:var(--ink);color:var(--bleu);font-weight:600;font-size:15px;
+  text-decoration:none}
+header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
+
+.scores{display:flex;gap:10px;margin:6px 0 12px}
+.carte{flex:1;background:var(--plateau);border:1px solid var(--line);
+  border-radius:12px;padding:9px 12px;text-align:center}
+.carte span{display:block;font-size:11px;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.1em}
+.carte b{display:block;font-size:24px;font-weight:700;margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.carte i{font-style:normal;color:var(--or);font-size:13px;margin-left:6px;
+  font-weight:700}
+
+.plateau{position:relative;width:var(--taille);height:var(--taille);
+  margin:0 auto;background:var(--plateau);border-radius:14px;
+  padding:var(--bord);border:1px solid var(--line);touch-action:none}
+.fond{position:absolute;inset:var(--bord);display:grid;
+  grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);
+  gap:var(--gap)}
+.fond i{background:var(--vide);border-radius:8px;display:block}
+.tuiles{position:absolute;inset:var(--bord)}
+.t{position:absolute;top:0;left:0;width:var(--case);height:var(--case);
+  border-radius:8px;display:grid;place-items:center;font-weight:800;
+  font-size:calc(var(--case) * .42);font-variant-numeric:tabular-nums;
+  letter-spacing:-.04em;
+  transform:translate(calc(var(--c) * var(--pas)), calc(var(--r) * var(--pas)));
+  transition:transform 105ms ease-in-out}
+.t.l4{font-size:calc(var(--case) * .30)}
+.t.l5{font-size:calc(var(--case) * .24)}
+@keyframes pop{0%{transform:translate(calc(var(--c)*var(--pas)),calc(var(--r)*var(--pas))) scale(.5)}
+  100%{transform:translate(calc(var(--c)*var(--pas)),calc(var(--r)*var(--pas))) scale(1)}}
+@keyframes fus{0%{transform:translate(calc(var(--c)*var(--pas)),calc(var(--r)*var(--pas))) scale(1)}
+  45%{transform:translate(calc(var(--c)*var(--pas)),calc(var(--r)*var(--pas))) scale(1.16)}
+  100%{transform:translate(calc(var(--c)*var(--pas)),calc(var(--r)*var(--pas))) scale(1)}}
+.t.neuf{animation:pop 130ms ease-out}
+.t.fusion{animation:fus 150ms ease-out}
+
+.barre{display:flex;gap:8px;width:var(--taille);margin:12px auto 0}
+.barre button{flex:1;min-height:50px;border-radius:12px;background:var(--plateau);
+  border:1px solid var(--line);font-size:15px;color:var(--ink)}
+.barre button:disabled{color:#5C6A7B}
+.barre button.p{background:var(--bleu);border-color:var(--bleu);font-weight:600}
+
+.voile{position:absolute;inset:0;border-radius:14px;display:grid;
+  place-items:center;background:rgba(19,26,36,.86);text-align:center;padding:20px}
+.voile b{display:block;font-size:30px;font-weight:800;margin-bottom:6px}
+.voile span{display:block;font-size:14px;color:var(--dim);margin-bottom:16px}
+.voile button{min-height:50px;padding:0 22px;border-radius:12px;
+  background:var(--bleu);font-size:16px;font-weight:600;margin:0 4px}
+
+.pied{margin:16px auto 0;max-width:var(--taille);padding:14px;border-radius:12px;
+  background:var(--plateau);border:1px solid var(--line);font-size:13px;
+  color:var(--dim);line-height:1.6}
+@media(prefers-reduced-motion:reduce){
+  .t{transition:none}
+  .t.neuf,.t.fusion{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./index.html">← Scores</a>
+    <h1>2048</h1>
+    <span style="min-width:45px"></span>
+  </header>
+  <div class="scores">
+    <div class="carte"><span>Score</span><b id="score">0</b></div>
+    <div class="carte"><span>Meilleur</span><b id="record">0</b></div>
+  </div>
+  <div class="plateau" id="plateau">
+    <div class="fond" id="fond"></div>
+    <div class="tuiles" id="tuiles"></div>
+  </div>
+  <div class="barre">
+    <button id="annuler" disabled>↶ Un coup en arrière</button>
+    <button class="p" id="neuve">Nouvelle partie</button>
+  </div>
+  <div class="pied">Glisse dans une direction pour pousser toutes les tuiles.
+    Deux tuiles égales fusionnent, mais une tuile née d’une fusion ne refusionne
+    pas dans le même mouvement. Rien n’est enregistré : le meilleur score vit le
+    temps de l’onglet.</div>
+</div>
+
+<script>
+/* ================= MOTEUR =================
+   Regles verifiees sur cinq sources concordantes. Le hasard est injectable
+   pour que les tests soient reproductibles. */
+const G = {
+  /* glisse une ligne vers la gauche ; entree et sortie de longueur 4 */
+  ligne(l){
+    const v = l.filter(x => x), out = [];
+    let gain = 0;
+    for(let i = 0; i < v.length; i++){
+      if(i + 1 < v.length && v[i] === v[i + 1]){
+        /* la paire la plus proche du sens du geste fusionne, et le resultat
+           ne refusionne pas dans le meme mouvement */
+        out.push(v[i] * 2); gain += v[i] * 2; i++;
+      } else out.push(v[i]);
+    }
+    while(out.length < 4) out.push(0);
+    return {ligne:out, gain:gain};
+  },
+
+  /* lecture d'une grille en quatre lignes orientees dans le sens du geste */
+  lire(g, dir){
+    const L = [];
+    for(let i = 0; i < 4; i++){
+      const l = [];
+      for(let j = 0; j < 4; j++){
+        if(dir === "g") l.push(g[i][j]);
+        else if(dir === "d") l.push(g[i][3 - j]);
+        else if(dir === "h") l.push(g[j][i]);
+        else l.push(g[3 - j][i]);
+      }
+      L.push(l);
+    }
+    return L;
+  },
+  ecrire(L, dir){
+    const g = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+    for(let i = 0; i < 4; i++) for(let j = 0; j < 4; j++){
+      const v = L[i][j];
+      if(dir === "g") g[i][j] = v;
+      else if(dir === "d") g[i][3 - j] = v;
+      else if(dir === "h") g[j][i] = v;
+      else g[3 - j][i] = v;
+    }
+    return g;
+  },
+
+  /* un mouvement n'est legal que s'il change le plateau */
+  deplacer(g, dir){
+    const L = G.lire(g, dir), R = [];
+    let gain = 0;
+    for(const l of L){ const r = G.ligne(l); R.push(r.ligne); gain += r.gain; }
+    const ng = G.ecrire(R, dir);
+    let bouge = false;
+    for(let i = 0; i < 4; i++) for(let j = 0; j < 4; j++)
+      if(g[i][j] !== ng[i][j]) bouge = true;
+    return {grille:ng, gain:gain, bouge:bouge};
+  },
+
+  vides(g){
+    const v = [];
+    for(let i = 0; i < 4; i++) for(let j = 0; j < 4; j++) if(!g[i][j]) v.push([i, j]);
+    return v;
+  },
+  /* 2 a 90 %, 4 a 10 % ; rnd injectable */
+  tirage(rnd){ return rnd() < 0.9 ? 2 : 4; },
+
+  /* fin de partie : aucune case vide et aucune paire adjacente */
+  fini(g){
+    if(G.vides(g).length) return false;
+    for(let i = 0; i < 4; i++) for(let j = 0; j < 4; j++){
+      if(j < 3 && g[i][j] === g[i][j + 1]) return false;
+      if(i < 3 && g[i][j] === g[i + 1][j]) return false;
+    }
+    return true;
+  },
+  atteint(g, cible){
+    for(let i = 0; i < 4; i++) for(let j = 0; j < 4; j++) if(g[i][j] >= cible) return true;
+    return false;
+  }
+};
+window.G = G;
+
+/* ================= ETAT ================= */
+const TEINTES = {
+  2:["#2E4257","#EAF0F7"], 4:["#3B586F","#EAF0F7"], 8:["#4F7183","#EAF0F7"],
+  16:["#6B8A7A","#14202B"], 32:["#8CA167","#14202B"], 64:["#B0A855","#14202B"],
+  128:["#D2A247","#14202B"], 256:["#E08C3C","#14202B"], 512:["#E67338","#14202B"],
+  1024:["#E45739","#FFF6EE"], 2048:["#E03B3B","#FFF6EE"]
+};
+const HAUT = ["#C22B6B","#FFF6EE"];
+
+const S = {tuiles:[], score:0, record:0, seq:1, anim:false,
+           precedent:null, gagne:false, ecran:null};
+const el = id => document.getElementById(id);
+const alea = () => Math.random();
+
+function grille(){
+  const g = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  S.tuiles.forEach(t => g[t.r][t.c] = t.v);
+  return g;
+}
+function poser(v, r, c, neuf){
+  S.tuiles.push({id:S.seq++, v:v, r:r, c:c, neuf:!!neuf, fusion:false});
+}
+function semer(){
+  const v = G.vides(grille());
+  if(!v.length) return;
+  const [r, c] = v[Math.floor(alea() * v.length)];
+  poser(G.tirage(alea), r, c, true);
+}
+
+function nouvelle(){
+  S.tuiles = []; S.score = 0; S.seq = 1; S.precedent = null;
+  S.gagne = false; S.ecran = null; S.anim = false;
+  semer(); semer(); rendu();
+}
+
+/* ================= UN COUP ================= */
+function jouer(dir){
+  if(S.anim || S.ecran === "fin") return;
+  const avant = grille();
+  const res = G.deplacer(avant, dir);
+  if(!res.bouge) return;
+
+  const memoire = {tuiles:S.tuiles.map(t => ({...t})), score:S.score};
+
+  /* on rejoue le glissement tuile par tuile pour savoir ou chacune va */
+  const cases = [];   /* {v, ids:[], r, c} */
+  for(let i = 0; i < 4; i++){
+    const suite = [];
+    for(let j = 0; j < 4; j++){
+      const [r, c] = coord(i, j, dir);
+      const t = S.tuiles.find(x => x.r === r && x.c === c);
+      if(t) suite.push(t);
+    }
+    let k = 0;
+    for(let n = 0; n < suite.length; n++){
+      const [r, c] = coord(i, k, dir);
+      if(n + 1 < suite.length && suite[n].v === suite[n + 1].v){
+        cases.push({v:suite[n].v * 2, ids:[suite[n].id, suite[n + 1].id], r:r, c:c});
+        suite[n].r = r; suite[n].c = c;
+        suite[n + 1].r = r; suite[n + 1].c = c;
+        n++;
+      } else {
+        suite[n].r = r; suite[n].c = c;
+      }
+      k++;
+    }
+  }
+
+  S.tuiles.forEach(t => { t.neuf = false; t.fusion = false; });
+  S.score += res.gain;
+  if(S.score > S.record) S.record = S.score;
+  S.anim = true;
+  rendu();
+
+  setTimeout(() => {
+    const fusionnes = new Set();
+    cases.forEach(x => x.ids.forEach(id => fusionnes.add(id)));
+    S.tuiles = S.tuiles.filter(t => !fusionnes.has(t.id));
+    cases.forEach(x => {
+      S.tuiles.push({id:S.seq++, v:x.v, r:x.r, c:x.c, neuf:false, fusion:true});
+    });
+    semer();
+    S.precedent = memoire;
+    S.anim = false;
+    const g = grille();
+    if(!S.gagne && G.atteint(g, 2048)){ S.gagne = true; S.ecran = "gagne"; }
+    else if(G.fini(g)) S.ecran = "fin";
+    rendu();
+  }, 110);
+}
+
+/* coordonnee de la case j de la ligne i, dans le repere du geste */
+function coord(i, j, dir){
+  if(dir === "g") return [i, j];
+  if(dir === "d") return [i, 3 - j];
+  if(dir === "h") return [j, i];
+  return [3 - j, i];
+}
+
+function annuler(){
+  if(!S.precedent || S.anim) return;
+  S.tuiles = S.precedent.tuiles.map(t => ({...t, neuf:false, fusion:false}));
+  S.score = S.precedent.score;
+  S.precedent = null;
+  S.ecran = null;
+  rendu();
+}
+
+/* ================= RENDU ================= */
+function rendu(){
+  el("score").textContent = S.score;
+  el("record").textContent = S.record;
+  el("annuler").disabled = !S.precedent || S.anim;
+
+  el("tuiles").innerHTML = S.tuiles.map(t => {
+    const [fond, encre] = TEINTES[t.v] || HAUT;
+    const n = String(t.v).length;
+    return `<div class="t${n >= 5 ? " l5" : n === 4 ? " l4" : ""}`
+      + `${t.neuf ? " neuf" : ""}${t.fusion ? " fusion" : ""}"`
+      + ` style="--r:${t.r};--c:${t.c};background:${fond};color:${encre}">${t.v}</div>`;
+  }).join("")
+  + (S.ecran === "fin"
+     ? `<div class="voile"><div><b>Partie terminée</b>
+        <span>Score ${S.score}. Plus aucun mouvement possible.</span>
+        <button id="rej">Nouvelle partie</button></div></div>`
+     : S.ecran === "gagne"
+     ? `<div class="voile"><div><b>2048 !</b>
+        <span>Tu peux t’arrêter là ou continuer pour aller plus haut.</span>
+        <button id="cont">Continuer</button></div></div>` : "");
+
+  const r = el("rej"); if(r) r.onclick = nouvelle;
+  const c = el("cont"); if(c) c.onclick = () => { S.ecran = null; rendu(); };
+}
+
+el("fond").innerHTML = "<i></i>".repeat(16);
+el("neuve").onclick = nouvelle;
+el("annuler").onclick = annuler;
+
+/* ================= GESTES ================= */
+document.addEventListener("keydown", e => {
+  const k = {ArrowLeft:"g", ArrowRight:"d", ArrowUp:"h", ArrowDown:"b"}[e.key];
+  if(k){ e.preventDefault(); jouer(k); }
+});
+
+const plateau = el("plateau");
+let dep = null;
+plateau.addEventListener("touchstart", e => {
+  dep = {x:e.touches[0].clientX, y:e.touches[0].clientY};
+}, {passive:true});
+plateau.addEventListener("touchmove", e => { if(dep) e.preventDefault(); },
+  {passive:false});
+plateau.addEventListener("touchend", e => {
+  if(!dep) return;
+  const t = e.changedTouches[0];
+  glisse(t.clientX - dep.x, t.clientY - dep.y);
+  dep = null;
+});
+plateau.addEventListener("mousedown", e => { dep = {x:e.clientX, y:e.clientY}; });
+plateau.addEventListener("mouseup", e => {
+  if(!dep) return;
+  glisse(e.clientX - dep.x, e.clientY - dep.y);
+  dep = null;
+});
+function glisse(dx, dy){
+  const SEUIL = 24;
+  if(Math.max(Math.abs(dx), Math.abs(dy)) < SEUIL) return;
+  if(Math.abs(dx) > Math.abs(dy)) jouer(dx > 0 ? "d" : "g");
+  else jouer(dy > 0 ? "b" : "h");
+}
+
+nouvelle();
+</script>
+</body>
+</html>
