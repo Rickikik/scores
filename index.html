@@ -146,6 +146,22 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .p4 i.r{background:#DC3E3E}
 .p4 i.j{background:#F0C43C}
 
+/* Bataille navale : un navire sur la grille */
+.nav{
+  background:#14415C;border-radius:8px;padding:5px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+  box-shadow:0 2px 6px rgba(0,0,0,.35)
+}
+.nav i{
+  width:14px;height:14px;border-radius:2px;background:#0B2B3F;display:block
+}
+.nav i.b{
+  background:linear-gradient(180deg,#DBB27C 0%,#C89A63 50%,#A2764A 100%);
+  box-shadow:inset 0 1px 0 #38434E, inset 0 -1px 0 #38434E
+}
+.nav i.pr{clip-path:polygon(0 50%, 55% 0, 100% 0, 100% 100%, 55% 100%)}
+.nav i.x{background:#E2703A}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -252,6 +268,20 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Puissance 4</div>
         <div class="det">Trois niveaux contre le téléphone</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="nav.html">
+      <div class="vignette">
+        <div class="nav">
+          <i></i><i class="b pr"></i><i class="b"></i><i class="b"></i>
+          <i></i><i></i><i class="x"></i><i></i>
+          <i class="b pr"></i><i class="b"></i><i></i><i></i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Bataille navale</div>
+        <div class="det">Deux téléphones, à l’oral</div>
       </div>
     </a>
 
