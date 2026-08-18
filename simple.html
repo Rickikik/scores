@@ -140,7 +140,6 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-o
   display:flex;align-items:center;gap:10px;padding:9px 11px;margin-bottom:7px;
   border-radius:12px;background:rgba(255,255,255,.82);border:2px solid transparent
 }
-.js.incomplet{border-color:var(--marge)}
 .js .pastille{height:30px}
 .js .n{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .js .signe{
@@ -148,11 +147,6 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-o
   font-size:19px;font-weight:800;flex:0 0 auto
 }
 .js input{width:92px;text-align:center;font-size:20px;font-weight:800;padding:11px 6px}
-.manque-alerte{
-  display:none;margin-bottom:9px;font-size:13px;font-weight:700;color:#fff;
-  background:var(--marge);border-radius:10px;padding:9px 12px;text-align:center
-}
-.manque-alerte.on{display:block}
 
 /* ---------- fin ---------- */
 .sacre{text-align:center;padding:6px 0 16px}
@@ -229,7 +223,7 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-o
       </div>
       <button class="retour" id="btn-annuler-saisie">Retour</button>
     </div>
-    <p class="sous">Note les points de chacun pour cette manche.</p>
+    <p class="sous">Tout part de zéro : ne modifie que les joueurs qui marquent.</p>
     <div id="lignes-saisie"></div>
   </section>
 
@@ -245,7 +239,6 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-o
 </div>
 
 <div class="barre-bas" id="barre-bas"><div class="inner">
-  <div class="manque-alerte" id="manque-alerte"></div>
   <div id="barre"></div>
 </div></div>
 
@@ -472,7 +465,7 @@ function abrege(n){ return n.length>7 ? n.slice(0,6)+"." : n; }
 /* ---- saisie ---- */
 function ouvrirSaisie(index){
   S.edition=index;
-  S.brouillon = (index===null) ? new Array(S.nb).fill(null) : S.manches[index].slice();
+  S.brouillon = (index===null) ? new Array(S.nb).fill(0) : S.manches[index].slice();
   S.phase="saisie"; rendre();
 }
 var refs=[];
@@ -493,14 +486,12 @@ function rendreSaisie(){
       signe.setAttribute("aria-label","Inverser le signe de "+nomDe(i));
       var inp=document.createElement("input");
       inp.type="number"; inp.inputMode="numeric"; inp.step="1"; inp.placeholder="0";
-      inp.value = (typeof S.brouillon[i]==="number") ? S.brouillon[i] : "";
+      inp.value = (typeof S.brouillon[i]==="number") ? S.brouillon[i] : 0;
       inp.oninput=function(){
         var v=parseInt(inp.value,10);
-        S.brouillon[i]= isNaN(v)? null : v;
-        d.classList.remove("incomplet");
-        $("manque-alerte").classList.remove("on");
-        majBarre();
+        S.brouillon[i]= isNaN(v)? 0 : v;   // champ vidé = zéro, pas d'oubli possible
       };
+      inp.onfocus=function(){ inp.select(); };
       signe.onclick=function(){
         var v=parseInt(inp.value,10); if (isNaN(v)) return;
         inp.value=-v; S.brouillon[i]=-v;
@@ -509,26 +500,11 @@ function rendreSaisie(){
       z.appendChild(d); refs[i]=d;
     })(i);
   }
-  $("manque-alerte").classList.remove("on");
   barre([{txt: S.edition===null ? "Valider la manche" : "Enregistrer la correction", act:valider}]);
 }
 
 function valider(){
-  var absents=[];
-  for (var i=0;i<S.nb;i++) if (typeof S.brouillon[i]!=="number") absents.push(i);
-  if (absents.length){
-    var noms=absents.map(nomDe);
-    var txt = noms.length===1 ? noms[0]
-            : noms.length<=3 ? noms.slice(0,-1).join(", ")+" et "+noms[noms.length-1]
-            : noms.length+" joueurs";
-    $("manque-alerte").textContent="Il manque le score de "+txt+".";
-    $("manque-alerte").classList.add("on");
-    absents.forEach(function(i){ if (refs[i]) refs[i].classList.add("incomplet"); });
-    majBarre();
-    if (refs[absents[0]]) refs[absents[0]].scrollIntoView({block:"center",behavior:"smooth"});
-    return;
-  }
-  var m=S.brouillon.slice();
+  var m=S.brouillon.map(function(v){ return typeof v==="number" ? v : 0; });
   if (S.edition===null) S.manches.push(m); else S.manches[S.edition]=m;
   S.edition=null;
   S.phase = partieFinie(totaux()) ? "fin" : "partie";
