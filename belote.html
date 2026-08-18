@@ -441,6 +441,8 @@ function montrer(v){
   ["v-reglages","v-partie","v-saisie","v-fin"].forEach(function(id){
     $(id).classList.toggle("actif", id===v);
   });
+  // l'apercu n'a de sens que pendant la saisie
+  if (v!=="v-saisie"){ $("apercu").innerHTML=""; $("alerte").classList.remove("on"); }
   window.scrollTo(0,0);
 }
 function rendre(){
