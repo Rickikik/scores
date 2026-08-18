@@ -103,6 +103,26 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .ens .n{color:#1A1A1A}
 .ens .r{color:#C62828}
 
+/* Mini-jeux : section a part, ce ne sont pas des compteurs */
+.separateur{
+  display:flex;align-items:center;gap:12px;margin:30px 0 14px;
+  font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  font-weight:800;color:var(--menthe)
+}
+.separateur::before,.separateur::after{
+  content:"";flex:1;height:1px;background:rgba(255,255,255,.18)
+}
+.morpion{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  width:66px;height:66px
+}
+.morpion i{
+  border-radius:4px;background:rgba(255,255,255,.14);display:grid;
+  place-items:center;font-size:15px;font-weight:800;font-style:normal;color:#fff
+}
+.morpion i.x{color:#8FB8F0}
+.morpion i.o{color:#F09B96}
+
 .mot{
   margin-top:26px;padding:14px 16px;border-radius:14px;
   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
@@ -155,6 +175,26 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
         <div class="det">3, 4 ou 5 joueurs</div>
       </div>
     </a>
+  </div>
+
+  <p class="separateur">Mini-jeux</p>
+
+  <div class="grille">
+    <a class="tuile" href="morpion.html">
+      <div class="vignette">
+        <div class="morpion">
+          <i class="x">✕</i><i></i><i class="o">○</i>
+          <i></i><i class="x">✕</i><i></i>
+          <i class="o">○</i><i></i><i class="x">✕</i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Morpion</div>
+        <div class="det">À deux ou contre le téléphone</div>
+      </div>
+    </a>
+
+    <div class="tuile libre"><span>À venir</span></div>
   </div>
 
   <p class="mot"><b>Il manque un jeu ?</b> Faites-moi signe si vous avez besoin
