@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B2B3F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bataille navale">
+<meta name="format-detection" content="telephone=no">
+<title>Bataille navale – Scores</title>
+<style>
+:root{
+  --mer:#0B2B3F; --mer-clair:#14415C; --vague:#1D5878;
+  --coque:#8A9BAA; --clair:#EAF2F7; --pale:#8FAAC0;
+  --touche:#E2703A; --coule:#C1362F; --eau:#2A6F94; --ok:#5FA98A;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--clair);
+  background:radial-gradient(120% 80% at 50% 0%, #17506F 0%, #071C2A 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:520px;margin:0 auto;padding:14px 16px 140px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--clair);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-size:13.5px;font-weight:800;color:#0B2B3F;text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pale);font-weight:700}
+h1{font-size:27px;font-weight:800;letter-spacing:-.02em;margin:2px 0 6px}
+.sous{color:var(--pale);font-size:13.5px;margin:0 0 16px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.duo{display:flex;gap:8px;margin-bottom:14px}
+.duo button{
+  flex:1;padding:12px 6px;border-radius:11px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);font-weight:700;font-size:13.5px;color:var(--clair)
+}
+.duo button[aria-pressed="true"]{background:var(--clair);color:#0B2B3F;border-color:var(--clair)}
+.duo button .pastille{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--touche);margin-left:5px;vertical-align:middle
+}
+
+/* grille */
+.grille{
+  display:grid;grid-template-columns:20px repeat(10,1fr);gap:2px;
+  margin-bottom:12px
+}
+.rep{
+  display:grid;place-items:center;font-size:10px;font-weight:800;
+  color:var(--pale);aspect-ratio:1
+}
+.c{
+  aspect-ratio:1;border-radius:3px;background:var(--mer-clair);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+  display:grid;place-items:center;font-size:12px;font-weight:800;line-height:1
+}
+.c.navire{background:var(--coque)}
+.c.pose{background:var(--ok)}
+.c.survol{background:var(--vague);box-shadow:inset 0 0 0 2px var(--clair)}
+.c.eau{background:var(--eau);color:rgba(255,255,255,.6)}
+.c.touche{background:var(--touche);color:#fff}
+.c.coule{background:var(--coule);color:#fff}
+.c.interdit{background:#7A3A38}
+
+/* flotte */
+.flotte{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.bat{
+  border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);font-size:12.5px;font-weight:700
+}
+.bat.actif{background:var(--clair);color:#0B2B3F;border-color:var(--clair)}
+.bat.place{opacity:.45}
+.bat.perdu{background:rgba(193,54,47,.3);border-color:var(--coule);text-decoration:line-through}
+.bat .k{font-weight:800;font-variant-numeric:tabular-nums}
+
+.info{
+  border-radius:12px;padding:12px 14px;margin-bottom:12px;
+  font-size:14px;font-weight:700;background:rgba(255,255,255,.1)
+}
+.info.touche{background:var(--touche);color:#fff}
+.info.coule{background:var(--coule);color:#fff}
+.info.eau{background:var(--eau)}
+.info.gagne{background:var(--ok);color:#0B2B3F}
+.info .p{display:block;font-size:12.5px;font-weight:600;margin-top:4px;opacity:.9}
+
+.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,rgba(7,28,42,0) 0%,#0A2334 30%);
+  padding:20px 16px calc(14px + env(safe-area-inset-bottom))
+}
+.barre-bas .inner{max-width:520px;margin:0 auto}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:var(--r);
+  background:var(--clair);color:#0B2B3F;font-weight:800;font-size:16px;
+  box-shadow:0 3px 8px rgba(0,0,0,.4)
+}
+.btn:active{transform:scale(.985);filter:brightness(.95)}
+.btn[disabled]{background:rgba(255,255,255,.12);color:var(--pale);box-shadow:none}
+.btn.secondaire{
+  background:rgba(255,255,255,.1);color:var(--clair);font-weight:700;
+  box-shadow:none;border:1px solid rgba(255,255,255,.18);margin-top:8px;
+  font-size:14px;padding:12px
+}
+.vue{display:none}
+.vue.actif{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <p class="eyebrow">Mini-jeu · deux appareils</p>
+  <h1>Bataille navale</h1>
+
+  <!-- ============ PLACEMENT ============ -->
+  <section id="v-placement" class="vue actif">
+    <p class="sous">Place ta flotte. Chacun sur son téléphone, les coups s’annoncent à voix haute.</p>
+    <div class="duo" id="choix-sens">
+      <button data-s="h" aria-pressed="true">Horizontal</button>
+      <button data-s="v" aria-pressed="false">Vertical</button>
+    </div>
+    <div class="flotte" id="flotte-placement"></div>
+    <div class="grille" id="g-placement"></div>
+    <div id="info-placement"></div>
+  </section>
+
+  <!-- ============ PARTIE ============ -->
+  <section id="v-partie" class="vue">
+    <div class="duo" id="choix-vue">
+      <button data-v="tirs" aria-pressed="true">Mes tirs</button>
+      <button data-v="flotte" aria-pressed="false">Ma flotte</button>
+    </div>
+    <p class="sous" id="consigne"></p>
+    <div class="flotte" id="flotte-partie"></div>
+    <div class="grille" id="g-partie"></div>
+    <div id="info-partie"></div>
+  </section>
+</div>
+
+<div class="barre-bas"><div class="inner">
+  <div id="barre"></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+
+var N=10;
+var COLS="ABCDEFGHIJ";
+var FLOTTE=[
+  {n:"Porte-avions", t:5},
+  {n:"Croiseur", t:4},
+  {n:"Contre-torpilleur", t:3},
+  {n:"Sous-marin", t:3},
+  {n:"Torpilleur", t:2}
+];
+
+/* ---------------------------------------------------------------
+   ÉTAT
+   Deux grilles indépendantes :
+   - ma flotte : ce que j'ai placé, et ce que l'adversaire a touché
+   - mes tirs  : ce que j'ai annoncé, et ce qu'on m'a répondu
+   Les deux appareils ne communiquent pas : ce sont les joueurs qui
+   transmettent l'information à la voix.
+   --------------------------------------------------------------- */
+var S={
+  phase:"placement",
+  sens:"h",
+  aPlacer:0,
+  navires:[],        // {n,t,cases:[[c,r]], touches:0}
+  maGrille:[],       // "" | "N" navire | "T" touché | "E" manqué par l'adversaire
+  mesTirs:[],        // "" | "E" à l'eau | "T" touché | "C" coulé
+  vue:"tirs",
+  dernier:null,
+  fini:null          // "gagne" | "perdu"
+};
+
+var $=function(id){ return document.getElementById(id); };
+function vide(){
+  var g=[];
+  for (var c=0;c<N;c++){ g.push([]); for (var r=0;r<N;r++) g[c].push(""); }
+  return g;
+}
+function nomCase(c,r){ return COLS[c]+(r+1); }
+
+/* ---------------------------------------------------------------
+   PLACEMENT
+   --------------------------------------------------------------- */
+function casesPour(c,r,t,sens){
+  var l=[];
+  for (var k=0;k<t;k++){
+    var nc = sens==="h" ? c+k : c;
+    var nr = sens==="h" ? r : r+k;
+    if (nc>=N||nr>=N) return null;
+    l.push([nc,nr]);
+  }
+  return l;
+}
+function libre(l){
+  for (var i=0;i<l.length;i++) if (S.maGrille[l[i][0]][l[i][1]]) return false;
+  return true;
+}
+function poser(c,r){
+  if (S.aPlacer>=FLOTTE.length) return;
+  var b=FLOTTE[S.aPlacer];
+  var l=casesPour(c,r,b.t,S.sens);
+  if (!l || !libre(l)){
+    montrerInfo("info-placement","Ce bateau ne tient pas ici.","");
+    return;
+  }
+  l.forEach(function(p){ S.maGrille[p[0]][p[1]]="N"; });
+  S.navires.push({n:b.n, t:b.t, cases:l, touches:0});
+  S.aPlacer++;
+  if (S.aPlacer>=FLOTTE.length) montrerInfo("info-placement","Flotte complète. À l’attaque.","");
+  else montrerInfo("info-placement","","");
+  rendrePlacement();
+}
+function placerAuHasard(){
+  S.maGrille=vide(); S.navires=[]; S.aPlacer=0;
+  FLOTTE.forEach(function(b){
+    var pose=false, garde=0;
+    while (!pose && garde<800){
+      garde++;
+      var sens = Math.random()<0.5 ? "h" : "v";
+      var c=Math.floor(Math.random()*N), r=Math.floor(Math.random()*N);
+      var l=casesPour(c,r,b.t,sens);
+      if (l && libre(l)){
+        l.forEach(function(p){ S.maGrille[p[0]][p[1]]="N"; });
+        S.navires.push({n:b.n, t:b.t, cases:l, touches:0});
+        pose=true;
+      }
+    }
+  });
+  S.aPlacer=FLOTTE.length;
+  montrerInfo("info-placement","Flotte placée au hasard.","");
+  rendrePlacement();
+}
+
+/* ---------------------------------------------------------------
+   PARTIE
+   --------------------------------------------------------------- */
+/* L'adversaire annonce une case : je la touche sur ma flotte et
+   l'app me dit quoi lui répondre. */
+function subir(c,r){
+  if (S.fini) return;
+  var v=S.maGrille[c][r];
+  if (v==="T"||v==="E"){
+    montrerInfo("info-partie","Cette case a déjà été annoncée.","");
+    return;
+  }
+  if (v==="N"){
+    S.maGrille[c][r]="T";
+    var nav=null;
+    S.navires.forEach(function(b){
+      if (b.cases.some(function(p){ return p[0]===c&&p[1]===r; })){ b.touches++; nav=b; }
+    });
+    if (nav.touches>=nav.t){
+      var restants=S.navires.filter(function(b){ return b.touches<b.t; }).length;
+      if (!restants){
+        S.fini="perdu";
+        montrerInfo("info-partie","Dis-lui : « coulé, tu as gagné ».",
+                    "Ton "+nav.n+" était le dernier.","coule");
+      } else {
+        montrerInfo("info-partie","Dis-lui : « touché-coulé ».",
+                    "Ton "+nav.n+" est coulé. Il t’en reste "+restants+".","coule");
+      }
+    } else {
+      montrerInfo("info-partie","Dis-lui : « touché ».","","touche");
+    }
+  } else {
+    S.maGrille[c][r]="E";
+    montrerInfo("info-partie","Dis-lui : « à l’eau ».","","eau");
+  }
+  rendrePartie();
+}
+
+/* Je tire : je note la case, puis j'enregistre sa réponse. */
+function viser(c,r){
+  if (S.fini) return;
+  if (S.mesTirs[c][r]){
+    montrerInfo("info-partie","Tu as déjà tiré ici.","");
+    return;
+  }
+  S.dernier={c:c,r:r};
+  rendrePartie();
+}
+function noter(reponse){
+  if (!S.dernier) return;
+  var c=S.dernier.c, r=S.dernier.r;
+  S.mesTirs[c][r]=reponse;
+  S.dernier=null;
+  if (reponse==="C"){
+    // une seule case porte le "coulé" : celle qui achève le bateau.
+    // Cinq cases "coulé" = les cinq bateaux sont au fond.
+    var nb=0;
+    for (var a=0;a<N;a++) for (var b=0;b<N;b++) if (S.mesTirs[a][b]==="C") nb++;
+    if (nb>=FLOTTE.length){
+      S.fini="gagne";
+      montrerInfo("info-partie","Tu as coulé toute sa flotte.","","gagne");
+    }
+  }
+  rendrePartie();
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function montrer(v){
+  ["v-placement","v-partie"].forEach(function(id){
+    $(id).classList.toggle("actif", id===v);
+  });
+  window.scrollTo(0,0);
+}
+function montrerInfo(id, texte, precision, cls){
+  var z=$(id);
+  if (!texte){ z.innerHTML=""; return; }
+  z.innerHTML='<div class="info '+(cls||"")+'">'+echap(texte)+
+    (precision?'<span class="p">'+echap(precision)+'</span>':'')+'</div>';
+}
+
+function grilleHTML(id, lire, onTap){
+  var z=$(id); z.innerHTML="";
+  var coin=document.createElement("div"); coin.className="rep";
+  z.appendChild(coin);
+  for (var c=0;c<N;c++){
+    var t=document.createElement("div"); t.className="rep"; t.textContent=COLS[c];
+    z.appendChild(t);
+  }
+  for (var r=0;r<N;r++){
+    var g=document.createElement("div"); g.className="rep"; g.textContent=(r+1);
+    z.appendChild(g);
+    for (c=0;c<N;c++){
+      (function(c,r){
+        var d=document.createElement("div");
+        var e=lire(c,r);
+        d.className="c"+(e.cls?" "+e.cls:"");
+        if (e.txt) d.textContent=e.txt;
+        d.setAttribute("aria-label",nomCase(c,r)+(e.lu?" : "+e.lu:""));
+        if (onTap) d.onclick=function(){ onTap(c,r); };
+        z.appendChild(d);
+      })(c,r);
+    }
+  }
+}
+
+function rendrePlacement(){
+  montrer("v-placement");
+
+  var f=$("flotte-placement"); f.innerHTML="";
+  FLOTTE.forEach(function(b,k){
+    var d=document.createElement("div");
+    d.className="bat"+(k===S.aPlacer?" actif":(k<S.aPlacer?" place":""));
+    d.innerHTML=echap(b.n)+' <span class="k">'+b.t+'</span>';
+    f.appendChild(d);
+  });
+
+  grilleHTML("g-placement", function(c,r){
+    var v=S.maGrille[c][r];
+    return {cls: v==="N" ? "navire" : "", lu: v==="N"?"navire":""};
+  }, poser);
+
+  Array.prototype.forEach.call($("choix-sens").children,function(b){
+    b.setAttribute("aria-pressed", b.dataset.s===S.sens?"true":"false");
+    b.onclick=function(){ S.sens=b.dataset.s; rendrePlacement(); };
+  });
+
+  var pret = S.aPlacer>=FLOTTE.length;
+  barre([
+    {txt:"Commencer la partie", act:function(){
+      S.phase="partie"; S.vue="tirs"; rendrePartie();
+    }, off:!pret},
+    {txt:"Placer au hasard", cls:"btn secondaire", act:placerAuHasard},
+    {txt:"Tout effacer", cls:"btn secondaire", act:function(){
+      S.maGrille=vide(); S.navires=[]; S.aPlacer=0;
+      montrerInfo("info-placement","",""); rendrePlacement();
+    }}
+  ]);
+}
+
+function rendrePartie(){
+  montrer("v-partie");
+
+  Array.prototype.forEach.call($("choix-vue").children,function(b){
+    b.setAttribute("aria-pressed", b.dataset.v===S.vue?"true":"false");
+    b.onclick=function(){ S.vue=b.dataset.v; S.dernier=null; rendrePartie(); };
+  });
+
+  var f=$("flotte-partie"); f.innerHTML="";
+  if (S.vue==="flotte"){
+    S.navires.forEach(function(b){
+      var d=document.createElement("div");
+      d.className="bat"+(b.touches>=b.t?" perdu":"");
+      d.innerHTML=echap(b.n)+' <span class="k">'+b.touches+'/'+b.t+'</span>';
+      f.appendChild(d);
+    });
+  }
+
+  if (S.vue==="tirs"){
+    $("consigne").textContent = S.dernier
+      ? "Tu annonces "+nomCase(S.dernier.c,S.dernier.r)+". Que répond-il ?"
+      : "Touche la case que tu annonces à voix haute.";
+    grilleHTML("g-partie", function(c,r){
+      var v=S.mesTirs[c][r];
+      var cls = v==="E"?"eau" : v==="T"?"touche" : v==="C"?"coule" : "";
+      if (S.dernier && S.dernier.c===c && S.dernier.r===r) cls="survol";
+      var txt = v==="E"?"·" : v==="T"?"✕" : v==="C"?"✕" : "";
+      return {cls:cls, txt:txt, lu: v==="E"?"à l’eau":v==="T"?"touché":v==="C"?"coulé":""};
+    }, viser);
+  } else {
+    $("consigne").textContent = "Il annonce une case : touche-la ici, l’app te dit quoi répondre.";
+    grilleHTML("g-partie", function(c,r){
+      var v=S.maGrille[c][r];
+      var cls = v==="N"?"navire" : v==="T"?"touche" : v==="E"?"eau" : "";
+      var txt = v==="T"?"✕" : v==="E"?"·" : "";
+      return {cls:cls, txt:txt, lu: v==="N"?"navire":v==="T"?"touché":v==="E"?"raté":""};
+    }, subir);
+  }
+
+  var actions=[];
+  if (S.fini){
+    actions.push({txt: S.fini==="gagne" ? "Partie gagnée · rejouer" : "Partie perdue · rejouer",
+                  act:rejouer});
+  } else if (S.vue==="tirs" && S.dernier){
+    actions.push({txt:"À l’eau", act:function(){ noter("E"); }});
+    actions.push({txt:"Touché", cls:"btn secondaire", act:function(){ noter("T"); }});
+    actions.push({txt:"Touché-coulé", cls:"btn secondaire", act:function(){ noter("C"); }});
+  } else {
+    actions.push({txt:"Nouvelle partie", cls:"btn secondaire", act:rejouer});
+  }
+  barre(actions);
+}
+
+function rejouer(){
+  S.phase="placement"; S.maGrille=vide(); S.mesTirs=vide();
+  S.navires=[]; S.aPlacer=0; S.dernier=null; S.fini=null; S.vue="tirs";
+  montrerInfo("info-partie","",""); montrerInfo("info-placement","","");
+  rendrePlacement();
+}
+
+function barre(actions){
+  var b=$("barre"); b.innerHTML="";
+  actions.forEach(function(a,k){
+    var el=document.createElement("button");
+    el.className=a.cls||"btn";
+    el.textContent=a.txt; el.onclick=a.act;
+    if (a.off) el.disabled=true;
+    if (k>0) el.style.marginTop="8px";
+    b.appendChild(el);
+  });
+}
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+S.maGrille=vide(); S.mesTirs=vide();
+rendrePlacement();
+})();
+</script>
+</body>
+</html>
