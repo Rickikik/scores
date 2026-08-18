@@ -56,8 +56,11 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 
 /* grille */
 .grille{
-  display:grid;grid-template-columns:20px repeat(10,1fr);gap:2px;
-  margin-bottom:12px
+  display:grid;grid-template-columns:18px repeat(10,minmax(0,1fr));gap:2px;
+  margin-bottom:12px;
+  /* les coques sont soudees par marges negatives : overflow borne
+     le depassement d'un bateau colle au bord */
+  overflow:hidden
 }
 .rep{
   display:grid;place-items:center;font-size:10px;font-weight:800;
@@ -68,7 +71,33 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
   display:grid;place-items:center;font-size:12px;font-weight:800;line-height:1
 }
-.c.navire{background:var(--coque)}
+.c.navire{
+  background:linear-gradient(180deg,#9CADBC 0%,var(--coque) 55%,#71828F 100%);
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.18);position:relative;border-radius:0
+}
+/* les cases d'un meme bateau se soudent : la coque devient continue */
+.c.nav-h{margin-left:-2px;margin-right:-2px}
+.c.nav-v{margin-top:-2px;margin-bottom:-2px}
+.c.nav-h.deb{margin-left:0;border-radius:50% 0 0 50%}
+.c.nav-h.fin{margin-right:0;border-radius:0 26% 26% 0}
+.c.nav-v.deb{margin-top:0;border-radius:50% 50% 0 0}
+.c.nav-v.fin{margin-bottom:0;border-radius:0 0 26% 26%}
+.c.nav-h.deb.fin{border-radius:50%}
+.c.nav-v.deb.fin{border-radius:50%}
+/* hublot */
+.c.navire::after{
+  content:"";position:absolute;width:26%;height:26%;border-radius:50%;
+  background:rgba(20,40,58,.55);box-shadow:inset 0 1px 1px rgba(0,0,0,.4)
+}
+/* la passerelle, sur la deuxieme case du bateau */
+.c.navire.pont::after{
+  width:44%;height:44%;border-radius:3px;
+  background:rgba(20,40,58,.42)
+}
+.c.navire.touche{
+  background:linear-gradient(180deg,#F08A54 0%,var(--touche) 55%,#B4541F 100%)
+}
+.c.navire.touche::after{background:rgba(90,20,0,.5)}
 .c.pose{background:var(--ok)}
 .c.survol{background:var(--vague);box-shadow:inset 0 0 0 2px var(--clair)}
 .c.eau{background:var(--eau);color:rgba(255,255,255,.6)}
@@ -195,6 +224,25 @@ function vide(){
   return g;
 }
 function nomCase(c,r){ return COLS[c]+(r+1); }
+
+/* Position d'une case dans son bateau : sert a dessiner la coque
+   (proue arrondie, poupe, hublots) plutot qu'un carre uniforme. */
+function formeNavire(c,r){
+  for (var i=0;i<S.navires.length;i++){
+    var b=S.navires[i];
+    for (var k=0;k<b.cases.length;k++){
+      if (b.cases[k][0]===c && b.cases[k][1]===r){
+        var sens = (b.cases.length>1 && b.cases[0][1]===b.cases[1][1]) ? "h" : "v";
+        var cls = "nav-"+sens;
+        if (k===0) cls+=" deb";
+        if (k===b.cases.length-1) cls+=" fin";
+        if (k===1) cls+=" pont";
+        return cls;
+      }
+    }
+  }
+  return "";
+}
 
 /* ---------------------------------------------------------------
    PLACEMENT
@@ -369,7 +417,7 @@ function rendrePlacement(){
 
   grilleHTML("g-placement", function(c,r){
     var v=S.maGrille[c][r];
-    return {cls: v==="N" ? "navire" : "", lu: v==="N"?"navire":""};
+    return {cls: v==="N" ? "navire "+formeNavire(c,r) : "", lu: v==="N"?"navire":""};
   }, poser);
 
   Array.prototype.forEach.call($("choix-sens").children,function(b){
@@ -423,8 +471,10 @@ function rendrePartie(){
     $("consigne").textContent = "Il annonce une case : touche-la ici, l’app te dit quoi répondre.";
     grilleHTML("g-partie", function(c,r){
       var v=S.maGrille[c][r];
-      var cls = v==="N"?"navire" : v==="T"?"touche" : v==="E"?"eau" : "";
-      var txt = v==="T"?"✕" : v==="E"?"·" : "";
+      var cls="", txt="";
+      if (v==="N"){ cls="navire "+formeNavire(c,r); }
+      else if (v==="T"){ cls="navire touche "+formeNavire(c,r); txt="✕"; }
+      else if (v==="E"){ cls="eau"; txt="·"; }
       return {cls:cls, txt:txt, lu: v==="N"?"navire":v==="T"?"touché":v==="E"?"raté":""};
     }, subir);
   }
