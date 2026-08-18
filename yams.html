@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F0EBE0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Yams">
+<meta name="format-detection" content="telephone=no">
+<title>Yams – Scores</title>
+<style>
+:root{
+  --feutrine:#F0EBE0; --feutrine-clair:#FAF7F0;
+  --encre:#2A2620; --crayon:#7A7268; --trait:rgba(42,38,32,.16);
+  --vert:#3F7D5A; --rouge:#B8453C; --or:#C08A2E; --bleu:#2E5C8A;
+  --r:12px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--encre);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 30px, rgba(42,38,32,.05) 30px 31px),
+    linear-gradient(var(--feutrine-clair),var(--feutrine));
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:620px;margin:0 auto;padding:14px 14px 150px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:#fff;
+  box-shadow:0 2px 5px rgba(60,50,30,.2);
+  font-size:13.5px;font-weight:800;color:var(--bleu);text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--crayon);font-weight:700}
+h1{font-size:29px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
+.sous{color:var(--crayon);font-size:14px;margin:0 0 20px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.choix{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0 22px}
+.choix button{
+  aspect-ratio:1;border-radius:11px;background:rgba(255,255,255,.8);
+  display:grid;place-items:center;font-size:19px;font-weight:800;
+  box-shadow:0 2px 4px rgba(60,50,30,.14)
+}
+.choix button[aria-pressed="true"]{background:var(--bleu);color:#fff}
+.ligne-nom{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.pastille{width:11px;height:34px;border-radius:3px;flex:0 0 auto}
+input[type="text"]{
+  width:100%;background:#fff;border:1px solid var(--trait);color:var(--encre);
+  border-radius:10px;padding:13px 14px;font:inherit;font-weight:600;
+  -webkit-user-select:text;user-select:text
+}
+input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+
+/* ---------- la grille ---------- */
+.feuille{background:rgba(255,255,255,.72);border-radius:var(--r);padding:4px 6px 8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:0;text-align:center}
+thead th{
+  font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--crayon);padding:7px 2px;border-bottom:1px solid var(--trait);
+  max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+thead th.lb{text-align:left;padding-left:4px}
+tbody tr{border-bottom:1px solid rgba(42,38,32,.08)}
+td.lb{
+  text-align:left;font-size:12.5px;font-weight:700;padding:2px 4px;
+  line-height:1.15
+}
+td.lb span{display:block;font-size:10px;font-weight:600;color:var(--crayon)}
+td.cel{padding:2px}
+.cel button{
+  width:100%;height:34px;border-radius:7px;background:#fff;
+  border:1px solid var(--trait);font-size:15px;font-weight:800;
+  display:grid;place-items:center;color:var(--encre)
+}
+.cel button.vide{color:rgba(42,38,32,.22);font-weight:600}
+.cel button.barre{color:var(--rouge);background:rgba(184,69,60,.09)}
+.cel button.actif{border-color:var(--bleu);border-width:2px}
+tr.total{background:rgba(46,92,138,.09)}
+tr.total td{font-weight:800;font-size:14px;padding:7px 4px}
+tr.total td.lb{font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+tr.bonus td{font-size:13px;padding:5px 4px;color:var(--vert);font-weight:800}
+tr.general{background:var(--bleu);color:#fff}
+tr.general td{font-weight:800;font-size:16px;padding:9px 4px}
+tr.general td.lb{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+.sep td{
+  padding:8px 4px 3px;font-size:10px;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--crayon);text-align:left
+}
+
+/* ---------- le sélecteur ---------- */
+.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,rgba(240,235,224,0) 0%,var(--feutrine) 26%);
+  padding:20px 14px calc(12px + env(safe-area-inset-bottom))
+}
+.barre-bas .inner{max-width:620px;margin:0 auto}
+.selecteur{
+  background:#fff;border-radius:14px;padding:12px;
+  box-shadow:0 4px 14px rgba(60,50,30,.28);margin-bottom:9px
+}
+.selecteur .tete{
+  display:flex;align-items:baseline;gap:8px;margin-bottom:9px;
+  font-size:13px;font-weight:800
+}
+.selecteur .tete .q{color:var(--crayon);font-weight:700;font-size:11.5px;
+  letter-spacing:.06em;text-transform:uppercase}
+.selecteur .tete .f{margin-left:auto;color:var(--crayon);font-size:11.5px;font-weight:700}
+.vals{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.vals button{
+  height:44px;border-radius:10px;background:rgba(46,92,138,.1);
+  font-size:16px;font-weight:800;color:var(--encre)
+}
+.vals button:active{background:var(--bleu);color:#fff}
+.vals.large{grid-template-columns:repeat(2,1fr)}
+.vals.large button{height:48px;font-size:15px}
+.vals button.ok{background:var(--vert);color:#fff}
+.vals button.non{background:rgba(184,69,60,.14);color:var(--rouge)}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:var(--r);
+  background:var(--bleu);color:#fff;font-weight:800;font-size:16px;
+  box-shadow:0 2px 6px rgba(60,50,30,.24)
+}
+.btn:active{transform:scale(.985);filter:brightness(1.1)}
+.btn.secondaire{
+  background:rgba(255,255,255,.85);color:var(--encre);font-weight:700;
+  box-shadow:none;margin-top:8px;font-size:14px;padding:12px
+}
+.vue{display:none}
+.vue.actif{display:block}
+.sacre{text-align:center;padding:4px 0 14px}
+.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--crayon);font-weight:800}
+.sacre .gagnant{font-size:31px;font-weight:800;letter-spacing:-.02em;margin:5px 0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+
+  <!-- ============ RÉGLAGES ============ -->
+  <section id="v-reglages" class="vue actif">
+    <p class="eyebrow">Feuille de scores</p>
+    <h1>Yams</h1>
+    <p class="sous">La grille complète, la prime des 63 et les totaux. Tu annonces, elle compte.</p>
+    <p class="eyebrow">Combien de joueurs</p>
+    <div class="choix" id="choix-nb"></div>
+    <p class="eyebrow">Qui joue</p>
+    <div id="liste-noms" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ============ GRILLE ============ -->
+  <section id="v-partie" class="vue">
+    <p class="eyebrow" id="etat">En cours</p>
+    <h1 style="font-size:24px;margin-bottom:12px">Yams</h1>
+    <div class="feuille"><table id="grille"></table></div>
+  </section>
+
+  <!-- ============ FIN ============ -->
+  <section id="v-fin" class="vue">
+    <div class="sacre">
+      <p class="titre">Partie terminée</p>
+      <p class="gagnant" id="nom-gagnant">—</p>
+      <p class="sous" id="detail-gagnant" style="margin:0"></p>
+    </div>
+    <div class="feuille"><table id="grille-fin"></table></div>
+  </section>
+</div>
+
+<div class="barre-bas"><div class="inner">
+  <div id="selecteur"></div>
+  <div id="barre"></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------------
+   RÈGLES – Yams, vérifiées le 2026-08-18 sur six sources
+   Partie haute : total des dés de la valeur, prime de 35 points si
+   le sous-total atteint 63.
+   Partie basse : brelan et carré valent la SOMME DES CINQ DÉS
+   (barème majoritaire ; une source isolée donne 3× ou 4× la valeur
+   de la face — divergence consignée dans la spec).
+   Full 25, petite suite 30, grande suite 40, Yams 50, chance = somme.
+   Toute case peut être barrée à zéro.
+   --------------------------------------------------------------- */
+var HAUT = [
+  {c:"un",    n:"Les 1", d:"total des 1", v:1},
+  {c:"deux",  n:"Les 2", d:"total des 2", v:2},
+  {c:"trois", n:"Les 3", d:"total des 3", v:3},
+  {c:"quatre",n:"Les 4", d:"total des 4", v:4},
+  {c:"cinq",  n:"Les 5", d:"total des 5", v:5},
+  {c:"six",   n:"Les 6", d:"total des 6", v:6}
+];
+var BAS = [
+  {c:"brelan", n:"Brelan",       d:"3 identiques · somme des 5 dés", type:"somme"},
+  {c:"carre",  n:"Carré",        d:"4 identiques · somme des 5 dés", type:"somme"},
+  {c:"full",   n:"Full",         d:"brelan + paire",  type:"fixe", pts:25},
+  {c:"petite", n:"Petite suite", d:"4 qui se suivent", type:"fixe", pts:30},
+  {c:"grande", n:"Grande suite", d:"5 qui se suivent", type:"fixe", pts:40},
+  {c:"yams",   n:"Yams",         d:"5 identiques",     type:"fixe", pts:50},
+  {c:"chance", n:"Chance",       d:"somme des 5 dés",  type:"somme"}
+];
+var PRIME_SEUIL = 63, PRIME = 35;
+
+var S = {
+  phase:"reglages",
+  nb:2,
+  noms:["","","","","",""],
+  scores:[],          // scores[joueur][code] = nombre ou null
+  sel:null            // {j, code} cellule en cours de saisie
+};
+
+var COULEURS=["#2E5C8A","#3F7D5A","#B8453C","#C08A2E","#7A4E9E","#2E8A85"];
+var $=function(id){ return document.getElementById(id); };
+function nomDe(i){ return (S.noms[i]||"").trim() || ("Joueur "+(i+1)); }
+function abrege(n){ return n.length>6 ? n.slice(0,5)+"." : n; }
+
+/* ---------------------------------------------------------------
+   CALCULS
+   --------------------------------------------------------------- */
+function totalHaut(j){
+  var t=0;
+  HAUT.forEach(function(l){ var v=S.scores[j][l.c]; if (typeof v==="number") t+=v; });
+  return t;
+}
+function prime(j){ return totalHaut(j) >= PRIME_SEUIL ? PRIME : 0; }
+function totalBas(j){
+  var t=0;
+  BAS.forEach(function(l){ var v=S.scores[j][l.c]; if (typeof v==="number") t+=v; });
+  return t;
+}
+function total(j){ return totalHaut(j)+prime(j)+totalBas(j); }
+function grilleFinie(){
+  for (var j=0;j<S.nb;j++){
+    var ok=HAUT.concat(BAS).every(function(l){ return typeof S.scores[j][l.c]==="number"; });
+    if (!ok) return false;
+  }
+  return true;
+}
+function nbRemplies(j){
+  return HAUT.concat(BAS).filter(function(l){
+    return typeof S.scores[j][l.c]==="number";
+  }).length;
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function montrer(v){
+  ["v-reglages","v-partie","v-fin"].forEach(function(id){
+    $(id).classList.toggle("actif", id===v);
+  });
+  window.scrollTo(0,0);
+}
+function rendre(){
+  if (S.phase==="reglages") rendreReglages();
+  else if (S.phase==="partie") rendrePartie();
+  else rendreFin();
+}
+
+function rendreReglages(){
+  montrer("v-reglages");
+  $("selecteur").innerHTML="";
+  var c=$("choix-nb");
+  if (!c.childElementCount){
+    for (var n=2;n<=6;n++){
+      (function(n){
+        var b=document.createElement("button"); b.type="button"; b.textContent=n;
+        b.setAttribute("aria-label",n+" joueurs");
+        b.onclick=function(){ S.nb=n; rendreReglages(); };
+        c.appendChild(b);
+      })(n);
+    }
+  }
+  Array.prototype.forEach.call(c.children,function(b,k){
+    b.setAttribute("aria-pressed",(k+2)===S.nb?"true":"false");
+  });
+
+  var l=$("liste-noms"); l.innerHTML="";
+  for (var i=0;i<S.nb;i++){
+    (function(i){
+      var d=document.createElement("div"); d.className="ligne-nom";
+      var p=document.createElement("span"); p.className="pastille";
+      p.style.background=COULEURS[i];
+      var inp=document.createElement("input");
+      inp.type="text"; inp.value=S.noms[i]||""; inp.placeholder="Joueur "+(i+1);
+      inp.maxLength=12; inp.autocomplete="off";
+      inp.oninput=function(){ S.noms[i]=inp.value; };
+      d.appendChild(p); d.appendChild(inp); l.appendChild(d);
+    })(i);
+  }
+  barre([{txt:"Commencer la partie", act:function(){
+    S.scores=[];
+    for (var j=0;j<S.nb;j++){
+      var o={};
+      HAUT.concat(BAS).forEach(function(x){ o[x.c]=null; });
+      S.scores.push(o);
+    }
+    S.sel=null; S.phase="partie"; rendre();
+  }}]);
+}
+
+function celluleHTML(j,l){
+  var v=S.scores[j][l.c];
+  var b=document.createElement("button"); b.type="button";
+  if (v===null){ b.className="vide"; b.textContent="–"; }
+  else if (v===0){ b.className="barre"; b.textContent="✕"; }
+  else b.textContent=v;
+  if (S.sel && S.sel.j===j && S.sel.code===l.c) b.classList.add("actif");
+  b.setAttribute("aria-label", nomDe(j)+" · "+l.n+(v===null?" : vide":" : "+v));
+  b.onclick=function(){
+    S.sel = (S.sel && S.sel.j===j && S.sel.code===l.c) ? null : {j:j, code:l.c};
+    rendrePartie();
+  };
+  return b;
+}
+
+function tableau(id, cliquable){
+  var t=$(id); t.innerHTML="";
+  var thead=document.createElement("thead");
+  var tr=document.createElement("tr");
+  var th0=document.createElement("th"); th0.className="lb"; th0.textContent="Combinaison";
+  tr.appendChild(th0);
+  for (var j=0;j<S.nb;j++){
+    var th=document.createElement("th");
+    th.textContent=abrege(nomDe(j));
+    th.style.color=COULEURS[j];
+    tr.appendChild(th);
+  }
+  thead.appendChild(tr); t.appendChild(thead);
+
+  var tb=document.createElement("tbody");
+
+  function sep(txt){
+    var r=document.createElement("tr"); r.className="sep";
+    var c=document.createElement("td"); c.colSpan=S.nb+1; c.textContent=txt;
+    r.appendChild(c); tb.appendChild(r);
+  }
+  function ligne(l){
+    var r=document.createElement("tr");
+    var c=document.createElement("td"); c.className="lb";
+    c.innerHTML=echap(l.n)+'<span>'+echap(l.d)+'</span>';
+    r.appendChild(c);
+    for (var j=0;j<S.nb;j++){
+      var d=document.createElement("td"); d.className="cel";
+      if (cliquable) d.appendChild(celluleHTML(j,l));
+      else {
+        var v=S.scores[j][l.c];
+        var b=document.createElement("button"); b.type="button"; b.disabled=true;
+        b.textContent = v===null ? "–" : (v===0 ? "✕" : v);
+        if (v===0) b.className="barre";
+        d.appendChild(b);
+      }
+      r.appendChild(d);
+    }
+    tb.appendChild(r);
+  }
+  function totaux(cls, lib, f){
+    var r=document.createElement("tr"); r.className=cls;
+    var c=document.createElement("td"); c.className="lb"; c.textContent=lib;
+    r.appendChild(c);
+    for (var j=0;j<S.nb;j++){
+      var d=document.createElement("td"); d.textContent=f(j);
+      r.appendChild(d);
+    }
+    tb.appendChild(r);
+  }
+
+  sep("Partie haute");
+  HAUT.forEach(ligne);
+  totaux("total","Sous-total", totalHaut);
+  totaux("bonus","Prime si 63 ou plus", function(j){
+    return prime(j) ? "+35" : "–";
+  });
+  sep("Partie basse");
+  BAS.forEach(ligne);
+  totaux("total","Total bas", totalBas);
+  totaux("general","Total général", total);
+
+  t.appendChild(tb);
+}
+
+function rendrePartie(){
+  montrer("v-partie");
+  var min=999;
+  for (var j=0;j<S.nb;j++) min=Math.min(min, nbRemplies(j));
+  $("etat").textContent = "Tour "+Math.min(13,min+1)+" sur 13";
+  tableau("grille", true);
+  rendreSelecteur();
+
+  var actions=[];
+  if (grilleFinie()){
+    actions.push({txt:"Voir le classement", act:function(){ S.phase="fin"; rendre(); }});
+  }
+  actions.push({txt:"Nouvelle partie", cls:"btn secondaire", act:function(){
+    S.phase="reglages"; S.sel=null; rendre();
+  }});
+  barre(actions);
+}
+
+/* Le sélecteur s'adapte à la case : les cases à valeur fixe se
+   répondent par oui ou non, les autres proposent les seules valeurs
+   réellement possibles. */
+function rendreSelecteur(){
+  var z=$("selecteur");
+  z.innerHTML="";                 // sans ça les selecteurs s'empilent
+  if (!S.sel) return;
+  var j=S.sel.j, code=S.sel.code;
+  var l = HAUT.concat(BAS).filter(function(x){ return x.c===code; })[0];
+
+  var box=document.createElement("div"); box.className="selecteur";
+  var tete=document.createElement("div"); tete.className="tete";
+  tete.innerHTML='<span class="q">'+echap(nomDe(j))+'</span><span>'+echap(l.n)+
+                 '</span><span class="f">'+echap(l.d)+'</span>';
+  box.appendChild(tete);
+
+  var g=document.createElement("div"); g.className="vals";
+
+  function bouton(txt, val, cls){
+    var b=document.createElement("button"); b.type="button"; b.textContent=txt;
+    if (cls) b.className=cls;
+    b.onclick=function(){ inscrire(j, code, val); };
+    g.appendChild(b);
+  }
+
+  if (l.v){
+    // partie haute : 0 à 5 dés de cette valeur
+    for (var k=0;k<=5;k++) bouton(String(k*l.v), k*l.v);
+  } else if (l.type==="fixe"){
+    g.className="vals large";
+    bouton("Réussi · "+l.pts+" pts", l.pts, "ok");
+    bouton("Barrer · 0", 0, "non");
+  } else {
+    // brelan, carré, chance : somme des cinq dés, 5 à 30
+    g.className="vals";
+    for (var s=5;s<=30;s++) bouton(String(s), s);
+    var raz=document.createElement("button"); raz.type="button";
+    raz.textContent="Barrer"; raz.className="non";
+    raz.onclick=function(){ inscrire(j, code, 0); };
+    g.appendChild(raz);
+  }
+  box.appendChild(g);
+  z.appendChild(box);
+}
+
+function inscrire(j, code, val){
+  S.scores[j][code]=val;
+  S.sel=null;
+  if (grilleFinie()){ S.phase="fin"; rendre(); return; }
+  rendrePartie();
+}
+
+function rendreFin(){
+  montrer("v-fin");
+  $("selecteur").innerHTML="";
+  var t=[], idx=[];
+  for (var j=0;j<S.nb;j++){ t.push(total(j)); idx.push(j); }
+  idx.sort(function(a,b){ return t[b]-t[a]; });
+  var best=t[idx[0]];
+  var ex=idx.filter(function(i){ return t[i]===best; });
+  $("nom-gagnant").textContent = ex.length>1 ? ex.map(nomDe).join(" & ") : nomDe(idx[0]);
+  $("detail-gagnant").textContent = best+" points"+
+    (ex.length>1 ? ", à égalité." : ", devant "+t[idx[1]]+".");
+  tableau("grille-fin", false);
+  barre([
+    {txt:"Rejouer avec les mêmes joueurs", act:function(){
+      for (var j=0;j<S.nb;j++) HAUT.concat(BAS).forEach(function(x){ S.scores[j][x.c]=null; });
+      S.phase="partie"; rendre();
+    }},
+    {txt:"Revoir la grille", cls:"btn secondaire", act:function(){ S.phase="partie"; rendre(); }},
+    {txt:"Changer les joueurs", cls:"btn secondaire", act:function(){ S.phase="reglages"; rendre(); }}
+  ]);
+}
+
+function barre(actions){
+  var b=$("barre"); b.innerHTML="";
+  actions.forEach(function(a,k){
+    var el=document.createElement("button");
+    el.className=a.cls||"btn";
+    el.textContent=a.txt; el.onclick=a.act;
+    if (k>0) el.style.marginTop="8px";
+    b.appendChild(el);
+  });
+}
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+rendre();
+})();
+</script>
+</body>
+</html>
