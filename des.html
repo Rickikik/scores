@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#231F2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dés">
+<meta name="format-detection" content="telephone=no">
+<title>Dés – Scores</title>
+<style>
+:root{
+  --nuit:#231F2E; --pierre:#332D42; --relief:#4E4665;
+  --clair:#F1EEF7; --pale:#A79FBD;
+  --ambre:#E0A53E; --vert:#5FA76F; --rouge:#D0574F;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--clair);
+  background:radial-gradient(120% 80% at 50% 0%, #3B3350 0%, #1E1A28 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 130px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--clair);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-size:13.5px;font-weight:800;color:#231F2E;text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pale);font-weight:700}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
+.sous{color:var(--pale);font-size:14px;margin:0 0 20px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+
+/* choix des des : un compteur par taille */
+.types{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+@media(min-width:420px){.types{grid-template-columns:repeat(3,1fr)}}
+.type{
+  border-radius:12px;background:var(--pierre);border:1px solid var(--relief);
+  padding:8px 9px;display:flex;align-items:center;gap:8px
+}
+.type.actif{border-color:var(--ambre);background:#3A3350}
+.type .nom{flex:1;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.type .nb{
+  min-width:26px;text-align:center;font-size:17px;font-weight:800;
+  font-variant-numeric:tabular-nums;color:var(--ambre)
+}
+.type button{
+  width:34px;height:38px;border-radius:9px;background:var(--relief);
+  font-size:19px;font-weight:800;display:grid;place-items:center;flex:0 0 auto
+}
+.type button:active{filter:brightness(1.25)}
+.type button[disabled]{opacity:.35}
+
+.recap{
+  background:var(--pierre);border:1px solid var(--relief);border-radius:12px;
+  padding:11px 13px;margin-bottom:16px;font-size:14px;font-weight:700
+}
+.recap .vide{color:var(--pale);font-weight:600}
+.recap button{
+  float:right;font-size:12px;font-weight:800;color:var(--rouge);
+  padding:4px 9px;border-radius:8px;background:rgba(208,87,79,.15)
+}
+
+/* resultat */
+.jets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.de{
+  min-width:56px;border-radius:12px;background:var(--clair);color:#231F2E;
+  padding:9px 6px 7px;text-align:center;box-shadow:0 3px 7px rgba(0,0,0,.35)
+}
+.de .v{font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.de .t{font-size:10px;font-weight:800;color:#6B6480;letter-spacing:.05em;margin-top:3px}
+.de.max{background:var(--vert);color:#fff}
+.de.max .t{color:rgba(255,255,255,.8)}
+.de.min{background:var(--rouge);color:#fff}
+.de.min .t{color:rgba(255,255,255,.8)}
+
+.total{
+  background:var(--ambre);color:#2B2007;border-radius:14px;
+  padding:14px 16px;display:flex;align-items:baseline;gap:10px;margin-bottom:14px
+}
+.total .lb{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.total .v{margin-left:auto;font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.detail{font-size:12.5px;color:var(--pale);font-weight:600;margin-bottom:16px;word-break:break-word}
+
+.histo{background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px}
+.histo .l{
+  display:flex;gap:10px;font-size:13px;padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);font-variant-numeric:tabular-nums
+}
+.histo .l:last-child{border-bottom:none}
+.histo .l .d{flex:1;color:var(--pale);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histo .l .t{font-weight:800}
+
+.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,rgba(30,26,40,0) 0%,#201B2B 30%);
+  padding:22px 16px calc(16px + env(safe-area-inset-bottom))
+}
+.barre-bas .inner{max-width:560px;margin:0 auto}
+.btn{
+  display:block;width:100%;padding:17px;border-radius:var(--r);
+  background:var(--clair);color:#231F2E;font-weight:800;font-size:17px;
+  box-shadow:0 3px 8px rgba(0,0,0,.4)
+}
+.btn:active{transform:scale(.985);filter:brightness(.94)}
+.btn[disabled]{background:var(--pierre);color:var(--pale);box-shadow:none}
+.section-titre{margin:20px 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <p class="eyebrow">Mini-jeu</p>
+  <h1>Dés</h1>
+  <p class="sous">Compose ta poignée. Plusieurs tailles peuvent être lancées ensemble.</p>
+
+  <div class="types" id="types"></div>
+  <div class="recap" id="recap"></div>
+
+  <div id="resultat"></div>
+
+  <div id="zone-histo"></div>
+</div>
+
+<div class="barre-bas"><div class="inner">
+  <button class="btn" id="btn-lancer">Lancer</button>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+
+var FACES = [4,6,8,10,12,20,100];
+var MAX_PAR_TYPE = 20;
+
+var S = {
+  set:{},          // {6:2, 20:1} → deux dés à six faces et un à vingt
+  dernier:null,    // {jets:[{f,v}], total}
+  histo:[]
+};
+
+var $=function(id){ return document.getElementById(id); };
+
+function totalDes(){
+  var n=0;
+  for (var f in S.set) n+=S.set[f];
+  return n;
+}
+function libelle(set){
+  var p=[];
+  FACES.forEach(function(f){ if (set[f]) p.push(set[f]+"d"+f); });
+  return p.join(" + ");
+}
+
+/* ---------- réglage ---------- */
+function rendreTypes(){
+  var z=$("types"); z.innerHTML="";
+  FACES.forEach(function(f){
+    var n=S.set[f]||0;
+    var d=document.createElement("div");
+    d.className="type"+(n?" actif":"");
+
+    var moins=document.createElement("button");
+    moins.textContent="−"; moins.type="button";
+    moins.setAttribute("aria-label","Retirer un dé à "+f+" faces");
+    moins.disabled = n<=0;
+    moins.onclick=function(){
+      if (!S.set[f]) return;
+      S.set[f]--; if (!S.set[f]) delete S.set[f];
+      rendreTypes(); rendreRecap();
+    };
+
+    var nom=document.createElement("span");
+    nom.className="nom"; nom.textContent="d"+f;
+
+    var nb=document.createElement("span");
+    nb.className="nb"; nb.textContent=n;
+
+    var plus=document.createElement("button");
+    plus.textContent="+"; plus.type="button";
+    plus.setAttribute("aria-label","Ajouter un dé à "+f+" faces");
+    plus.disabled = n>=MAX_PAR_TYPE;
+    plus.onclick=function(){
+      S.set[f]=(S.set[f]||0)+1;
+      if (S.set[f]>MAX_PAR_TYPE) S.set[f]=MAX_PAR_TYPE;
+      rendreTypes(); rendreRecap();
+    };
+
+    d.appendChild(moins); d.appendChild(nom);
+    d.appendChild(nb); d.appendChild(plus);
+    z.appendChild(d);
+  });
+}
+
+function rendreRecap(){
+  var r=$("recap");
+  var n=totalDes();
+  if (!n){
+    r.innerHTML='<span class="vide">Aucun dé choisi. Ajoute-en au moins un.</span>';
+  } else {
+    r.innerHTML='<button type="button" id="btn-vider">Tout retirer</button>'+
+                echap(libelle(S.set))+
+                ' <span class="vide">· '+n+' dé'+(n>1?"s":"")+'</span>';
+    $("btn-vider").onclick=function(){ S.set={}; rendreTypes(); rendreRecap(); };
+  }
+  $("btn-lancer").disabled = !n;
+}
+
+/* ---------- lancer ---------- */
+function lancer(){
+  var n=totalDes();
+  if (!n) return;
+  var jets=[], total=0;
+  FACES.forEach(function(f){
+    for (var i=0;i<(S.set[f]||0);i++){
+      var v=1+Math.floor(Math.random()*f);
+      jets.push({f:f, v:v}); total+=v;
+    }
+  });
+  S.dernier={jets:jets, total:total, lib:libelle(S.set)};
+  S.histo.unshift({lib:S.dernier.lib, total:total,
+                   detail:jets.map(function(j){return j.v;}).join(" ")});
+  if (S.histo.length>12) S.histo.pop();
+  rendreResultat(); rendreHisto();
+}
+
+function rendreResultat(){
+  var z=$("resultat");
+  if (!S.dernier){ z.innerHTML=""; return; }
+  var d=S.dernier;
+  var h='<div class="total"><span class="lb">Total</span>'+
+        '<span class="v">'+d.total+'</span></div><div class="jets">';
+  d.jets.forEach(function(j){
+    var cls = j.v===j.f ? " max" : (j.v===1 ? " min" : "");
+    h+='<div class="de'+cls+'"><div class="v">'+j.v+'</div><div class="t">d'+j.f+'</div></div>';
+  });
+  h+='</div><p class="detail">'+echap(d.lib)+' · le vert marque un maximum, '+
+     'le rouge un 1.</p>';
+  z.innerHTML=h;
+}
+
+function rendreHisto(){
+  var z=$("zone-histo");
+  if (!S.histo.length){ z.innerHTML=""; return; }
+  var h='<p class="eyebrow section-titre">Lancers précédents</p><div class="histo">';
+  S.histo.forEach(function(l,k){
+    if (k===0) return;                 // le premier est déjà affiché en grand
+    h+='<div class="l"><span class="d">'+echap(l.lib)+' : '+echap(l.detail)+
+       '</span><span class="t">'+l.total+'</span></div>';
+  });
+  h+='</div>';
+  z.innerHTML = (S.histo.length>1) ? h : "";
+}
+
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+$("btn-lancer").onclick=lancer;
+
+S.set={6:2};          // deux dés à six faces : le cas le plus courant
+rendreTypes(); rendreRecap();
+})();
+</script>
+</body>
+</html>
