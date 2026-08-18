@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1E1B33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tarot">
+<meta name="format-detection" content="telephone=no">
+<title>Tarot – Scores</title>
+<style>
+:root{
+  --nuit:#1E1B33; --velours:#2C2750; --relief:#453E70;
+  --ivoire:#F2EEE4; --ivoire-pale:#A39BC4;
+  --or:#D8B45A; --rouge:#C9524E; --vert:#5BA173;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--ivoire);
+  background:
+    repeating-linear-gradient(60deg, rgba(255,255,255,.016) 0 2px, transparent 2px 8px),
+    radial-gradient(125% 85% at 50% 0%, #363061 0%, #1A1730 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:620px;margin:0 auto;padding:14px 16px 150px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--ivoire);
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+  font-size:13.5px;font-weight:800;color:#1E1B33;text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ivoire-pale);font-weight:700}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
+h2{font-size:19px;font-weight:700;margin:0}
+.sous{color:var(--ivoire-pale);font-size:14px;margin:0 0 22px}
+.num{font-variant-numeric:tabular-nums}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.btn{
+  display:block;width:100%;padding:16px;border-radius:var(--r);
+  background:var(--ivoire);color:#1E1B33;font-weight:800;font-size:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.4)
+}
+.btn:active{transform:scale(.985);filter:brightness(.94)}
+.btn.secondaire{background:var(--velours);color:var(--ivoire);font-weight:700;box-shadow:none}
+.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,rgba(26,23,48,0) 0%,#1C1932 30%);
+  padding:22px 16px calc(16px + env(safe-area-inset-bottom));
+  will-change:transform;transition:transform .16s ease-out
+}
+.barre-bas .inner{max-width:620px;margin:0 auto}
+
+/* réglages */
+.reglage{margin-bottom:22px}
+.choix{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.choix button{
+  padding:15px 8px;border-radius:11px;background:var(--velours);
+  border:1px solid var(--relief);font-weight:800;font-size:15px;color:var(--ivoire)
+}
+.choix button[aria-pressed="true"]{background:var(--ivoire);color:#1E1B33;border-color:var(--ivoire)}
+.ligne-nom{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.pastille{width:11px;height:36px;border-radius:3px;flex:0 0 auto}
+input[type="text"],input[type="number"]{
+  width:100%;background:var(--velours);border:1px solid var(--relief);color:var(--ivoire);
+  border-radius:10px;padding:13px 14px;font:inherit;font-weight:600;
+  -webkit-user-select:text;user-select:text
+}
+input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+
+/* partie */
+.rangs{margin-bottom:6px}
+.jr{
+  display:flex;align-items:center;gap:11px;padding:11px 12px;margin-bottom:7px;
+  border-radius:12px;background:var(--velours);border:1px solid var(--relief);
+  cursor:pointer;transition:transform .12s ease,background .12s ease
+}
+.jr:active{transform:scale(.985);background:var(--relief)}
+.jr .n{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr .p{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;min-width:66px;text-align:right}
+.jr .p.neg{color:var(--rouge)}
+.jr .pr{
+  font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  padding:7px 10px;border-radius:8px;background:var(--ivoire);color:#1E1B33
+}
+.invite{text-align:center;font-size:12.5px;font-weight:700;color:var(--ivoire-pale);margin:2px 0 16px}
+.feuille{background:rgba(255,255,255,.05);border-radius:var(--r);padding:10px 12px}
+.tableau{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tableau th,.tableau td{padding:8px 3px;text-align:center;font-size:13.5px}
+.tableau thead th{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ivoire-pale);
+  border-bottom:1px solid var(--relief);font-weight:800
+}
+.tableau tbody tr{border-bottom:1px solid rgba(255,255,255,.07)}
+.tableau tbody tr:active{background:var(--velours)}
+.tableau .mn{color:var(--ivoire-pale);font-size:11px;font-weight:800}
+.tableau .neg{color:var(--rouge)}
+.tableau tfoot td{padding-top:11px;font-weight:800;font-size:15px;border-top:1px solid var(--relief)}
+.vide{color:var(--ivoire-pale);font-size:14px;text-align:center;padding:24px 0}
+.section-titre{margin:22px 0 8px;display:flex;align-items:baseline;justify-content:space-between}
+
+/* saisie */
+.bloc{margin-bottom:18px}
+.preneur-ligne{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  background:var(--velours);border:1px solid var(--relief);border-radius:12px;padding:11px 13px
+}
+.preneur-ligne .qui{flex:1;font-size:14px;font-weight:800}
+.preneur-ligne .qui span{color:var(--ivoire-pale);font-weight:700}
+.grille4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.grille4 button{
+  padding:13px 3px;border-radius:10px;background:var(--velours);
+  border:1px solid var(--relief);font-weight:800;font-size:13px;color:var(--ivoire)
+}
+.grille4 button[aria-pressed="true"]{background:var(--or);color:#1E1B33;border-color:var(--or)}
+.grille4.petit button{font-size:16px}
+.pts-ligne{
+  display:flex;align-items:center;gap:10px;margin-top:9px;
+  background:var(--velours);border:1px solid var(--relief);border-radius:12px;padding:10px 12px
+}
+.pts-ligne input{width:100px;text-align:center;font-size:24px;font-weight:800;padding:10px 4px}
+.pts-ligne .obj{flex:1;text-align:right;font-size:12.5px;color:var(--ivoire-pale);font-weight:700}
+.pts-ligne .obj b{display:block;font-size:20px;color:var(--ivoire);font-variant-numeric:tabular-nums}
+.replier{
+  width:100%;padding:13px;border-radius:11px;background:transparent;
+  border:1px dashed var(--relief);color:var(--ivoire-pale);font-size:13px;font-weight:700
+}
+.replier[aria-expanded="true"]{border-style:solid;color:var(--ivoire)}
+.rare{display:none;margin-top:14px}
+.rare.ouvert{display:block}
+.trio{display:flex;gap:8px;margin-top:9px}
+.trio button{
+  flex:1;padding:12px 5px;border-radius:11px;background:var(--velours);
+  border:1px solid var(--relief);font-weight:700;font-size:12.5px;color:var(--ivoire)
+}
+.trio button[aria-pressed="true"]{background:var(--ivoire);color:#1E1B33;border-color:var(--ivoire)}
+.apercu{
+  border-radius:12px;padding:11px 13px;margin-bottom:9px;font-size:13.5px;font-weight:700;
+  background:var(--velours);border-left:4px solid var(--relief)
+}
+.apercu.reussi{border-left-color:var(--vert)}
+.apercu.chute{border-left-color:var(--rouge)}
+.apercu .det{display:block;margin-top:5px;font-size:12.5px;font-weight:600;color:var(--ivoire-pale)}
+.alerte{
+  display:none;margin-bottom:9px;font-size:13px;font-weight:800;color:#1E1B33;
+  background:var(--or);border-radius:10px;padding:9px 12px;text-align:center
+}
+.alerte.on{display:block}
+
+.sacre{text-align:center;padding:6px 0 18px}
+.sacre .titre{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ivoire-pale);font-weight:800}
+.sacre .gagnant{font-size:33px;font-weight:800;letter-spacing:-.02em;margin:6px 0 2px}
+.vue{display:none}
+.vue.actif{display:block}
+.entete{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.retour{font-size:13px;font-weight:700;color:var(--or)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+
+  <!-- RÉGLAGES -->
+  <section id="v-reglages" class="vue actif">
+    <p class="eyebrow">Feuille de scores</p>
+    <h1>Tarot</h1>
+    <p class="sous">Le compteur applique les seuils de bouts, le multiplicateur du contrat, les primes et la répartition.</p>
+
+    <div class="reglage">
+      <p class="eyebrow">Combien de joueurs</p>
+      <div class="choix" id="choix-nb"></div>
+    </div>
+
+    <div class="reglage">
+      <p class="eyebrow">Qui joue</p>
+      <div id="liste-noms" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- PARTIE -->
+  <section id="v-partie" class="vue">
+    <div class="entete">
+      <div>
+        <p class="eyebrow">Donne <span id="num-donne" class="num">1</span></p>
+        <h2 id="etat-partie">En cours</h2>
+      </div>
+      <button class="retour" id="btn-reglages">Nouvelle partie</button>
+    </div>
+    <div class="rangs" id="rangs"></div>
+    <p class="invite" id="invite"></p>
+    <div class="section-titre">
+      <p class="eyebrow">Donnes jouées</p>
+      <span class="eyebrow" id="astuce-edit"></span>
+    </div>
+    <div id="zone-historique"></div>
+  </section>
+
+  <!-- SAISIE -->
+  <section id="v-saisie" class="vue">
+    <div class="entete">
+      <div>
+        <p class="eyebrow" id="saisie-eyebrow">Fin de donne</p>
+        <h2 id="saisie-titre">Donne 1</h2>
+      </div>
+      <button class="retour" id="btn-annuler-saisie">Retour</button>
+    </div>
+
+    <div class="preneur-ligne">
+      <span class="qui" id="qui-a-pris"></span>
+      <button type="button" id="btn-changer-preneur" style="font-size:12px;font-weight:800;color:var(--or);padding:8px 12px;border-radius:9px;background:rgba(216,180,90,.15)">Changer</button>
+    </div>
+
+    <div class="bloc" id="bloc-appele"></div>
+
+    <div class="bloc">
+      <p class="eyebrow">Contrat</p>
+      <div class="grille4" id="choix-contrat"></div>
+    </div>
+
+    <div class="bloc">
+      <p class="eyebrow">Bouts dans les plis du preneur</p>
+      <div class="grille4 petit" id="choix-bouts"></div>
+    </div>
+
+    <div class="bloc">
+      <p class="eyebrow">Points réalisés par le preneur</p>
+      <div class="pts-ligne">
+        <input id="pts" type="number" inputmode="decimal" step="0.5" min="0" max="91" placeholder="0">
+        <span class="obj" id="objectif"></span>
+      </div>
+    </div>
+
+    <div class="bloc">
+      <button class="replier" id="btn-rare" aria-expanded="false" type="button"></button>
+      <div class="rare" id="zone-rare">
+        <p class="eyebrow">Petit au bout</p>
+        <div class="trio" id="choix-petit"></div>
+        <p class="eyebrow" style="margin-top:16px">Poignée</p>
+        <div class="grille4" id="choix-poignee"></div>
+        <p class="eyebrow" style="margin-top:16px">Chelem</p>
+        <div class="grille4" id="choix-chelem"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIN -->
+  <section id="v-fin" class="vue">
+    <div class="sacre">
+      <p class="titre">Partie terminée</p>
+      <p class="gagnant" id="nom-gagnant">—</p>
+      <p class="sous" id="detail-gagnant" style="margin:0"></p>
+    </div>
+    <div class="rangs" id="classement"></div>
+  </section>
+</div>
+
+<div class="barre-bas" id="barre-bas"><div class="inner">
+  <div class="alerte" id="alerte"></div>
+  <div id="apercu"></div>
+  <div id="barre"></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------------
+   RÈGLES – tarot français, vérifiées le 2026-08-18
+   Seuils selon les bouts du preneur : 0→56, 1→51, 2→41, 3→36.
+   Base de tout contrat : 25 points.
+   Score = (25 + |écart|) × multiplicateur
+           + petit au bout (10 × multiplicateur)
+           + poignée (JAMAIS multipliée)
+           + chelem (JAMAIS multiplié)
+   Répartition : la somme de tous les scores est toujours nulle.
+   --------------------------------------------------------------- */
+var SEUILS = [56,51,41,36];
+var CONTRATS = [
+  {n:"Petite", m:1}, {n:"Garde", m:2},
+  {n:"G. sans", m:4}, {n:"G. contre", m:6}
+];
+var POIGNEES = [
+  {n:"Aucune", v:0}, {n:"Simple", v:20}, {n:"Double", v:30}, {n:"Triple", v:40}
+];
+var CHELEMS = [
+  {n:"Aucun", v:0},
+  {n:"Réussi", v:200},          // non annoncé
+  {n:"Annoncé ✓", v:400},
+  {n:"Annoncé ✗", v:-200}
+];
+
+var S = {
+  phase:"reglages",
+  nb:4,
+  noms:["","","","",""],
+  donnes:[],
+  edition:null,
+  b:{preneur:0, appele:-1, contrat:1, bouts:1, pts:null, petit:0, poignee:0, chelem:0}
+};
+
+var COULEURS=["#C9524E","#5BA173","#D8B45A","#6C8BD9","#B072C9"];
+var $=function(id){ return document.getElementById(id); };
+function nomDe(i){ return (S.noms[i]||"").trim() || ("Joueur "+(i+1)); }
+
+/* ---------------------------------------------------------------
+   CALCUL D'UNE DONNE
+   Rend le score de chaque joueur, plus l'issue en clair.
+   --------------------------------------------------------------- */
+function calculer(d, nb){
+  var mult = CONTRATS[d.contrat].m;
+  var seuil = SEUILS[d.bouts];
+  var ecart = d.pts - seuil;
+  var reussi = ecart >= 0;
+  var base = (25 + Math.abs(ecart)) * mult;
+
+  // le petit au bout suit le contrat ; +1 = camp preneur, -1 = defense
+  var pb = d.petit * 10 * mult;
+  // la poignee et le chelem ne sont jamais multiplies
+  var pg = POIGNEES[d.poignee].v;
+  var ch = CHELEMS[d.chelem].v;
+
+  // T = ce que chaque defenseur paie (positif) ou encaisse (negatif)
+  var T = (reussi ? base : -base) + pb + (reussi ? pg : -pg) + ch;
+
+  var g = new Array(nb).fill(0);
+  var p = d.preneur, a = d.appele;
+  if (nb===5 && a>=0 && a!==p){
+    g[p] += 2*T; g[a] += T;
+    for (var i=0;i<nb;i++) if (i!==p && i!==a) g[i] -= T;
+  } else {
+    var nbDef = nb-1;
+    g[p] += nbDef*T;
+    for (var j=0;j<nb;j++) if (j!==p) g[j] -= T;
+  }
+
+  var detail = nomDe(p)+(reussi?" réussit ":" chute ")+CONTRATS[d.contrat].n+
+    " : "+fmt(d.pts)+" pour "+seuil+" ("+(ecart>=0?"+":"")+fmt(ecart)+").";
+  return {g:g, reussi:reussi, T:T, detail:detail, base:base, pb:pb, pg:pg, ch:ch};
+}
+function fmt(v){ return (Math.round(v*2)/2).toString().replace(".",","); }
+
+function totaux(){
+  var t=new Array(S.nb).fill(0);
+  S.donnes.forEach(function(d){
+    calculer(d, S.nb).g.forEach(function(v,i){ t[i]+=v; });
+  });
+  return t;
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function montrer(v){
+  ["v-reglages","v-partie","v-saisie","v-fin"].forEach(function(id){
+    $(id).classList.toggle("actif", id===v);
+  });
+  if (v!=="v-saisie"){ $("apercu").innerHTML=""; $("alerte").classList.remove("on"); }
+  window.scrollTo(0,0);
+}
+function rendre(){
+  if (S.phase==="reglages") rendreReglages();
+  else if (S.phase==="partie") rendrePartie();
+  else if (S.phase==="saisie") rendreSaisie();
+  else rendreFin();
+}
+
+function rendreReglages(){
+  montrer("v-reglages");
+  var c=$("choix-nb");
+  if (!c.childElementCount){
+    [3,4,5].forEach(function(n){
+      var b=document.createElement("button"); b.type="button";
+      b.textContent=n+" joueurs";
+      b.onclick=function(){ S.nb=n; rendreReglages(); };
+      c.appendChild(b);
+    });
+  }
+  Array.prototype.forEach.call(c.children,function(b,k){
+    b.setAttribute("aria-pressed",(k+3)===S.nb?"true":"false");
+  });
+
+  var l=$("liste-noms"); l.innerHTML="";
+  for (var i=0;i<S.nb;i++){
+    (function(i){
+      var d=document.createElement("div"); d.className="ligne-nom";
+      var p=document.createElement("span"); p.className="pastille";
+      p.style.background=COULEURS[i];
+      var inp=document.createElement("input");
+      inp.type="text"; inp.value=S.noms[i]||""; inp.placeholder="Joueur "+(i+1);
+      inp.maxLength=14; inp.autocomplete="off";
+      inp.oninput=function(){ S.noms[i]=inp.value; };
+      d.appendChild(p); d.appendChild(inp); l.appendChild(d);
+    })(i);
+  }
+  barre([{txt:"Commencer la partie", act:function(){
+    S.donnes=[]; S.phase="partie"; rendre();
+  }}]);
+}
+
+function rendrePartie(){
+  montrer("v-partie");
+  var t=totaux();
+  $("num-donne").textContent=S.donnes.length+1;
+  $("etat-partie").textContent = S.donnes.length ? "En cours" : "Prêt à jouer";
+
+  var idx=[]; for (var i=0;i<S.nb;i++) idx.push(i);
+  idx.sort(function(a,b){ return t[b]-t[a]; });
+
+  var z=$("rangs"); z.innerHTML="";
+  idx.forEach(function(i){
+    var d=document.createElement("div"); d.className="jr";
+    d.setAttribute("role","button");
+    d.setAttribute("aria-label", nomDe(i)+" a pris cette donne");
+    d.innerHTML='<span class="pastille" style="background:'+COULEURS[i]+';height:28px"></span>'+
+      '<span class="n">'+echap(nomDe(i))+'</span>'+
+      '<span class="pr">A pris</span>'+
+      '<span class="p'+(t[i]<0?" neg":"")+'">'+(t[i]>0?"+":"")+t[i]+'</span>';
+    d.onclick=function(){ ouvrirSaisie(null, i); };
+    z.appendChild(d);
+  });
+  $("invite").textContent="Touche le joueur qui a pris la donne "+(S.donnes.length+1);
+
+  $("astuce-edit").textContent = S.donnes.length ? "Touche une ligne pour corriger" : "";
+  rendreHistorique();
+
+  var actions=[];
+  if (S.donnes.length){
+    actions.push({txt:"Annuler la dernière donne", cls:"btn secondaire", act:function(){
+      S.donnes.pop(); rendre();
+    }});
+    actions.push({txt:"Terminer la partie", cls:"btn secondaire", act:function(){
+      S.phase="fin"; rendre();
+    }});
+  }
+  barre(actions);
+}
+
+function rendreHistorique(){
+  var z=$("zone-historique");
+  if (!S.donnes.length){
+    z.innerHTML='<div class="feuille"><p class="vide">Aucune donne notée pour l’instant.</p></div>';
+    return;
+  }
+  var t=totaux();
+  var h='<div class="feuille"><table class="tableau"><thead><tr><th style="text-align:left">Dn</th>';
+  for (var i=0;i<S.nb;i++) h+='<th>'+echap(abrege(nomDe(i)))+'</th>';
+  h+='</tr></thead><tbody>';
+  S.donnes.forEach(function(d,k){
+    var r=calculer(d,S.nb);
+    h+='<tr data-donne="'+k+'"><td class="mn" style="text-align:left">'+(k+1)+'</td>';
+    for (var i=0;i<S.nb;i++){
+      h+='<td class="'+(r.g[i]<0?"neg":"")+'">'+(r.g[i]>0?"+":"")+r.g[i]+'</td>';
+    }
+    h+='</tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="mn" style="text-align:left">Tot</td>';
+  for (var j=0;j<S.nb;j++) h+='<td class="'+(t[j]<0?"neg":"")+'">'+(t[j]>0?"+":"")+t[j]+'</td>';
+  h+='</tr></tfoot></table></div>';
+  z.innerHTML=h;
+  Array.prototype.forEach.call(z.querySelectorAll("tbody tr"),function(tr){
+    tr.onclick=function(){ ouvrirSaisie(+tr.dataset.donne); };
+  });
+}
+function abrege(n){ return n.length>6 ? n.slice(0,5)+"." : n; }
+
+/* ---- saisie ---- */
+function ouvrirSaisie(index, preneur){
+  S.edition=index;
+  if (index===null){
+    S.b={preneur:(preneur||0), appele:-1, contrat:1, bouts:1, pts:null,
+         petit:0, poignee:0, chelem:0};
+  } else {
+    var d=S.donnes[index];
+    S.b={preneur:d.preneur, appele:d.appele, contrat:d.contrat, bouts:d.bouts,
+         pts:d.pts, petit:d.petit, poignee:d.poignee, chelem:d.chelem};
+  }
+  S.phase="saisie"; rendre();
+}
+
+function rendreSaisie(){
+  montrer("v-saisie");
+  var n=(S.edition===null)?S.donnes.length+1:S.edition+1;
+  $("saisie-titre").textContent="Donne "+n;
+  $("saisie-eyebrow").textContent=(S.edition===null)?"Fin de donne":"Correction";
+
+  majQuiAPris();
+  $("btn-changer-preneur").onclick=function(){
+    S.b.preneur=(S.b.preneur+1)%S.nb;
+    if (S.b.appele===S.b.preneur) S.b.appele=-1;
+    majQuiAPris(); rendreAppele(); majApercu();
+  };
+
+  rendreAppele();
+
+  boutons("choix-contrat", CONTRATS.map(function(c){return c.n;}),
+    function(){ return S.b.contrat; },
+    function(v){ S.b.contrat=v; majApercu(); });
+
+  boutons("choix-bouts", ["0","1","2","3"],
+    function(){ return S.b.bouts; },
+    function(v){ S.b.bouts=v; majObjectif(); majApercu(); });
+
+  var inp=$("pts");
+  inp.value=(typeof S.b.pts==="number")?S.b.pts:"";
+  inp.oninput=function(){
+    var v=parseFloat(inp.value.replace(",","."));
+    if (!isNaN(v)) v=Math.max(0,Math.min(91,v));
+    S.b.pts=isNaN(v)?null:v;
+    $("alerte").classList.remove("on");
+    majObjectif(); majApercu(); majBarre();
+  };
+  majObjectif();
+
+  boutons("choix-petit", ["Aucun","Preneur","Défense"],
+    function(){ return S.b.petit===0?0:(S.b.petit===1?1:2); },
+    function(v){ S.b.petit=(v===0?0:(v===1?1:-1)); majApercu(); });
+
+  boutons("choix-poignee", POIGNEES.map(function(p){return p.n;}),
+    function(){ return S.b.poignee; },
+    function(v){ S.b.poignee=v; majApercu(); });
+
+  boutons("choix-chelem", CHELEMS.map(function(c){return c.n;}),
+    function(){ return S.b.chelem; },
+    function(v){ S.b.chelem=v; majApercu(); });
+
+  $("btn-rare").onclick=function(){
+    $("zone-rare").classList.toggle("ouvert"); majRare(); majBarre();
+  };
+  majRare();
+  majApercu();
+  $("alerte").classList.remove("on");
+  setTimeout(function(){ inp.focus(); }, 60);
+  barre([{txt: S.edition===null?"Valider la donne":"Enregistrer la correction", act:valider}]);
+}
+
+function majQuiAPris(){
+  $("qui-a-pris").innerHTML='<span>A pris : </span>'+echap(nomDe(S.b.preneur));
+}
+
+/* À cinq, le preneur appelle un roi : son détenteur devient partenaire.
+   Si le roi est au chien, le preneur joue seul contre quatre. */
+function rendreAppele(){
+  var z=$("bloc-appele");
+  if (S.nb!==5){ z.innerHTML=""; S.b.appele=-1; return; }
+  z.innerHTML='<p class="eyebrow">Partenaire appelé</p><div class="grille4" id="choix-appele"></div>';
+  var libelles=["Seul"], valeurs=[-1];
+  for (var i=0;i<S.nb;i++) if (i!==S.b.preneur){ libelles.push(abrege(nomDe(i))); valeurs.push(i); }
+  var g=$("choix-appele");
+  libelles.forEach(function(txt,k){
+    var b=document.createElement("button"); b.type="button"; b.textContent=txt;
+    b.setAttribute("aria-pressed", S.b.appele===valeurs[k]?"true":"false");
+    b.onclick=function(){ S.b.appele=valeurs[k]; rendreAppele(); majApercu(); };
+    g.appendChild(b);
+  });
+}
+
+function boutons(id, libelles, lire, ecrire){
+  var z=$(id); z.innerHTML="";
+  libelles.forEach(function(txt,k){
+    var b=document.createElement("button"); b.type="button"; b.textContent=txt;
+    b.setAttribute("aria-pressed", lire()===k?"true":"false");
+    b.onclick=function(){
+      ecrire(k);
+      Array.prototype.forEach.call(z.children,function(e,j){
+        e.setAttribute("aria-pressed", lire()===j?"true":"false");
+      });
+    };
+    z.appendChild(b);
+  });
+}
+
+function majObjectif(){
+  var s=SEUILS[S.b.bouts];
+  var o=$("objectif");
+  if (typeof S.b.pts!=="number"){ o.innerHTML="objectif<b>"+s+"</b>"; return; }
+  var e=S.b.pts-s;
+  o.innerHTML="objectif "+s+"<b>"+(e>=0?"+":"")+fmt(e)+"</b>";
+}
+
+function majRare(){
+  var ouvert=$("zone-rare").classList.contains("ouvert");
+  var actif=(S.b.petit!==0)||(S.b.poignee!==0)||(S.b.chelem!==0);
+  var b=$("btn-rare");
+  if (actif && !ouvert){ $("zone-rare").classList.add("ouvert"); ouvert=true; }
+  b.setAttribute("aria-expanded", ouvert?"true":"false");
+  b.textContent = ouvert ? "Masquer – primes" : "Petit au bout, poignée, chelem ?";
+}
+
+function majApercu(){
+  var z=$("apercu");
+  if (typeof S.b.pts!=="number"){ z.innerHTML=""; majRare(); majBarre(); return; }
+  var r=calculer(S.b, S.nb);
+  var lignes=[];
+  for (var i=0;i<S.nb;i++) lignes.push(echap(nomDe(i))+" "+(r.g[i]>0?"+":"")+r.g[i]);
+  z.innerHTML='<div class="apercu '+(r.reussi?"reussi":"chute")+'">'+echap(r.detail)+
+    '<span class="det">'+lignes.join(" · ")+'</span></div>';
+  majRare(); majBarre();
+}
+
+function valider(){
+  if (typeof S.b.pts!=="number"){
+    $("alerte").textContent="Indique les points réalisés par le preneur.";
+    $("alerte").classList.add("on"); majBarre();
+    $("pts").scrollIntoView({block:"center",behavior:"smooth"});
+    return;
+  }
+  var d={preneur:S.b.preneur, appele:S.b.appele, contrat:S.b.contrat,
+         bouts:S.b.bouts, pts:S.b.pts, petit:S.b.petit,
+         poignee:S.b.poignee, chelem:S.b.chelem};
+  if (S.edition===null) S.donnes.push(d); else S.donnes[S.edition]=d;
+  S.edition=null; S.phase="partie"; rendre();
+}
+
+function rendreFin(){
+  montrer("v-fin");
+  var t=totaux(), idx=[];
+  for (var i=0;i<S.nb;i++) idx.push(i);
+  idx.sort(function(a,b){ return t[b]-t[a]; });
+  var best=t[idx[0]];
+  var exaequo=idx.filter(function(i){ return t[i]===best; });
+  $("nom-gagnant").textContent = exaequo.length>1 ? exaequo.map(nomDe).join(" & ") : nomDe(idx[0]);
+  $("detail-gagnant").textContent = (best>0?"+":"")+best+" points en "+
+    S.donnes.length+" donne"+(S.donnes.length>1?"s":"")+".";
+
+  var c=$("classement"); c.innerHTML="";
+  idx.forEach(function(i,k){
+    var d=document.createElement("div"); d.className="jr"; d.style.cursor="default";
+    d.innerHTML='<span class="pastille" style="background:'+COULEURS[i]+';height:28px"></span>'+
+      '<span class="n">'+(k+1)+'. '+echap(nomDe(i))+'</span>'+
+      '<span class="p'+(t[i]<0?" neg":"")+'">'+(t[i]>0?"+":"")+t[i]+'</span>';
+    c.appendChild(d);
+  });
+  barre([
+    {txt:"Rejouer avec les mêmes joueurs", act:function(){ S.donnes=[]; S.phase="partie"; rendre(); }},
+    {txt:"Revoir le détail des donnes", cls:"btn secondaire", act:function(){ S.phase="partie"; rendre(); }},
+    {txt:"Changer les réglages", cls:"btn secondaire", act:function(){ S.phase="reglages"; rendre(); }}
+  ]);
+}
+
+function barre(actions){
+  var b=$("barre"); b.innerHTML="";
+  actions.forEach(function(a,k){
+    var el=document.createElement("button");
+    el.className=a.cls||"btn";
+    el.textContent=a.txt; el.onclick=a.act;
+    if (k>0) el.style.marginTop="9px";
+    b.appendChild(el);
+  });
+  majBarre();
+}
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+var majBarre=function(){};
+(function(){
+  var vv=window.visualViewport;
+  if (!vv) return;
+  var boite=$("barre-bas");
+  majBarre=function(){
+    var h=boite.offsetHeight;
+    var bas=vv.offsetTop+vv.height;
+    var cache=Math.max(0, window.innerHeight-bas);
+    if (cache<60){
+      boite.style.top="auto"; boite.style.bottom="0";
+      document.body.style.paddingBottom=""; return;
+    }
+    boite.style.bottom="auto";
+    boite.style.top=(bas-h)+"px";
+    document.body.style.paddingBottom=(cache+h)+"px";
+  };
+  vv.addEventListener("resize",majBarre);
+  vv.addEventListener("scroll",majBarre);
+  window.addEventListener("resize",majBarre);
+  majBarre();
+})();
+
+$("btn-reglages").onclick=function(){ S.phase="reglages"; rendre(); };
+$("btn-annuler-saisie").onclick=function(){ S.edition=null; S.phase="partie"; rendre(); };
+
+rendre();
+})();
+</script>
+</body>
+</html>
