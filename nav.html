@@ -197,6 +197,22 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 .info.gagne{background:var(--ok);color:#0B2B3F}
 .info .p{display:block;font-size:12.5px;font-weight:600;margin-top:4px;opacity:.9}
 
+/* Rappel du materiel necessaire : sans deux telephones, le jeu ne
+   fonctionne pas. Autant le dire avant de placer sa flotte. */
+.materiel{
+  border-radius:14px;padding:13px 15px;margin-bottom:16px;
+  background:rgba(226,112,58,.16);border:1px solid rgba(226,112,58,.5)
+}
+.materiel .t{
+  font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;
+  margin-bottom:5px
+}
+.materiel .t span{
+  font-size:17px;letter-spacing:-2px;font-weight:800;color:var(--touche)
+}
+.materiel p{margin:0;font-size:13px;font-weight:600;color:var(--pale);line-height:1.45}
+.materiel b{color:var(--clair);font-weight:800}
+
 .barre-bas{
   position:fixed;left:0;right:0;bottom:0;z-index:20;
   background:linear-gradient(180deg,rgba(7,28,42,0) 0%,#0A2334 30%);
@@ -227,7 +243,13 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 
   <!-- ============ PLACEMENT ============ -->
   <section id="v-placement" class="vue actif">
-    <p class="sous">Place ta flotte. Chacun sur son téléphone, les coups s’annoncent à voix haute.</p>
+    <div class="materiel">
+      <div class="t"><span>▮▮</span>Il faut deux téléphones</div>
+      <p>Chaque joueur ouvre cette page sur <b>son propre téléphone</b> et y
+      place sa flotte. Les tirs s’annoncent <b>à voix haute</b> : les deux
+      appareils ne communiquent pas entre eux, c’est vous qui transmettez.</p>
+    </div>
+    <p class="sous">Place ta flotte : touche une case pour poser le bateau en cours.</p>
     <div class="duo" id="choix-sens">
       <button data-s="h" aria-pressed="true">Horizontal</button>
       <button data-s="v" aria-pressed="false">Vertical</button>
