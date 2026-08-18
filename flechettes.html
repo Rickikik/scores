@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#1B2026">
+<title>Fléchettes – 301 / 501 / 701</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%231B2026'/%3E%3Ccircle cx='32' cy='32' r='25' fill='none' stroke='%231E7A4C' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23C1272D' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5.5' fill='%23C1272D'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#1B2026; --panel:#242C34; --panel2:#2C353F; --line:#3A444F;
+  --ink:#F2EBDD; --dim:#96A1AD; --rouge:#C1272D; --vert:#1E7A4C;
+  --or:#D9A441; --kb:0px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none}
+body{background:
+  radial-gradient(circle at 50% 18%,rgba(30,122,76,.10),transparent 55%),
+  radial-gradient(circle at 50% 18%,rgba(193,39,45,.09),transparent 34%),
+  var(--bg);
+  min-height:100vh;padding-bottom:calc(24px + var(--kb))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+
+/* ---------- en-tete ---------- */
+header{display:flex;align-items:center;gap:10px;padding:10px 0 6px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  background:var(--ink);color:var(--rouge);font-weight:600;font-size:15px;
+  text-decoration:none}
+header h1{flex:1;margin:0;font-size:16px;font-weight:600;letter-spacing:.02em;
+  text-align:center;color:var(--ink)}
+.plus{min-height:45px;min-width:45px;border-radius:23px;background:var(--panel);
+  border:1px solid var(--line);font-size:19px;line-height:1;color:var(--dim)}
+
+/* ---------- blocs ---------- */
+.bloc{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:14px;margin:10px 0}
+.bloc h2{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.09em}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:64px;min-height:46px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  color:var(--dim)}
+.seg button[aria-pressed="true"]{background:var(--rouge);border-color:var(--rouge);
+  color:#fff;font-weight:600}
+.joueur-ligne{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.joueur-ligne input{flex:1;min-height:46px;border-radius:10px;padding:0 12px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  font-size:16px;font-family:inherit}
+.joueur-ligne input:focus{outline:2px solid var(--vert);outline-offset:-2px}
+.retirer{min-width:46px;min-height:46px;border-radius:10px;background:var(--panel2);
+  border:1px solid var(--line);color:var(--dim);font-size:18px}
+.ajouter{width:100%;min-height:46px;border-radius:10px;background:transparent;
+  border:1px dashed var(--line);color:var(--dim);font-size:14px}
+.primaire{display:block;width:100%;min-height:54px;border-radius:12px;
+  background:var(--rouge);color:#fff;font-size:17px;font-weight:600;
+  margin-top:6px}
+.primaire:disabled{background:var(--panel2);color:#6C7683}
+.secondaire{display:block;width:100%;min-height:48px;border-radius:12px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  font-size:15px;margin-top:8px}
+
+/* ---------- tableau des joueurs ---------- */
+.j{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);margin-bottom:8px;
+  width:100%;text-align:left}
+.j.actif{border-color:var(--vert);background:linear-gradient(90deg,
+  rgba(30,122,76,.20),var(--panel) 62%)}
+.j .nom{flex:1;min-width:0}
+.j .nom b{display:block;font-size:16px;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.j .nom span{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+.j .pts{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em}
+.j.actif .pts{color:var(--ink)}
+.manches{display:flex;gap:3px;margin-top:4px}
+.manches i{width:7px;height:7px;border-radius:50%;background:var(--line);
+  display:block}
+.manches i.on{background:var(--or)}
+.appel{font-size:12px;color:var(--vert);margin-top:3px;display:block}
+
+.sortie{margin:2px 0 10px;padding:12px 14px;border-radius:12px;
+  background:rgba(30,122,76,.13);border:1px solid rgba(30,122,76,.45)}
+.sortie .lbl{font-size:12px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.08em}
+.sortie .route{font-size:22px;font-weight:700;margin-top:4px;color:var(--ink)}
+.sortie.bogey{background:rgba(193,39,45,.13);border-color:rgba(193,39,45,.45)}
+.sortie.bogey .route{font-size:15px;font-weight:600}
+
+/* ---------- menu replie ---------- */
+.menu{margin:0 0 10px;padding:12px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line)}
+.menu button{display:block;width:100%;min-height:46px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  margin-bottom:8px;color:var(--ink)}
+.menu button:last-child{margin-bottom:0}
+.menu button:disabled{color:#6C7683}
+
+/* ---------- feuille de saisie ---------- */
+.voile{position:fixed;inset:0;background:rgba(12,15,18,.72);z-index:40}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--bg);
+  border-top:1px solid var(--line);border-radius:18px 18px 0 0;
+  padding:12px 14px calc(12px + var(--kb));max-height:92vh;overflow:auto;
+  max-width:520px;margin:0 auto}
+.fermer{position:absolute;top:8px;right:10px;min-width:45px;min-height:45px;
+  border-radius:23px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--dim);font-size:16px}
+.feuille h3{margin:2px 44px 12px;font-size:15px;font-weight:600;text-align:center}
+.feuille h3 em{font-style:normal;color:var(--vert)}
+.mult{display:flex;gap:8px;margin-bottom:10px}
+.mult button{flex:1;min-height:48px;border-radius:10px;background:var(--panel2);
+  border:1px solid var(--line);font-size:15px;color:var(--dim)}
+.mult button[aria-pressed="true"]{background:var(--or);border-color:var(--or);
+  color:#1B2026;font-weight:700}
+.cibles{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.cibles button{min-height:50px;border-radius:10px;background:var(--panel);
+  border:1px solid var(--line);font-size:17px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.cibles button.sp{background:var(--panel2);font-size:14px}
+.cibles button:disabled{opacity:.35}
+.pave{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.pave button{min-height:56px;border-radius:10px;background:var(--panel);
+  border:1px solid var(--line);font-size:21px;font-weight:600}
+.rapides{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.rapides button{flex:1;min-width:56px;min-height:42px;border-radius:9px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  color:var(--dim)}
+.ecran{text-align:center;font-size:44px;font-weight:700;padding:6px 0 12px;
+  font-variant-numeric:tabular-nums}
+
+/* ---------- barre du bas ---------- */
+.barre{position:sticky;bottom:0;background:var(--bg);padding-top:10px;
+  margin-top:12px;border-top:1px solid var(--line)}
+.apercu{display:flex;align-items:center;gap:8px;min-height:38px;margin-bottom:8px;
+  flex-wrap:wrap}
+.chip{padding:5px 10px;border-radius:8px;background:var(--panel2);
+  border:1px solid var(--line);font-size:14px;font-weight:600}
+.apercu .reste{margin-left:auto;font-size:14px;color:var(--dim);
+  font-variant-numeric:tabular-nums}
+.apercu .reste b{color:var(--ink);font-size:18px}
+.apercu.bust .reste b{color:var(--rouge)}
+.apercu.gagne .reste b{color:var(--vert)}
+.actions{display:flex;gap:8px}
+.actions .eff{min-width:56px;min-height:54px;border-radius:12px;
+  background:var(--panel2);border:1px solid var(--line);font-size:18px}
+.actions .val{flex:1;min-height:54px;border-radius:12px;background:var(--vert);
+  color:#fff;font-size:17px;font-weight:600}
+.actions .val.bust{background:var(--rouge)}
+.actions .val:disabled{background:var(--panel2);color:#6C7683}
+.aide{font-size:12px;color:var(--dim);text-align:center;margin:8px 0 0}
+.alerte{margin:0 0 10px;padding:10px 12px;border-radius:10px;font-size:14px;
+  background:rgba(193,39,45,.16);border:1px solid rgba(193,39,45,.5)}
+
+/* ---------- fin ---------- */
+.fin{text-align:center;padding:26px 8px}
+.fin .t{font-size:13px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.1em}
+.fin .n{font-size:30px;font-weight:700;margin:8px 0 4px}
+.stats{margin-top:14px;font-size:14px;color:var(--dim);line-height:1.7}
+.stats b{color:var(--ink)}
+.pied{margin:18px 0 6px;padding:14px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.6}
+@media(prefers-reduced-motion:no-preference){
+  .j,.seg button,.cibles button{transition:background .12s ease,border-color .12s ease}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./index.html">← Scores</a>
+    <h1 id="titre">Fléchettes</h1>
+    <button class="plus" id="btnMenu" aria-label="Options" hidden>⋯</button>
+  </header>
+  <main id="vue"></main>
+</div>
+<div id="sheet"></div>
+
+<script>
+/* ================= TABLES DES SORTIES =================
+   Recalculees a chaque chargement par recherche exhaustive : aucun bloc de
+   donnees a recopier, donc aucune suite repetitive a perdre lors d'un push. */
+const CIBLES = [];
+for(let v = 1; v <= 20; v++)
+  CIBLES.push(["S"+v, v, false], ["D"+v, 2*v, true], ["T"+v, 3*v, false]);
+CIBLES.push(["SB", 25, false], ["DB", 50, true]);
+const DBL = CIBLES.filter(c => c[2]);
+
+/* preference de la double de sortie : 16 se redivise, 20 est la plus jouee */
+const PREF = ["D16","D20","D8","D12","D10","D4","D18","D2","D6","D14",
+              "D5","D15","D9","D11","D13","D17","D19","D3","D7","D1","DB"];
+const POIDS_DOUBLE = 3;
+
+/* cout d'une flechette de mise en place : gros triples d'abord, bull en dernier */
+function coutMise(n){
+  if(n === "DB") return 70;
+  if(n === "SB") return 55;
+  const k = n[0], v = +n.slice(1);
+  if(k === "S") return 20;
+  if(k === "T") return v >= 16 ? 10 + (20 - v) : 25 + (15 - v);
+  return 60 + (20 - v);
+}
+
+/* comparaison de deux routes : nombre de flechettes, cout total, cout trie, ordre */
+function meilleureRoute(a, b){
+  if(!b) return true;
+  if(a.n !== b.n) return a.n < b.n;
+  if(a.c !== b.c) return a.c < b.c;
+  for(let i = 0; i < a.su.length; i++)
+    if(a.su[i] !== b.su[i]) return a.su[i] < b.su[i];
+  for(let i = 0; i < a.r.length; i++)
+    if(a.r[i] !== b.r[i]) return a.r[i] < b.r[i];
+  return false;
+}
+
+/* les trois tables sont bâties en un seul parcours : une route a une flechette
+   reste la meilleure a deux, donc chaque etape prolonge la precedente */
+function construireTout(){
+  const T = new Array(181).fill(""), M = new Array(181).fill(null);
+  const essai = (mise, fin, somme) => {
+    if(somme > 180) return;
+    const r = mise.slice().sort((x, y) => coutMise(x) - coutMise(y));
+    const su = r.map(coutMise);
+    r.push(fin);
+    const cand = {n:r.length, c:su.reduce((a,x) => a+x, 0)
+                    + POIDS_DOUBLE * PREF.indexOf(fin), su:su, r:r};
+    if(meilleureRoute(cand, M[somme])){ M[somme] = cand; T[somme] = r.join(" "); }
+  };
+  for(const d of DBL) essai([], d[0], d[1]);
+  const T1 = T.slice();
+  for(const a of CIBLES) for(const d of DBL) essai([a[0]], d[0], a[1]+d[1]);
+  const T2 = T.slice();
+  for(const a of CIBLES) for(const b of CIBLES){
+    if(a[0] > b[0]) continue;
+    for(const d of DBL) essai([a[0], b[0]], d[0], a[1]+b[1]+d[1]);
+  }
+  return [T1, T2, T];
+}
+
+const [OUT1, OUT2, OUT3] = construireTout();
+
+/* totaux de volee inatteignables avec au plus trois flechettes */
+const IMPOSSIBLE = (() => {
+  const v = CIBLES.map(c => c[1]), ok = new Set(v);
+  for(const a of v){ for(const b of v){ ok.add(a+b);
+    for(const c of v) ok.add(a+b+c); } }
+  const out = [];
+  for(let s = 1; s <= 180; s++) if(!ok.has(s)) out.push(s);
+  return out;
+})();
+
+/* ================= MOTEUR DE REGLES ================= */
+const RG = {
+  /* points d'une cible : mult 1/2/3, n de 1 a 20 ; "SB" = 25, "DB" = 50 */
+  cible(mult, n){
+    if(n === "SB") return {label:"25", pts:25, dbl:false};
+    if(n === "DB") return {label:"Bull", pts:50, dbl:true};
+    if(n === 0)    return {label:"0", pts:0, dbl:false};
+    const p = mult * n;
+    return {label:(mult===1?"":mult===2?"D":"T") + n, pts:p, dbl:(mult===2)};
+  },
+  /* une flechette appliquee a un score : ok / bust / gagne */
+  flechette(score, d){
+    const n = score - d.pts;
+    if(n < 0 || n === 1) return {etat:"bust", score:score};
+    if(n === 0) return d.dbl ? {etat:"gagne", score:0} : {etat:"bust", score:score};
+    return {etat:"ok", score:n};
+  },
+  /* volee complete en mode flechette par flechette */
+  volee(depart, darts){
+    let s = depart;
+    for(let i = 0; i < darts.length; i++){
+      const r = RG.flechette(s, darts[i]);
+      if(r.etat === "bust")  return {etat:"bust",  score:depart, jouees:i+1};
+      if(r.etat === "gagne") return {etat:"gagne", score:0,      jouees:i+1};
+      s = r.score;
+    }
+    return {etat:"ok", score:s, jouees:darts.length};
+  },
+  /* volee en mode total : dbl = reponse a la question posee a 0 pile */
+  total(depart, total, dbl){
+    const n = depart - total;
+    if(n < 0 || n === 1) return {etat:"bust", score:depart};
+    if(n === 0) return dbl ? {etat:"gagne", score:0} : {etat:"bust", score:depart};
+    return {etat:"ok", score:n};
+  },
+  /* le total saisi est-il atteignable avec au plus 3 flechettes ? */
+  totalPossible(t){ return t >= 0 && t <= 180 && IMPOSSIBLE.indexOf(t) === -1; },
+  /* route conseillee pour un score, avec le nombre de flechettes restantes */
+  route(score, restantes){
+    if(score < 2 || score > 170) return null;
+    const t = restantes >= 3 ? OUT3 : restantes === 2 ? OUT2 : OUT1;
+    return t[score] || null;
+  },
+  /* lecture d'une route : S7 devient 7, DB devient Bull */
+  lisible(r){
+    return r.split(" ").map(t =>
+      t === "DB" ? "Bull" : t[0] === "S" ? t.slice(1) : t).join(" ");
+  },
+  /* aucun des sept nombres sans sortie en trois flechettes */
+  bogey(score){ return score >= 2 && score <= 170 && !OUT3[score]; }
+};
+window.RG = RG;
+
+/* ================= ETAT ================= */
+const S = {
+  depart:501, gagnantes:2, mode:"dart",
+  joueurs:[], cur:0, ouvreur:0,
+  phase:"reglages", menu:false, menuFerme:false, annulations:0,
+  volee:null, saisie:null, msg:""
+};
+const el = id => document.getElementById(id);
+const vue = el("vue"), sheet = el("sheet");
+const esc = t => String(t).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function nouveauJoueur(n){
+  return {nom:"", score:S.depart, manches:0, points:0, volees:0, meilleure:0};
+}
+S.joueurs = [nouveauJoueur(), nouveauJoueur()];
+
+/* ================= ECRAN REGLAGES ================= */
+function vueReglages(){
+  el("btnMenu").hidden = true;
+  el("titre").textContent = "Fléchettes";
+  const seg = (vals, cur, act) => vals.map(v =>
+    `<button data-${act}="${v}" aria-pressed="${v == cur}">${v}</button>`).join("");
+  vue.innerHTML = `
+  <div class="bloc"><h2>Départ</h2>
+    <div class="seg">${seg([301,501,701], S.depart, "dep")}</div></div>
+  <div class="bloc"><h2>Manches gagnantes</h2>
+    <div class="seg">${seg([1,2,3,5], S.gagnantes, "gag")}</div></div>
+  <div class="bloc"><h2>Saisie des volées</h2>
+    <div class="seg">
+      <button data-mode="dart" aria-pressed="${S.mode === "dart"}">Fléchette par fléchette</button>
+      <button data-mode="total" aria-pressed="${S.mode === "total"}">Total de la volée</button>
+    </div>
+    <p class="aide" style="text-align:left;margin-top:10px">${
+      S.mode === "dart"
+      ? "Chaque fléchette est saisie : l’app applique seule la règle du double et les busts."
+      : "Un seul nombre par volée. À 0 pile, l’app demande si la dernière fléchette était un double."
+    }</p>
+  </div>
+  <div class="bloc"><h2>Joueurs</h2>
+    ${S.joueurs.map((j,i) => `
+      <div class="joueur-ligne">
+        <input type="text" data-nom="${i}" value="${esc(j.nom)}"
+          placeholder="Joueur ${i+1}" maxlength="14" autocomplete="off">
+        ${S.joueurs.length > 2
+          ? `<button class="retirer" data-ret="${i}" aria-label="Retirer">−</button>` : ""}
+      </div>`).join("")}
+    ${S.joueurs.length < 6
+      ? `<button class="ajouter" id="add">+ Ajouter un joueur</button>` : ""}
+  </div>
+  <button class="primaire" id="go">Commencer</button>
+  <div class="pied">Rien n’est enregistré : en rechargeant la page, la partie
+    repart de zéro. Aucune donnée ne sort de l’appareil.</div>`;
+
+  vue.querySelectorAll("[data-dep]").forEach(b => b.onclick = () => {
+    S.depart = +b.dataset.dep; S.joueurs.forEach(j => j.score = S.depart); rendu(); });
+  vue.querySelectorAll("[data-gag]").forEach(b => b.onclick = () => {
+    S.gagnantes = +b.dataset.gag; rendu(); });
+  vue.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
+    S.mode = b.dataset.mode; rendu(); });
+  vue.querySelectorAll("[data-nom]").forEach(inp => inp.oninput = () => {
+    S.joueurs[+inp.dataset.nom].nom = inp.value; });
+  vue.querySelectorAll("[data-ret]").forEach(b => b.onclick = () => {
+    S.joueurs.splice(+b.dataset.ret, 1); rendu(); });
+  const add = el("add");
+  if(add) add.onclick = () => { S.joueurs.push(nouveauJoueur()); rendu(); };
+  el("go").onclick = demarrer;
+}
+
+function demarrer(){
+  S.joueurs.forEach((j,i) => {
+    j.nom = (j.nom || "").trim() || "Joueur " + (i+1);
+    j.score = S.depart; j.manches = 0; j.points = 0; j.volees = 0; j.meilleure = 0;
+  });
+  S.cur = 0; S.ouvreur = 0; S.annulations = 0; S.menu = false;
+  S.phase = "partie"; rendu();
+}
+
+/* ================= ECRAN PARTIE ================= */
+function vuePartie(){
+  /* cas rare deplie d'office : une volee a deja ete annulee dans cette manche */
+  if(S.annulations > 0 && !S.menuFerme) S.menu = true;
+  el("btnMenu").hidden = false;
+  el("titre").textContent = S.depart + " · " + S.gagnantes +
+    (S.gagnantes > 1 ? " manches" : " manche");
+  const j = S.joueurs[S.cur];
+  const restantes = 3;
+  const route = RG.route(j.score, restantes);
+  const bogey = RG.bogey(j.score);
+
+  vue.innerHTML =
+    (S.msg ? `<div class="alerte">${esc(S.msg)}</div>` : "") +
+    (S.menu ? menuHTML() : "") +
+    S.joueurs.map((p,i) => `
+      <button class="j ${i === S.cur ? "actif" : ""}" data-j="${i}">
+        <div class="nom"><b>${esc(p.nom)}</b>
+          <div class="manches">${
+            Array.from({length:S.gagnantes}, (_,k) =>
+              `<i class="${k < p.manches ? "on" : ""}"></i>`).join("")}</div>
+          ${i === S.cur ? '<span class="appel">Touche pour saisir ta volée</span>'
+            : `<span>${p.volees ? "moy. " + (p.points/p.volees).toFixed(1)
+                                 + " · record " + p.meilleure : "—"}</span>`}
+        </div>
+        <div class="pts">${p.score}</div>
+      </button>`).join("") +
+    (route ? `<div class="sortie"><div class="lbl">Sortie pour ${esc(j.nom)}
+        · ${j.score}</div><div class="route">${RG.lisible(route)}</div></div>` : "") +
+    (bogey ? `<div class="sortie bogey"><div class="lbl">${j.score} · sans sortie</div>
+        <div class="route">Aucune sortie en trois fléchettes. Marque pour laisser
+        une double propre au tour suivant.</div></div>` : "") +
+    `<div class="pied">Volée de trois fléchettes, on soustrait. La dernière
+      fléchette doit tomber dans un double, ou le bull à 50. Sous zéro, sur 1,
+      ou à zéro sans double : bust, la volée est annulée.</div>`;
+
+  vue.querySelectorAll("[data-j]").forEach(b => b.onclick = () => {
+    if(+b.dataset.j === S.cur) ouvrirSaisie();
+  });
+  S.msg = "";
+}
+
+function menuHTML(){
+  return `<div class="menu">
+    <button id="mAnnul" ${S.derniere ? "" : "disabled"}>Annuler la dernière volée</button>
+    <button id="mMode">Passer ${S.mode === "dart"
+      ? "au total de la volée" : "à la fléchette par fléchette"}</button>
+    <button id="mNouv">Nouvelle partie</button>
+  </div>`;
+}
+
+el("btnMenu").onclick = () => {
+  S.menu = !S.menu;
+  S.menuFerme = !S.menu;      /* fermeture explicite : on ne redeplie plus d'office */
+  rendu();
+};
+
+function brancherMenu(){
+  const a = el("mAnnul"), m = el("mMode"), n = el("mNouv");
+  if(a) a.onclick = annulerVolee;
+  if(m) m.onclick = () => {
+    S.mode = S.mode === "dart" ? "total" : "dart";
+    S.msg = "Saisie : " + (S.mode === "dart"
+      ? "fléchette par fléchette." : "total de la volée.");
+    S.menu = false; S.menuFerme = true;
+    rendu();
+  };
+  if(n) n.onclick = () => {
+    if(confirm("Abandonner la partie en cours ?")){
+      S.phase = "reglages"; S.menu = false; S.derniere = null; rendu();
+    }
+  };
+}
+
+/* ================= SAISIE ================= */
+function ouvrirSaisie(){
+  S.saisie = S.mode === "dart"
+    ? {mode:"dart", mult:1, darts:[], depart:S.joueurs[S.cur].score}
+    : {mode:"total", chiffres:"", depart:S.joueurs[S.cur].score, question:false};
+  rendu();
+}
+function fermerSaisie(){ S.saisie = null; rendu(); }
+
+function sheetHTML(){
+  const st = S.saisie;
+  if(!st) return "";
+  const j = S.joueurs[S.cur];
+  return `<div class="voile" id="voile"></div><div class="feuille">
+    <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
+    <h3>Volée de <em>${esc(j.nom)}</em> · reste ${st.depart}</h3>
+    ${st.mode === "dart" ? sheetDart() : sheetTotal()}
+  </div>`;
+}
+
+function sheetDart(){
+  const st = S.saisie;
+  const r = RG.volee(st.depart, st.darts);
+  const fige = r.etat !== "ok";
+  const restantes = 3 - st.darts.length;
+  const route = (r.etat === "ok" && restantes > 0)
+    ? RG.route(r.score, restantes) : null;
+  const nums = Array.from({length:20}, (_,i) => i+1);
+  return `
+  <div class="mult">
+    ${[[1,"Simple"],[2,"Double"],[3,"Triple"]].map(([m,l]) =>
+      `<button data-mult="${m}" aria-pressed="${st.mult === m}">${l}</button>`).join("")}
+  </div>
+  <div class="cibles">
+    ${nums.map(n => `<button data-n="${n}" ${fige || restantes === 0 ? "disabled" : ""}>${n}</button>`).join("")}
+    <button class="sp" data-sb="1" ${fige || restantes === 0 ? "disabled" : ""}>25</button>
+    <button class="sp" data-db="1" ${fige || restantes === 0 ? "disabled" : ""}>Bull 50</button>
+    <button class="sp" data-z="1" ${fige || restantes === 0 ? "disabled" : ""}>Manqué</button>
+  </div>
+  ${route ? `<p class="aide">Sortie en ${restantes} : <b>${RG.lisible(route)}</b></p>` : ""}
+  <div class="barre">
+    <div class="apercu ${r.etat === "bust" ? "bust" : r.etat === "gagne" ? "gagne" : ""}">
+      ${st.darts.map((d,i) => `<span class="chip">${d.label}</span>`).join("")
+        || '<span class="aide" style="margin:0">Aucune fléchette saisie</span>'}
+      <span class="reste">${
+        r.etat === "bust" ? "<b>Bust</b>"
+        : r.etat === "gagne" ? "<b>Manche gagnée</b>"
+        : "reste <b>" + r.score + "</b>"}</span>
+    </div>
+    <div class="actions">
+      <button class="eff" id="eff" ${st.darts.length ? "" : "disabled"}>⌫</button>
+      <button class="val ${r.etat === "bust" ? "bust" : ""}" id="val"
+        ${st.darts.length ? "" : "disabled"}>${
+        r.etat === "bust" ? "Bust – au suivant"
+        : r.etat === "gagne" ? "Manche gagnée" : "Valider la volée"}</button>
+    </div>
+  </div>`;
+}
+
+function sheetTotal(){
+  const st = S.saisie;
+  const t = st.chiffres === "" ? null : +st.chiffres;
+  if(st.question){
+    return `<p class="aide" style="font-size:15px;color:var(--ink)">
+      Le compte tombe à zéro. La dernière fléchette était-elle un double
+      (ou le bull à 50) ?</p>
+      <div class="seg" style="margin-top:14px">
+        <button class="val" id="qOui" style="min-height:56px">Oui, manche gagnée</button>
+        <button class="eff" id="qNon" style="min-height:56px;flex:1">Non, bust</button>
+      </div>`;
+  }
+  const valide = t !== null && RG.totalPossible(t);
+  const r = valide ? RG.total(st.depart, t, true) : null;
+  const impossible = t !== null && !RG.totalPossible(t);
+  return `
+  <div class="rapides">
+    ${[26,41,45,60,81,85,100,140,180].map(v =>
+      `<button data-rap="${v}">${v}</button>`).join("")}
+  </div>
+  ${RG.route(st.depart, 3)
+      ? `<p class="aide">Sortie pour ${st.depart} : <b>${
+          RG.lisible(RG.route(st.depart, 3))}</b></p>` : ""}
+  <div class="ecran">${st.chiffres === "" ? "—" : st.chiffres}</div>
+  <div class="pave">
+    ${[1,2,3,4,5,6,7,8,9].map(n => `<button data-c="${n}">${n}</button>`).join("")}
+    <button data-c="0" style="grid-column:2">0</button>
+  </div>
+  <div class="barre">
+    <div class="apercu ${impossible ? "bust" : ""}">
+      <span class="aide" style="margin:0">${
+        impossible ? "Total impossible avec trois fléchettes"
+        : "Total de la volée"}</span>
+      <span class="reste">${valide
+        ? (r.etat === "bust" ? "<b>Bust</b>"
+           : r.etat === "gagne" ? "<b>Zéro</b>" : "reste <b>" + r.score + "</b>")
+        : ""}</span>
+    </div>
+    <div class="actions">
+      <button class="eff" id="eff" ${st.chiffres ? "" : "disabled"}>⌫</button>
+      <button class="val" id="val" ${valide ? "" : "disabled"}>Valider la volée</button>
+    </div>
+  </div>`;
+}
+
+function brancherSheet(){
+  const st = S.saisie;
+  if(!st) return;
+  const v = el("voile"); if(v) v.onclick = fermerSaisie;
+  const f = el("fermer"); if(f) f.onclick = fermerSaisie;
+
+  if(st.mode === "dart"){
+    sheet.querySelectorAll("[data-mult]").forEach(b => b.onclick = () => {
+      st.mult = +b.dataset.mult; rendu(); });
+    const pose = d => {
+      st.darts.push(d); st.mult = 1; rendu();
+    };
+    sheet.querySelectorAll("[data-n]").forEach(b => b.onclick = () =>
+      pose(RG.cible(st.mult, +b.dataset.n)));
+    const sb = sheet.querySelector("[data-sb]"); if(sb) sb.onclick = () => pose(RG.cible(1,"SB"));
+    const db = sheet.querySelector("[data-db]"); if(db) db.onclick = () => pose(RG.cible(1,"DB"));
+    const z  = sheet.querySelector("[data-z]");  if(z)  z.onclick  = () => pose(RG.cible(1,0));
+    const eff = el("eff"); if(eff) eff.onclick = () => { st.darts.pop(); rendu(); };
+    const val = el("val"); if(val) val.onclick = () =>
+      appliquer(RG.volee(st.depart, st.darts), st.darts.reduce((a,d) => a+d.pts, 0));
+  } else {
+    if(st.question){
+      el("qOui").onclick = () => appliquer(RG.total(st.depart, +st.chiffres, true), +st.chiffres);
+      el("qNon").onclick = () => appliquer(RG.total(st.depart, +st.chiffres, false), +st.chiffres);
+      return;
+    }
+    sheet.querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
+      if(st.chiffres.length >= 3) return;
+      const n = st.chiffres + b.dataset.c;
+      if(+n > 180) return;
+      st.chiffres = String(+n); rendu();
+    });
+    sheet.querySelectorAll("[data-rap]").forEach(b => b.onclick = () => {
+      st.chiffres = b.dataset.rap; rendu(); });
+    const eff = el("eff"); if(eff) eff.onclick = () => {
+      st.chiffres = st.chiffres.slice(0, -1); rendu(); };
+    const val = el("val"); if(val) val.onclick = () => {
+      const t = +st.chiffres;
+      const r = RG.total(st.depart, t, true);
+      if(r.etat === "gagne"){ st.question = true; rendu(); return; }
+      appliquer(RG.total(st.depart, t, false), t);
+    };
+  }
+}
+
+/* ================= APPLICATION D'UNE VOLEE ================= */
+function appliquer(res, marques){
+  const j = S.joueurs[S.cur];
+  S.derniere = {
+    joueur:S.cur, score:j.score, points:j.points, volees:j.volees,
+    meilleure:j.meilleure, manches:j.manches, ouvreur:S.ouvreur, phase:S.phase
+  };
+  j.volees++;
+  if(res.etat === "bust"){
+    S.msg = j.nom + " : bust, volée annulée.";
+  } else {
+    j.points += marques;
+    if(marques > j.meilleure) j.meilleure = marques;
+    j.score = res.score;
+  }
+  S.saisie = null;
+
+  if(res.etat === "gagne"){
+    j.manches++;
+    if(j.manches >= S.gagnantes){ S.phase = "fin"; rendu(); return; }
+    S.phase = "manche"; rendu(); return;
+  }
+  S.cur = (S.cur + 1) % S.joueurs.length;
+  rendu();
+}
+
+function annulerVolee(){
+  const d = S.derniere;
+  if(!d) return;
+  const j = S.joueurs[d.joueur];
+  j.score = d.score; j.points = d.points; j.volees = d.volees;
+  j.meilleure = d.meilleure; j.manches = d.manches;
+  S.cur = d.joueur; S.ouvreur = d.ouvreur; S.phase = d.phase;
+  S.derniere = null; S.annulations++;
+  S.msg = "Dernière volée annulée.";
+  rendu();
+}
+
+/* ================= FIN DE MANCHE ET DE PARTIE ================= */
+function vueManche(){
+  el("btnMenu").hidden = true;
+  const j = S.joueurs[S.cur];
+  vue.innerHTML = `<div class="fin">
+      <div class="t">Manche</div><div class="n">${esc(j.nom)}</div>
+      <div class="stats">${S.joueurs.map(p =>
+        `${esc(p.nom)} — <b>${p.manches}</b>`).join("<br>")}</div>
+    </div>
+    <button class="primaire" id="suite">Manche suivante</button>`;
+  el("suite").onclick = () => {
+    S.ouvreur = (S.ouvreur + 1) % S.joueurs.length;
+    S.cur = S.ouvreur;
+    S.joueurs.forEach(p => p.score = S.depart);
+    S.derniere = null; S.annulations = 0;
+    S.menu = false; S.menuFerme = false;
+    S.phase = "partie"; rendu();
+  };
+}
+
+function vueFin(){
+  el("btnMenu").hidden = true;
+  const j = S.joueurs[S.cur];
+  vue.innerHTML = `<div class="fin">
+      <div class="t">Partie</div><div class="n">${esc(j.nom)} gagne</div>
+      <div class="stats">${S.joueurs.map(p =>
+        `${esc(p.nom)} — <b>${p.manches}</b> ${p.manches > 1 ? "manches" : "manche"}
+         · moy. <b>${p.volees ? (p.points/p.volees).toFixed(1) : "0"}</b>
+         · record <b>${p.meilleure}</b>`).join("<br>")}</div>
+    </div>
+    <button class="primaire" id="rejouer">Rejouer avec les mêmes joueurs</button>
+    <button class="secondaire" id="reglages">Changer les réglages</button>`;
+  el("rejouer").onclick = () => {
+    S.joueurs.forEach(p => {
+      p.score = S.depart; p.manches = 0; p.points = 0; p.volees = 0; p.meilleure = 0;
+    });
+    S.ouvreur = 0; S.cur = 0; S.derniere = null; S.annulations = 0;
+    S.phase = "partie"; rendu();
+  };
+  el("reglages").onclick = () => { S.phase = "reglages"; rendu(); };
+}
+
+/* ================= RENDU ================= */
+function rendu(){
+  if(S.phase === "reglages") vueReglages();
+  else if(S.phase === "partie") vuePartie();
+  else if(S.phase === "manche") vueManche();
+  else vueFin();
+  sheet.innerHTML = sheetHTML();
+  brancherSheet();
+  brancherMenu();
+}
+
+/* ================= CLAVIER ET BARRE DU BAS ================= */
+if(window.visualViewport){
+  const vv = window.visualViewport;
+  const suivre = () => {
+    const dec = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty("--kb", dec + "px");
+  };
+  vv.addEventListener("resize", suivre);
+  vv.addEventListener("scroll", suivre);
+  suivre();
+}
+
+rendu();
+</script>
+</body>
+</html>
