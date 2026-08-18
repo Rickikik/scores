@@ -15,6 +15,10 @@
   --mer:#0B2B3F; --mer-clair:#14415C; --vague:#1D5878;
   --coque:#8A9BAA; --clair:#EAF2F7; --pale:#8FAAC0;
   --touche:#E2703A; --coule:#C1362F; --eau:#2A6F94; --ok:#5FA98A;
+  /* couleurs navales : pont en teck, muraille sombre, superstructure
+     blanche, cheminee noire a bande rouge */
+  --teck:#C89A63; --teck-clair:#DBB27C; --teck-fonce:#A2764A;
+  --muraille:#38434E; --superstructure:#F4F1E8; --fumee:#2A3037;
   --r:13px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -76,12 +80,41 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   display:grid;place-items:center;font-size:12px;font-weight:800;line-height:1
 }
 .c.navire{
-  background:linear-gradient(180deg,#9CADBC 0%,var(--coque) 55%,#71828F 100%);
-  box-shadow:inset 0 -2px 0 rgba(0,0,0,.18);position:relative;border-radius:0
+  /* vue de dessus : lattes de pont en teck, cerclees de la muraille */
+  background:
+    repeating-linear-gradient(0deg,
+      rgba(0,0,0,.10) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg, var(--teck-clair) 0%, var(--teck) 45%, var(--teck-fonce) 100%);
+  position:relative;border-radius:0
+}
+/* La muraille ne borde que le pourtour du navire : sans ça, chaque
+   case est cerclee et le bateau ressemble a un train de wagons. */
+.c.nav-h{box-shadow:inset 0 2px 0 var(--muraille), inset 0 -2px 0 var(--muraille)}
+.c.nav-v{box-shadow:inset 2px 0 0 var(--muraille), inset -2px 0 0 var(--muraille)}
+.c.nav-h.deb{box-shadow:inset 0 2px 0 var(--muraille), inset 0 -2px 0 var(--muraille),
+             inset 3px 0 0 var(--muraille)}
+.c.nav-h.fin{box-shadow:inset 0 2px 0 var(--muraille), inset 0 -2px 0 var(--muraille),
+             inset -2px 0 0 var(--muraille)}
+.c.nav-v.deb{box-shadow:inset 2px 0 0 var(--muraille), inset -2px 0 0 var(--muraille),
+             inset 0 3px 0 var(--muraille)}
+.c.nav-v.fin{box-shadow:inset 2px 0 0 var(--muraille), inset -2px 0 0 var(--muraille),
+             inset 0 -2px 0 var(--muraille)}
+/* bateau vertical : les lattes tournent avec la coque */
+.c.nav-v{
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,.10) 0 1px, transparent 1px 5px),
+    linear-gradient(90deg, var(--teck-clair) 0%, var(--teck) 45%, var(--teck-fonce) 100%)
 }
 /* les cases d'un meme bateau se soudent : la coque devient continue */
 .c.nav-h{margin-left:-2px;margin-right:-2px}
-.c.nav-v{margin-top:-2px;margin-bottom:-2px}
+/* En vertical, height:100% empeche la case de deborder de sa piste :
+   les marges negatives seules ne suffisent pas, il faut agrandir la
+   hauteur d'autant. */
+.c.nav-v{margin-top:-2px;margin-bottom:-2px;height:calc(100% + 4px)}
+.c.nav-v.deb{height:calc(100% + 2px)}
+.c.nav-v.fin{height:calc(100% + 2px)}
+.c.nav-v.deb.fin{height:100%}
 
 /* PROUE : pointe effilee, pas un bout arrondi. C'est elle qui fait
    lire "bateau" plutot que "gelule". */
@@ -116,20 +149,26 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   background:rgba(20,40,58,.5)
 }
 .c.navire.pont::after{
-  width:54%;height:46%;border-radius:2px;
-  background:linear-gradient(180deg,#B9C6D2 0%,#7E8F9D 100%);
-  box-shadow:0 1px 2px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.4)
+  width:56%;height:48%;border-radius:2px;
+  background:linear-gradient(180deg, #FFFFFF 0%, var(--superstructure) 60%, #D8D3C4 100%);
+  box-shadow:0 1px 3px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.9)
 }
-/* cheminee, uniquement sur les gros batiments */
+/* cheminee noire a bande rouge, comme sur les paquebots */
 .c.navire.cheminee::after{
-  width:30%;height:52%;border-radius:2px 2px 0 0;
-  background:#5D6C79;box-shadow:inset 0 2px 0 rgba(0,0,0,.3)
+  width:32%;height:50%;border-radius:2px 2px 1px 1px;
+  background:linear-gradient(180deg,
+    #B03A2E 0%, #B03A2E 26%, var(--fumee) 26%, var(--fumee) 100%);
+  box-shadow:0 1px 2px rgba(0,0,0,.45)
 }
 
 .c.navire.touche{
-  background:linear-gradient(180deg,#F08A54 0%,var(--touche) 55%,#B4541F 100%)
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg,#F0955F 0%,var(--touche) 50%,#8E3A18 100%)
 }
-.c.navire.touche::after{background:rgba(90,20,0,.5);box-shadow:none}
+.c.navire.touche::after{
+  background:rgba(50,16,4,.62);box-shadow:none;border-radius:2px
+}
 .c.pose{background:var(--ok)}
 .c.survol{background:var(--vague);box-shadow:inset 0 0 0 2px var(--clair)}
 .c.eau{background:var(--eau);color:rgba(255,255,255,.6)}
