@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2E2419">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sablier">
+<meta name="format-detection" content="telephone=no">
+<title>Sablier – Scores</title>
+<style>
+:root{
+  --bois:#2E2419; --bois-clair:#453626; --relief:#63503A;
+  --sable:#E8C079; --sable-clair:#F5DCA8;
+  --clair:#F5EFE3; --pale:#B3A085;
+  --vert:#6FA36B; --rouge:#C9564A;
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--clair);
+  background:radial-gradient(120% 80% at 50% 0%, #4A3928 0%, #211A12 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:480px;margin:0 auto;padding:14px 16px 30px;text-align:center}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--clair);
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+  font-size:13.5px;font-weight:800;color:#2E2419;text-decoration:none;float:left
+}
+.vers-portail:active{transform:scale(.96)}
+.entete{clear:both;padding-top:4px}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pale);font-weight:700}
+h1{font-size:29px;font-weight:800;letter-spacing:-.02em;margin:2px 0 16px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+
+/* durées prêtes */
+.durees{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+.durees button{
+  padding:13px 4px;border-radius:11px;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:14px;color:var(--clair)
+}
+.durees button[aria-pressed="true"]{background:var(--sable);color:#2E2419;border-color:var(--sable)}
+.reglage{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:8px 10px
+}
+.reglage .val{flex:1;font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}
+.reglage .pm{
+  width:50px;height:46px;border-radius:10px;background:var(--relief);
+  font-size:22px;font-weight:800;display:grid;place-items:center;flex:0 0 auto
+}
+.reglage .pm[disabled]{opacity:.35}
+
+/* le sablier */
+.sablier{
+  width:min(56vw,210px);margin:0 auto 8px;position:relative
+}
+.bulbe{
+  position:relative;height:118px;overflow:hidden;
+  background:rgba(255,255,255,.07);
+  box-shadow:inset 0 0 0 3px var(--relief)
+}
+.bulbe.haut{border-radius:14px 14px 42% 42%}
+.bulbe.bas{border-radius:42% 42% 14px 14px;margin-top:5px}
+.tas{
+  position:absolute;left:0;right:0;
+  background:linear-gradient(180deg,var(--sable-clair),var(--sable));
+  transition:height .95s linear
+}
+.tas.h{top:0}
+.tas.b{bottom:0}
+.col{
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:4px;background:var(--sable-clair);top:0;bottom:0;opacity:0
+}
+.sablier.coule .col{opacity:.9;animation:filet .5s linear infinite}
+@keyframes filet{
+  from{background-position:0 0} to{background-position:0 10px}
+}
+.socle{
+  height:11px;border-radius:4px;background:var(--relief);margin-top:6px;
+  box-shadow:0 3px 8px rgba(0,0,0,.45)
+}
+.socle.haut{margin:0 0 6px}
+
+.temps{
+  font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-.03em;line-height:1.1;margin:14px 0 4px
+}
+.temps.fini{color:var(--rouge)}
+.etat{font-size:13px;font-weight:700;color:var(--pale);margin:0 0 18px;min-height:19px}
+.btn{
+  display:block;width:100%;padding:17px;border-radius:var(--r);
+  background:var(--sable);color:#2E2419;font-weight:800;font-size:17px;
+  box-shadow:0 3px 8px rgba(0,0,0,.4)
+}
+.btn:active{transform:scale(.98);filter:brightness(1.06)}
+.btn.secondaire{
+  background:rgba(255,255,255,.1);color:var(--clair);font-weight:700;
+  box-shadow:none;border:1px solid rgba(255,255,255,.18);
+  margin-top:8px;font-size:14px;padding:13px
+}
+.son{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:14px;font-size:12.5px;font-weight:700;color:var(--pale)
+}
+.son button{
+  padding:8px 13px;border-radius:9px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);font-size:12.5px;font-weight:800
+}
+.son button[aria-pressed="true"]{background:var(--vert);color:#17240F;border-color:var(--vert)}
+@media (prefers-reduced-motion:reduce){
+  .tas{transition:none}
+  .sablier.coule .col{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <div class="entete">
+    <p class="eyebrow">Mini-jeu</p>
+    <h1>Sablier</h1>
+  </div>
+
+  <div class="durees" id="durees"></div>
+  <div class="reglage" id="reglage"></div>
+
+  <div class="sablier" id="sablier">
+    <div class="socle haut"></div>
+    <div class="bulbe haut"><div class="tas h" id="tas-haut"></div></div>
+    <div class="col" id="col"></div>
+    <div class="bulbe bas"><div class="tas b" id="tas-bas"></div></div>
+    <div class="socle"></div>
+  </div>
+
+  <p class="temps" id="temps">1:00</p>
+  <p class="etat" id="etat">Prêt</p>
+  <div id="actions"></div>
+
+  <div class="son">
+    Alerte sonore
+    <button type="button" id="btn-son" aria-pressed="true">Activée</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var PRETS = [30, 60, 120, 180];      // secondes
+var S = {
+  total:60,
+  reste:60,
+  enCours:false,
+  fini:false,
+  son:true,
+  t0:0,
+  raf:null
+};
+
+var $=function(id){ return document.getElementById(id); };
+
+/* ---------------------------------------------------------------
+   SON
+   Les navigateurs mobiles refusent de jouer un son qui ne découle
+   pas d'un geste. Le contexte audio est donc créé au premier tap
+   sur "Démarrer", pas au chargement de la page.
+   --------------------------------------------------------------- */
+var ctx=null;
+function preparerSon(){
+  if (ctx || !S.son) return;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) ctx = new AC();
+  } catch(e){ ctx=null; }
+}
+function bip(retard, freq, duree){
+  if (!ctx || !S.son) return;
+  try {
+    var t = ctx.currentTime + retard;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type="sine"; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.35, t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+duree);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+duree+0.05);
+  } catch(e){}
+}
+function sonnerFin(){
+  // trois notes montantes : on l'entend par-dessus une table qui parle
+  bip(0,    660, 0.28);
+  bip(0.32, 880, 0.28);
+  bip(0.64, 1100, 0.55);
+}
+
+/* ---------------------------------------------------------------
+   MINUTERIE
+   Le décompte se lit sur l'horloge, jamais sur un cumul d'images :
+   si l'onglet est mis en veille, le temps reste juste au retour.
+   --------------------------------------------------------------- */
+function demarrer(){
+  preparerSon();
+  if (ctx && ctx.state==="suspended") ctx.resume();
+  S.t0 = Date.now() + S.reste*1000;
+  S.enCours=true; S.fini=false;
+  boucle();
+  rendre();
+}
+function pause(){
+  S.enCours=false;
+  if (S.raf) cancelAnimationFrame(S.raf);
+  rendre();
+}
+function remettre(){
+  S.enCours=false; S.fini=false; S.reste=S.total;
+  if (S.raf) cancelAnimationFrame(S.raf);
+  rendre();
+}
+function boucle(){
+  if (!S.enCours) return;
+  S.reste = Math.max(0, (S.t0 - Date.now())/1000);
+  if (S.reste<=0){
+    S.reste=0; S.enCours=false; S.fini=true;
+    sonnerFin();
+    if (navigator.vibrate) { try{ navigator.vibrate([220,120,220,120,380]); }catch(e){} }
+    rendre();
+    return;
+  }
+  peindre();
+  S.raf = requestAnimationFrame(boucle);
+}
+
+/* Pas progressif : 15 s pour les durees courtes, 1 min au-dela.
+   Sans ça, atteindre 10 minutes demanderait 36 taps. */
+function pas(v){
+  if (v < 120) return 15;
+  if (v < 300) return 30;
+  return 60;
+}
+
+function mmss(s){
+  var e=Math.ceil(s);
+  var m=Math.floor(e/60), r=e%60;
+  return m+":"+(r<10?"0":"")+r;
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function peindre(){
+  var part = S.total>0 ? S.reste/S.total : 0;
+  $("tas-haut").style.height = (part*100)+"%";
+  $("tas-bas").style.height  = ((1-part)*100)+"%";
+  $("temps").textContent = mmss(S.reste);
+  $("temps").classList.toggle("fini", S.fini);
+  $("sablier").classList.toggle("coule", S.enCours);
+}
+
+function rendre(){
+  var d=$("durees");
+  if (!d.childElementCount){
+    PRETS.forEach(function(sec){
+      var b=document.createElement("button"); b.type="button";
+      b.textContent = sec<60 ? sec+" s" : (sec/60)+" min";
+      b.onclick=function(){ S.total=sec; remettre(); };
+      d.appendChild(b);
+    });
+  }
+  Array.prototype.forEach.call(d.children,function(b,k){
+    b.setAttribute("aria-pressed", PRETS[k]===S.total?"true":"false");
+    b.disabled = S.enCours;
+  });
+
+  var z=$("reglage"); z.innerHTML="";
+  var moins=document.createElement("button"); moins.className="pm"; moins.type="button";
+  moins.textContent="−"; moins.setAttribute("aria-label","Diminuer la durée");
+  var aff=document.createElement("div"); aff.className="val";
+  var plus=document.createElement("button"); plus.className="pm"; plus.type="button";
+  plus.textContent="+"; plus.setAttribute("aria-label","Augmenter la durée");
+  aff.textContent = mmss(S.total);
+  moins.disabled = S.enCours || S.total<=15;
+  plus.disabled  = S.enCours || S.total>=1800;
+  moins.onclick=function(){ S.total=Math.max(15,S.total-pas(S.total-1)); remettre(); };
+  plus.onclick =function(){ S.total=Math.min(1800,S.total+pas(S.total)); remettre(); };
+  z.appendChild(moins); z.appendChild(aff); z.appendChild(plus);
+
+  $("etat").textContent = S.fini ? "Temps écoulé"
+                        : S.enCours ? "En cours…"
+                        : (S.reste<S.total ? "En pause" : "Prêt");
+
+  var a=$("actions"); a.innerHTML="";
+  function bouton(txt, cls, act){
+    var b=document.createElement("button"); b.className=cls; b.type="button";
+    b.textContent=txt; b.onclick=act; a.appendChild(b);
+  }
+  if (S.fini){
+    bouton("Relancer", "btn", function(){ remettre(); demarrer(); });
+  } else if (S.enCours){
+    bouton("Pause", "btn", pause);
+    bouton("Remettre à zéro", "btn secondaire", remettre);
+  } else {
+    bouton(S.reste<S.total ? "Reprendre" : "Démarrer", "btn", demarrer);
+    if (S.reste<S.total) bouton("Remettre à zéro", "btn secondaire", remettre);
+  }
+  peindre();
+}
+
+$("btn-son").onclick=function(){
+  S.son=!S.son;
+  this.setAttribute("aria-pressed", S.son?"true":"false");
+  this.textContent = S.son ? "Activée" : "Coupée";
+  if (S.son){ preparerSon(); bip(0, 880, 0.12); }
+};
+
+rendre();
+})();
+</script>
+</body>
+</html>
