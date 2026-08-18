@@ -123,6 +123,25 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .morpion i.x{color:#8FB8F0}
 .morpion i.o{color:#F09B96}
 
+/* Des : trois des de tailles differentes */
+.des{display:flex;gap:5px;align-items:flex-end}
+.des i{
+  border-radius:7px;background:#F1EEF7;color:#231F2E;display:grid;
+  place-items:center;font-size:13px;font-weight:800;font-style:normal;
+  box-shadow:0 2px 4px rgba(0,0,0,.3)
+}
+.des i:nth-child(1){width:26px;height:26px}
+.des i:nth-child(2){width:34px;height:34px}
+.des i:nth-child(3){width:44px;height:44px;font-size:15px}
+
+/* Piece : un disque dore */
+.jeton{
+  width:60px;height:60px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%, #F2D48A 0%, #D9A94C 45%, #A8792F 100%);
+  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 0 0 4px rgba(255,255,255,.18);
+  display:grid;place-items:center;color:#3A2A08;font-size:26px;font-weight:800
+}
+
 .mot{
   margin-top:26px;padding:14px 16px;border-radius:14px;
   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
@@ -191,6 +210,22 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Morpion</div>
         <div class="det">À deux ou contre le téléphone</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="des.html">
+      <div class="vignette"><div class="des"><i>4</i><i>6</i><i>20</i></div></div>
+      <div>
+        <div class="jeu">Dés</div>
+        <div class="det">Toutes tailles, mélangeables</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="piece.html">
+      <div class="vignette"><div class="jeton">₣</div></div>
+      <div>
+        <div class="jeu">Pile ou face</div>
+        <div class="det">Qui commence ?</div>
       </div>
     </a>
 
