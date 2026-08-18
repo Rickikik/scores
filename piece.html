@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1D2A38">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pile ou face">
+<meta name="format-detection" content="telephone=no">
+<title>Pile ou face – Scores</title>
+<style>
+:root{
+  --nuit:#1D2A38; --acier:#2C3D50; --relief:#465B72;
+  --clair:#EEF2F6; --pale:#93A6BA;
+  --or:#D9A94C; --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--clair);
+  background:radial-gradient(120% 80% at 50% 0%, #35485E 0%, #18222E 100%);
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:480px;margin:0 auto;padding:14px 16px 40px;text-align:center}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:18px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:var(--clair);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-size:13.5px;font-weight:800;color:#1D2A38;text-decoration:none;float:left
+}
+.vers-portail:active{transform:scale(.96)}
+.entete{clear:both;padding-top:4px}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pale);font-weight:700}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 24px}
+
+.piece{
+  width:min(62vw,240px);aspect-ratio:1;margin:0 auto 22px;
+  border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 30%, #F2D48A 0%, var(--or) 45%, #A8792F 100%);
+  box-shadow:0 10px 26px rgba(0,0,0,.45), inset 0 0 0 8px rgba(255,255,255,.16);
+  color:#3A2A08;font-weight:800;letter-spacing:-.02em;
+  transition:transform .5s cubic-bezier(.3,1.4,.5,1)
+}
+.piece .txt{font-size:clamp(28px,9vw,44px);line-height:1}
+.piece .sig{font-size:clamp(46px,15vw,72px);line-height:1;margin-bottom:2px}
+.piece.tourne{transform:rotateY(1080deg) scale(.92)}
+.piece.vide{background:var(--acier);box-shadow:inset 0 0 0 3px var(--relief);color:var(--pale)}
+
+.compte{
+  display:flex;gap:9px;margin-bottom:18px
+}
+.compte div{
+  flex:1;border-radius:12px;padding:10px 8px;background:var(--acier);
+  border:1px solid var(--relief)
+}
+.compte .q{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--pale)}
+.compte .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.btn{
+  display:block;width:100%;padding:17px;border-radius:var(--r);
+  background:var(--or);color:#2A1E06;font-weight:800;font-size:17px;
+  box-shadow:0 3px 8px rgba(0,0,0,.35)
+}
+.btn:active{transform:scale(.98);filter:brightness(1.08)}
+.btn.secondaire{
+  background:var(--acier);color:var(--clair);font-weight:700;
+  box-shadow:none;border:1px solid var(--relief);margin-top:9px;font-size:14px;padding:13px
+}
+.suite{
+  margin-top:16px;font-size:13px;color:var(--pale);font-weight:700;
+  min-height:20px;word-break:break-all
+}
+@media (prefers-reduced-motion:reduce){.piece{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <div class="entete">
+    <p class="eyebrow">Mini-jeu</p>
+    <h1>Pile ou face</h1>
+  </div>
+
+  <div class="piece vide" id="piece"><div class="txt">?</div></div>
+
+  <div class="compte">
+    <div><div class="q">Pile</div><div class="v" id="n-pile">0</div></div>
+    <div><div class="q">Face</div><div class="v" id="n-face">0</div></div>
+    <div><div class="q">Jets</div><div class="v" id="n-tot">0</div></div>
+  </div>
+
+  <button class="btn" id="btn-lancer">Lancer la pièce</button>
+  <button class="btn secondaire" id="btn-raz">Remettre les compteurs à zéro</button>
+  <p class="suite" id="suite"></p>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){ return document.getElementById(id); };
+var S={pile:0, face:0, suite:[], occupe:false};
+
+function lancer(){
+  if (S.occupe) return;
+  S.occupe=true;
+  var p=$("piece");
+  p.classList.remove("vide");
+  p.classList.add("tourne");
+
+  /* Math.random est suffisant ici : on tire à pile ou face pour
+     savoir qui commence, pas pour de la cryptographie. */
+  var pile = Math.random() < 0.5;
+
+  setTimeout(function(){
+    if (pile) S.pile++; else S.face++;
+    S.suite.push(pile?"P":"F");
+    if (S.suite.length>24) S.suite.shift();
+    p.innerHTML = pile
+      ? '<div><div class="sig">₣</div><div class="txt">Pile</div></div>'
+      : '<div><div class="sig">★</div><div class="txt">Face</div></div>';
+    p.classList.remove("tourne");
+    peindre();
+    S.occupe=false;
+  }, 520);
+}
+
+function peindre(){
+  $("n-pile").textContent=S.pile;
+  $("n-face").textContent=S.face;
+  $("n-tot").textContent=S.pile+S.face;
+  $("suite").textContent = S.suite.length ? S.suite.join(" ") : "";
+}
+
+$("btn-lancer").onclick=lancer;
+$("piece").onclick=lancer;
+$("btn-raz").onclick=function(){
+  S.pile=0; S.face=0; S.suite=[];
+  var p=$("piece");
+  p.classList.add("vide");
+  p.innerHTML='<div class="txt">?</div>';
+  peindre();
+};
+peindre();
+})();
+</script>
+</body>
+</html>
