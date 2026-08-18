@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#1F2328">
+<title>Mille Bornes – compteur</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231F2328'/%3E%3Cpath d='M20 60 L27 6 L37 6 L44 60 Z' fill='%233A424B'/%3E%3Cg fill='%23F4F1E8'%3E%3Crect x='30' y='10' width='4' height='9'/%3E%3Crect x='30' y='25' width='4' height='9'/%3E%3Crect x='30' y='40' width='4' height='9'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#1F2328; --panel:#2A2F35; --panel2:#333A41; --line:#3D444C;
+  --ink:#F4F1E8; --dim:#98A0A8; --jaune:#E8B33A; --vert:#2E7D4F;
+  --rouge:#C0503F; --kb:0px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none}
+body{min-height:100vh;padding-bottom:calc(24px + var(--kb));
+  background:linear-gradient(180deg,#252A30 0%,var(--bg) 42%)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 0 6px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  background:var(--ink);color:#8A4A1E;font-weight:600;font-size:15px;
+  text-decoration:none}
+header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
+.plus{min-height:45px;min-width:45px;border-radius:23px;background:var(--panel);
+  border:1px solid var(--line);font-size:19px;line-height:1;color:var(--dim)}
+
+.bloc{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:14px;margin:10px 0}
+.bloc h2{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.09em}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:70px;min-height:46px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  color:var(--dim)}
+.seg button[aria-pressed="true"]{background:var(--jaune);border-color:var(--jaune);
+  color:#1F2328;font-weight:700}
+.joueur-ligne{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.joueur-ligne input{flex:1;min-height:46px;border-radius:10px;padding:0 12px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  font-size:16px;font-family:inherit}
+.joueur-ligne input:focus{outline:2px solid var(--jaune);outline-offset:-2px}
+.retirer{min-width:46px;min-height:46px;border-radius:10px;background:var(--panel2);
+  border:1px solid var(--line);color:var(--dim);font-size:18px}
+.ajouter{width:100%;min-height:46px;border-radius:10px;background:transparent;
+  border:1px dashed var(--line);color:var(--dim);font-size:14px}
+.primaire{display:block;width:100%;min-height:54px;border-radius:12px;
+  background:var(--vert);color:#fff;font-size:17px;font-weight:600;margin-top:6px}
+.primaire:disabled{background:var(--panel2);color:#6E767E}
+.secondaire{display:block;width:100%;min-height:48px;border-radius:12px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  font-size:15px;margin-top:8px}
+.aide{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.5}
+
+.j{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);margin-bottom:8px;
+  width:100%;text-align:left}
+.j.saisi{border-color:var(--vert)}
+.j .nom{flex:1;min-width:0}
+.j .nom b{display:block;font-size:16px;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.j .nom span{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+.j .nom span.att{color:var(--jaune)}
+.j .pts{text-align:right}
+.j .pts b{display:block;font-size:26px;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.j .pts span{display:block;font-size:12px;color:var(--vert);font-weight:600}
+
+.recap{margin:2px 0 10px;padding:12px 14px;border-radius:12px;
+  background:rgba(232,179,58,.12);border:1px solid rgba(232,179,58,.42);
+  font-size:13px;line-height:1.6}
+.recap b{color:var(--jaune)}
+.menu{margin:0 0 10px;padding:12px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line)}
+.menu button{display:block;width:100%;min-height:46px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  margin-bottom:8px;color:var(--ink)}
+.menu button:last-child{margin-bottom:0}
+
+.voile{position:fixed;inset:0;background:rgba(10,12,14,.74);z-index:40}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--bg);
+  border-top:1px solid var(--line);border-radius:18px 18px 0 0;
+  padding:12px 14px calc(12px + var(--kb));max-height:92vh;overflow:auto;
+  max-width:520px;margin:0 auto}
+.fermer{position:absolute;top:8px;right:10px;min-width:45px;min-height:45px;
+  border-radius:23px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--dim);font-size:16px}
+.feuille h3{margin:2px 44px 12px;font-size:15px;font-weight:600;text-align:center}
+.feuille h3 em{font-style:normal;color:var(--jaune)}
+.titre{font-size:12px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.09em;margin:14px 0 7px}
+.cartes{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.cartes button{min-height:54px;border-radius:10px;background:var(--panel);
+  border:1px solid var(--line);font-size:16px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.cartes button:disabled{opacity:.3}
+.compte{display:flex;align-items:center;gap:10px;margin-top:8px}
+.compte b{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.compte span{font-size:12px;color:var(--dim);flex:1}
+.compte button{min-width:52px;min-height:44px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:16px}
+.bottes{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.bottes button{min-height:58px;border-radius:10px;background:var(--panel);
+  border:1px solid var(--line);font-size:13px;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;color:var(--dim)}
+.bottes button i{font-style:normal;font-size:11px;font-weight:600}
+.bottes button[data-etat="1"]{background:var(--panel2);color:var(--ink);
+  border-color:var(--jaune)}
+.bottes button[data-etat="2"]{background:var(--jaune);color:#1F2328;
+  border-color:var(--jaune)}
+.coches button{display:flex;width:100%;min-height:50px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--line);align-items:center;
+  gap:10px;padding:0 12px;margin-bottom:7px;font-size:15px;text-align:left}
+.coches button[aria-pressed="true"]{border-color:var(--vert);
+  background:rgba(46,125,79,.18)}
+.coches button:disabled{opacity:.4}
+.coches button u{width:22px;height:22px;border-radius:6px;flex:none;
+  border:1px solid var(--line);text-decoration:none;display:block}
+.coches button[aria-pressed="true"] u{background:var(--vert);border-color:var(--vert)}
+.coches button s{margin-left:auto;color:var(--dim);font-size:13px;
+  text-decoration:none;font-variant-numeric:tabular-nums}
+.replie{width:100%;min-height:46px;border-radius:10px;background:transparent;
+  border:1px dashed var(--line);color:var(--dim);font-size:14px;margin-top:4px}
+
+.barre{position:sticky;bottom:0;background:var(--bg);padding-top:10px;
+  margin-top:14px;border-top:1px solid var(--line)}
+.detail{font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:8px;
+  min-height:24px}
+.detail i{font-style:normal;color:var(--ink)}
+.detail .tot{color:var(--jaune);font-weight:700}
+.actions{display:flex;gap:8px}
+.actions .val{flex:1;min-height:54px;border-radius:12px;background:var(--vert);
+  color:#fff;font-size:17px;font-weight:600}
+.alerte{margin:0 0 10px;padding:10px 12px;border-radius:10px;font-size:13.5px;
+  line-height:1.5;background:rgba(192,80,63,.16);
+  border:1px solid rgba(192,80,63,.5)}
+
+.fin{text-align:center;padding:26px 8px}
+.fin .t{font-size:13px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.1em}
+.fin .n{font-size:30px;font-weight:700;margin:8px 0 4px}
+.stats{margin-top:14px;font-size:14px;color:var(--dim);line-height:1.8}
+.stats b{color:var(--ink)}
+.pied{margin:18px 0 6px;padding:14px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./index.html">← Scores</a>
+    <h1 id="titre">Mille Bornes</h1>
+    <button class="plus" id="btnMenu" aria-label="Options" hidden>⋯</button>
+  </header>
+  <main id="vue"></main>
+</div>
+<div id="sheet"></div>
+
+<script>
+/* ================= MOTEUR DE BAREME =================
+   Bareme verifie sur cinq sources concordantes (Wikipedia, notice editeur,
+   regledujeu, jouetopia, trictrac). Les divergences sont des reglages. */
+const MB = {
+  CARTES: [25, 50, 75, 100, 200],
+  BOTTES: [
+    ["Citerne", "Panne d’essence"],
+    ["Increvable", "Crevaison"],
+    ["As du volant", "Accident"],
+    ["Prioritaire", "Feu rouge · limite"]
+  ],
+
+  ligneVide(){
+    return {bornes:[], bottes:[0,0,0,0], gagnee:false,
+            couronnement:false, allonge:null};
+  },
+  km(l){ return l.bornes.reduce((a, b) => a + b, 0); },
+
+  /* une allonge declaree porte la manche a 1000, quel que soit l'objectif */
+  cible(lignes, objectif){
+    return lignes.some(l => l.allonge) ? 1000 : objectif;
+  },
+
+  /* score d'une manche : un detail ligne par ligne, jamais un total opaque */
+  manche(lignes, cfg){
+    const classique = cfg.variante === "classique";
+    const iGagnant = lignes.findIndex(l => l.gagnee);
+    const iAllonge = lignes.findIndex(l => l.allonge === "ratee");
+
+    return lignes.map((l, i) => {
+      const d = [], km = MB.km(l);
+      if(km) d.push(["Bornes", km]);
+
+      const exposees = l.bottes.filter(b => b >= 1).length;
+      const fourres  = l.bottes.filter(b => b === 2).length;
+      if(exposees === 4) d.push(["Les quatre bottes", 700]);
+      else if(exposees) d.push([exposees + (exposees > 1 ? " bottes" : " botte"),
+                                exposees * 100]);
+      if(fourres) d.push([fourres + (fourres > 1 ? " coups-fourrés" : " coup-fourré"),
+                          fourres * 300]);
+
+      if(l.gagnee){
+        d.push(["Manche gagnée", 400]);
+        if(l.bornes.indexOf(200) === -1) d.push(["Sans les 200", 300]);
+        if(classique && lignes.every((o, j) => j === i || MB.km(o) === 0))
+          d.push(["Capot", 500]);
+        if(classique && l.couronnement) d.push(["Couronnement", 300]);
+      }
+
+      if(classique){
+        if(l.allonge === "reussie") d.push(["Allonge réussie", 200]);
+        if(iAllonge !== -1){
+          /* le demandeur qui echoue ne touche rien ; la destination des 200
+             points differe selon les sources, donc selon le reglage */
+          if(cfg.allongeRatee === "premier"){
+            if(i === iGagnant && i !== iAllonge) d.push(["Allonge manquée par l’adversaire", 200]);
+          } else if(i !== iAllonge){
+            d.push(["Allonge manquée par l’adversaire", 200]);
+          }
+        }
+      }
+
+      return {detail:d, total:d.reduce((a, x) => a + x[1], 0)};
+    });
+  },
+
+  /* controles de coherence, rendus avant toute validation */
+  controles(lignes, cfg){
+    const c = [], cible = MB.cible(lignes, cfg.objectif);
+    lignes.forEach((l, i) => {
+      if(MB.km(l) > cible) c.push("Ligne " + (i + 1) + " : bornes au-dessus de " + cible + ".");
+    });
+    if(lignes.filter(l => l.gagnee).length > 1)
+      c.push("Deux joueurs ne peuvent pas gagner la même manche.");
+    lignes.forEach(l => {
+      if(l.gagnee && MB.km(l) !== cible)
+        c.push("La manche ne se gagne qu’à " + cible + " bornes pile.");
+    });
+    if(lignes.filter(l => l.allonge).length > 1)
+      c.push("Une seule allonge par manche.");
+    return c;
+  }
+};
+window.MB = MB;
+
+/* ================= ETAT ================= */
+const S = {
+  objectif:1000, variante:"classique", allongeRatee:"premier",
+  joueurs:[], lignes:[], numero:1, cur:null,
+  phase:"reglages", menu:false, menuFerme:false, rares:false, msg:""
+};
+const el = id => document.getElementById(id);
+const vue = el("vue"), sheet = el("sheet");
+const esc = t => String(t).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+S.joueurs = [{nom:"", total:0}, {nom:"", total:0}];
+
+/* l'option n'a de sens qu'en variante classique avec objectif 700 */
+const allongePossible = () => S.variante === "classique" && S.objectif === 700;
+
+/* ================= REGLAGES ================= */
+function vueReglages(){
+  el("btnMenu").hidden = true;
+  el("titre").textContent = "Mille Bornes";
+  const seg = (vals, cur, act) => vals.map(([v, l]) =>
+    `<button data-${act}="${v}" aria-pressed="${v == cur}">${l}</button>`).join("");
+  vue.innerHTML = `
+  <div class="bloc"><h2>Objectif de manche</h2>
+    <div class="seg">${seg([[700,"700 bornes"],[1000,"1000 bornes"]], S.objectif, "obj")}</div>
+    <p class="aide">Les sources ne s’accordent pas sur l’objectif selon le nombre
+      de joueurs : Wikipédia dit 700 à deux ou trois, la notice de l’éditeur dit
+      1000 par défaut. Le choix est laissé à la table.</p>
+  </div>
+  <div class="bloc"><h2>Variante</h2>
+    <div class="seg">${seg([["classique","Classique"],["recente","Édition récente"]],
+      S.variante, "var")}</div>
+    <p class="aide">${S.variante === "classique"
+      ? "Allonge, capot et couronnement comptés."
+      : "Allonge, capot et couronnement retirés – comme dans les boîtes récentes."}</p>
+  </div>
+  ${allongePossible() ? `
+  <div class="bloc"><h2>Allonge ratée</h2>
+    <div class="seg">${seg([["premier","200 au premier à 1000"],
+      ["adversaires","200 à chaque adversaire"]], S.allongeRatee, "all")}</div>
+    <p class="aide">Deux règles publiées coexistent. Celle de Wikipédia donne le
+      bonus à qui atteint 1000 le premier ; celle des feuilles de marque le donne
+      à chaque adversaire du demandeur.</p>
+  </div>` : ""}
+  <div class="bloc"><h2>Joueurs ou équipes</h2>
+    ${S.joueurs.map((j, i) => `
+      <div class="joueur-ligne">
+        <input type="text" data-nom="${i}" value="${esc(j.nom)}"
+          placeholder="Joueur ${i + 1}" maxlength="14" autocomplete="off">
+        ${S.joueurs.length > 2
+          ? `<button class="retirer" data-ret="${i}" aria-label="Retirer">−</button>` : ""}
+      </div>`).join("")}
+    ${S.joueurs.length < 6
+      ? `<button class="ajouter" id="add">+ Ajouter</button>` : ""}
+    <p class="aide">Une ligne par joueur, ou une ligne par équipe si vous jouez
+      à deux contre deux.</p>
+  </div>
+  <button class="primaire" id="go">Commencer</button>
+  <div class="pied">Partie à 5 000 points. Rien n’est enregistré : en
+    rechargeant la page, tout repart de zéro.</div>`;
+
+  vue.querySelectorAll("[data-obj]").forEach(b => b.onclick = () => {
+    S.objectif = +b.dataset.obj; rendu(); });
+  vue.querySelectorAll("[data-var]").forEach(b => b.onclick = () => {
+    S.variante = b.dataset.var; rendu(); });
+  vue.querySelectorAll("[data-all]").forEach(b => b.onclick = () => {
+    S.allongeRatee = b.dataset.all; rendu(); });
+  vue.querySelectorAll("[data-nom]").forEach(inp => inp.oninput = () => {
+    S.joueurs[+inp.dataset.nom].nom = inp.value; });
+  vue.querySelectorAll("[data-ret]").forEach(b => b.onclick = () => {
+    S.joueurs.splice(+b.dataset.ret, 1); rendu(); });
+  const add = el("add");
+  if(add) add.onclick = () => { S.joueurs.push({nom:"", total:0}); rendu(); };
+  el("go").onclick = () => {
+    S.joueurs.forEach((j, i) => {
+      j.nom = (j.nom || "").trim() || "Joueur " + (i + 1); j.total = 0; });
+    S.numero = 1; S.lignes = S.joueurs.map(() => MB.ligneVide());
+    S.phase = "partie"; rendu();
+  };
+}
+
+/* ================= PARTIE ================= */
+function vuePartie(){
+  el("btnMenu").hidden = false;
+  el("titre").textContent = "Manche " + S.numero + " · " + S.objectif;
+  const cfg = {objectif:S.objectif, variante:S.variante, allongeRatee:S.allongeRatee};
+  const sc = MB.manche(S.lignes, cfg);
+  const ctrl = MB.controles(S.lignes, cfg);
+  const cible = MB.cible(S.lignes, S.objectif);
+  const touchee = S.lignes.some(l => l.detailTouche);
+  const gagnant = S.lignes.some(l => l.gagnee);
+
+  const derivees = [];
+  S.lignes.forEach((l, i) => sc[i].detail.forEach(([lbl, p]) => {
+    if(lbl === "Sans les 200" || lbl === "Capot")
+      derivees.push(esc(S.joueurs[i].nom) + " : <b>" + lbl.toLowerCase() + "</b> +" + p);
+  }));
+
+  vue.innerHTML =
+    (S.msg ? `<div class="alerte">${esc(S.msg)}</div>` : "") +
+    (ctrl.length ? `<div class="alerte">${ctrl.map(esc).join("<br>")}</div>` : "") +
+    (S.menu ? menuHTML() : "") +
+    S.joueurs.map((p, i) => `
+      <button class="j ${sc[i].total || S.lignes[i].detailTouche ? "saisi" : ""}" data-j="${i}">
+        <div class="nom"><b>${esc(p.nom)}</b>
+          ${S.lignes[i].detailTouche
+            ? `<span>${MB.km(S.lignes[i])} bornes${S.lignes[i].gagnee ? " · manche" : ""}</span>`
+            : '<span class="att">Touche pour saisir sa manche</span>'}
+        </div>
+        <div class="pts"><b>${p.total}</b>
+          ${sc[i].total ? `<span>+${sc[i].total}</span>` : ""}</div>
+      </button>`).join("") +
+    (derivees.length
+      ? `<div class="recap">Déduit des cartes saisies :<br>${derivees.join("<br>")}</div>`
+      : "") +
+    (touchee && !gagnant
+      ? `<div class="recap">Personne n’est à ${cible} bornes : le sabot s’est
+         épuisé sans vainqueur. Chacun marque ses bornes, les 400 points de
+         manche ne sont attribués à personne.</div>` : "") +
+    `<button class="primaire" id="valider" ${ctrl.length ? "disabled" : ""}>
+       Valider la manche ${S.numero}</button>
+     <div class="pied">Objectif ${cible} bornes. Une botte restée en main ne
+       rapporte rien ; le perdant marque ses bornes posées.</div>`;
+
+  vue.querySelectorAll("[data-j]").forEach(b => b.onclick = () => {
+    S.cur = +b.dataset.j; S.rares = rareDejaPresent(); rendu(); });
+  el("valider").onclick = validerManche;
+  S.msg = "";
+}
+
+/* le cas rare se deplie d'office si la manche en contient deja un */
+function rareDejaPresent(){
+  return S.lignes.some(l => l.couronnement || l.allonge);
+}
+
+function menuHTML(){
+  return `<div class="menu">
+    <button id="mVider">Vider la manche en cours</button>
+    <button id="mNouv">Nouvelle partie</button>
+  </div>`;
+}
+el("btnMenu").onclick = () => {
+  S.menu = !S.menu; S.menuFerme = !S.menu; rendu();
+};
+function brancherMenu(){
+  const v = el("mVider"), n = el("mNouv");
+  if(v) v.onclick = () => {
+    S.lignes = S.joueurs.map(() => MB.ligneVide());
+    S.menu = false; S.msg = "Manche vidée."; rendu();
+  };
+  if(n) n.onclick = () => {
+    if(confirm("Abandonner la partie en cours ?")){
+      S.phase = "reglages"; S.menu = false; rendu();
+    }
+  };
+}
+
+function validerManche(){
+  const cfg = {objectif:S.objectif, variante:S.variante, allongeRatee:S.allongeRatee};
+  const sc = MB.manche(S.lignes, cfg);
+  S.joueurs.forEach((p, i) => p.total += sc[i].total);
+  if(S.joueurs.some(p => p.total >= 5000)){ S.phase = "fin"; rendu(); return; }
+  S.numero++;
+  S.lignes = S.joueurs.map(() => MB.ligneVide());
+  S.msg = "Manche " + (S.numero - 1) + " enregistrée.";
+  rendu();
+}
+
+/* ================= SAISIE D'UNE LIGNE ================= */
+function sheetHTML(){
+  if(S.cur === null) return "";
+  const i = S.cur, l = S.lignes[i];
+  const cfg = {objectif:S.objectif, variante:S.variante, allongeRatee:S.allongeRatee};
+  const cible = MB.cible(S.lignes, S.objectif);
+  const km = MB.km(l);
+  const sc = MB.manche(S.lignes, cfg)[i];
+  const classique = S.variante === "classique";
+  const autreGagnant = S.lignes.some((o, j) => j !== i && o.gagnee);
+  const autreAllonge = S.lignes.some((o, j) => j !== i && o.allonge);
+  /* le capot depend des autres lignes : tant qu'elles ne sont pas saisies,
+     l'afficher affirmerait un point qui peut disparaitre */
+  const capotSur = S.lignes.every((o, j) => j === i || o.detailTouche);
+  const vus = sc.detail.filter(([lbl]) => capotSur || lbl !== "Capot");
+  const vuTotal = vus.reduce((a, x) => a + x[1], 0);
+
+  const coche = (id, lbl, pts, actif, dispo) => `
+    <button data-coche="${id}" aria-pressed="${actif}" ${dispo ? "" : "disabled"}>
+      <u></u><span>${lbl}</span><s>${pts}</s></button>`;
+
+  return `<div class="voile" id="voile"></div><div class="feuille" style="position:fixed">
+    <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
+    <h3>Manche ${S.numero} · <em>${esc(S.joueurs[i].nom)}</em></h3>
+
+    <p class="titre">Bornes posées</p>
+    <div class="cartes">
+      ${MB.CARTES.map(c => `<button data-c="${c}"
+        ${km + c > cible ? "disabled" : ""}>${c}</button>`).join("")}
+    </div>
+    <div class="compte">
+      <b>${km}</b><span>sur ${cible} bornes</span>
+      <button id="effC" ${l.bornes.length ? "" : "disabled"}>⌫</button>
+    </div>
+
+    <p class="titre">Bottes — touche une fois exposée, deux fois coup-fourré</p>
+    <div class="bottes">
+      ${MB.BOTTES.map((b, k) => `<button data-b="${k}" data-etat="${l.bottes[k]}">
+        <span>${b[0]}</span>
+        <i>${l.bottes[k] === 2 ? "Coup-fourré · 400"
+             : l.bottes[k] === 1 ? "Exposée · 100" : b[1]}</i></button>`).join("")}
+    </div>
+
+    <p class="titre">Fin de manche</p>
+    <div class="coches">
+      ${coche("gagnee", "Manche gagnée", "400", l.gagnee,
+              !autreGagnant && km === cible)}
+      ${!autreGagnant && km !== cible
+        ? `<p class="aide">Cochable seulement à ${cible} bornes pile.</p>` : ""}
+      ${autreGagnant ? `<p class="aide">Un autre joueur a déjà pris la manche.</p>` : ""}
+    </div>
+
+    ${classique ? (S.rares ? `
+    <div class="coches">
+      ${coche("couronnement", "Couronnement", "300", l.couronnement, l.gagnee)}
+      ${coche("reussie", "Allonge réussie", "200",
+              l.allonge === "reussie", l.gagnee && !autreAllonge)}
+      ${coche("ratee", "Allonge demandée et ratée", "0",
+              l.allonge === "ratee", !l.gagnee && !autreAllonge)}
+      <p class="aide">Le couronnement suppose la manche gagnée. Une seule
+        allonge par manche.</p>
+    </div>`
+    : `<button class="replie" id="depl">Couronnement, allonge…</button>`) : ""}
+
+    <div class="barre">
+      <div class="detail">${vus.length
+        ? vus.map(([lbl, p]) => `<i>${lbl}</i> ${p}`).join(" · ")
+          + ` · <span class="tot">${vuTotal}</span>`
+        : "Aucun point saisi"}</div>
+      ${!capotSur && l.gagnee
+        ? `<p class="aide" style="margin:0 0 8px">Le capot sera calculé quand
+           toutes les lignes seront saisies.</p>` : ""}
+      <div class="actions">
+        <button class="val" id="ok">Enregistrer</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function brancherSheet(){
+  if(S.cur === null) return;
+  const l = S.lignes[S.cur];
+  const v = el("voile"); if(v) v.onclick = fermer;
+  const f = el("fermer"); if(f) f.onclick = fermer;
+  const d = el("depl"); if(d) d.onclick = () => { S.rares = true; rendu(); };
+
+  sheet.querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
+    l.bornes.push(+b.dataset.c); l.detailTouche = true; rendu(); });
+  const e = el("effC"); if(e) e.onclick = () => { l.bornes.pop(); rendu(); };
+
+  sheet.querySelectorAll("[data-b]").forEach(b => b.onclick = () => {
+    const k = +b.dataset.b;
+    l.bottes[k] = (l.bottes[k] + 1) % 3; l.detailTouche = true; rendu(); });
+
+  sheet.querySelectorAll("[data-coche]").forEach(b => b.onclick = () => {
+    const id = b.dataset.coche;
+    if(id === "gagnee") l.gagnee = !l.gagnee;
+    if(id === "couronnement") l.couronnement = !l.couronnement;
+    if(id === "reussie") l.allonge = l.allonge === "reussie" ? null : "reussie";
+    if(id === "ratee") l.allonge = l.allonge === "ratee" ? null : "ratee";
+    if(!l.gagnee){ l.couronnement = false;
+      if(l.allonge === "reussie") l.allonge = null; }
+    l.detailTouche = true; rendu();
+  });
+
+  el("ok").onclick = fermer;
+}
+function fermer(){ S.cur = null; rendu(); }
+
+/* ================= FIN ================= */
+function vueFin(){
+  el("btnMenu").hidden = true;
+  const classe = S.joueurs.slice().sort((a, b) => b.total - a.total);
+  vue.innerHTML = `<div class="fin">
+      <div class="t">Partie</div><div class="n">${esc(classe[0].nom)} gagne</div>
+      <div class="stats">${classe.map(p =>
+        `${esc(p.nom)} — <b>${p.total}</b>`).join("<br>")}</div>
+    </div>
+    <button class="primaire" id="rejouer">Rejouer avec les mêmes joueurs</button>
+    <button class="secondaire" id="reglages">Changer les réglages</button>`;
+  el("rejouer").onclick = () => {
+    S.joueurs.forEach(p => p.total = 0);
+    S.numero = 1; S.lignes = S.joueurs.map(() => MB.ligneVide());
+    S.phase = "partie"; rendu();
+  };
+  el("reglages").onclick = () => { S.phase = "reglages"; rendu(); };
+}
+
+/* ================= RENDU ================= */
+function rendu(){
+  if(S.phase === "reglages") vueReglages();
+  else if(S.phase === "partie") vuePartie();
+  else vueFin();
+  sheet.innerHTML = sheetHTML();
+  brancherSheet();
+  brancherMenu();
+}
+
+if(window.visualViewport){
+  const vv = window.visualViewport;
+  const suivre = () => {
+    const dec = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty("--kb", dec + "px");
+  };
+  vv.addEventListener("resize", suivre);
+  vv.addEventListener("scroll", suivre);
+  suivre();
+}
+
+rendu();
+</script>
+</body>
+</html>
