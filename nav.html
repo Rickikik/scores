@@ -56,7 +56,8 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 
 /* grille */
 .grille{
-  display:grid;grid-template-columns:18px repeat(10,minmax(0,1fr));gap:2px;
+  display:grid;grid-template-columns:18px repeat(10,minmax(0,1fr));
+  grid-auto-rows:1fr;gap:2px;
   margin-bottom:12px;
   /* les coques sont soudees par marges negatives : overflow borne
      le depassement d'un bateau colle au bord */
@@ -67,7 +68,10 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   color:var(--pale);aspect-ratio:1
 }
 .c{
-  aspect-ratio:1;border-radius:3px;background:var(--mer-clair);
+  /* height:100% colle la case a sa piste : sans lui, aspect-ratio
+     donne une hauteur legerement differente et la coque depasse
+     sous sa rangee */
+  aspect-ratio:1;height:100%;border-radius:3px;background:var(--mer-clair);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
   display:grid;place-items:center;font-size:12px;font-weight:800;line-height:1
 }
@@ -78,26 +82,54 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 /* les cases d'un meme bateau se soudent : la coque devient continue */
 .c.nav-h{margin-left:-2px;margin-right:-2px}
 .c.nav-v{margin-top:-2px;margin-bottom:-2px}
-.c.nav-h.deb{margin-left:0;border-radius:50% 0 0 50%}
-.c.nav-h.fin{margin-right:0;border-radius:0 26% 26% 0}
-.c.nav-v.deb{margin-top:0;border-radius:50% 50% 0 0}
-.c.nav-v.fin{margin-bottom:0;border-radius:0 0 26% 26%}
-.c.nav-h.deb.fin{border-radius:50%}
-.c.nav-v.deb.fin{border-radius:50%}
-/* hublot */
+
+/* PROUE : pointe effilee, pas un bout arrondi. C'est elle qui fait
+   lire "bateau" plutot que "gelule". */
+.c.nav-h.deb{
+  margin-left:0;
+  clip-path:polygon(0 50%, 62% 4%, 100% 4%, 100% 96%, 62% 96%)
+}
+.c.nav-v.deb{
+  margin-top:0;
+  clip-path:polygon(50% 0, 96% 62%, 96% 100%, 4% 100%, 4% 62%)
+}
+/* POUPE : tableau arriere droit, legerement rentre */
+.c.nav-h.fin{
+  margin-right:0;
+  clip-path:polygon(0 4%, 88% 4%, 100% 22%, 100% 78%, 88% 96%, 0 96%)
+}
+.c.nav-v.fin{
+  margin-bottom:0;
+  clip-path:polygon(4% 0, 96% 0, 96% 88%, 78% 100%, 22% 100%, 4% 88%)
+}
+/* coque au milieu : bords francs, legerement rentres */
+.c.nav-h:not(.deb):not(.fin){clip-path:polygon(0 4%, 100% 4%, 100% 96%, 0 96%)}
+.c.nav-v:not(.deb):not(.fin){clip-path:polygon(4% 0, 96% 0, 96% 100%, 4% 100%)}
+
+/* un canot d'une seule case : petite coque pointue */
+.c.nav-h.deb.fin{clip-path:polygon(0 50%, 40% 8%, 88% 8%, 100% 50%, 88% 92%, 40% 92%)}
+.c.nav-v.deb.fin{clip-path:polygon(50% 0, 92% 40%, 92% 88%, 50% 100%, 8% 88%, 8% 40%)}
+
+/* SUPERSTRUCTURE : passerelle sur la deuxieme case, hublot ailleurs */
 .c.navire::after{
-  content:"";position:absolute;width:26%;height:26%;border-radius:50%;
-  background:rgba(20,40,58,.55);box-shadow:inset 0 1px 1px rgba(0,0,0,.4)
+  content:"";position:absolute;width:24%;height:24%;border-radius:50%;
+  background:rgba(20,40,58,.5)
 }
-/* la passerelle, sur la deuxieme case du bateau */
 .c.navire.pont::after{
-  width:44%;height:44%;border-radius:3px;
-  background:rgba(20,40,58,.42)
+  width:54%;height:46%;border-radius:2px;
+  background:linear-gradient(180deg,#B9C6D2 0%,#7E8F9D 100%);
+  box-shadow:0 1px 2px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.4)
 }
+/* cheminee, uniquement sur les gros batiments */
+.c.navire.cheminee::after{
+  width:30%;height:52%;border-radius:2px 2px 0 0;
+  background:#5D6C79;box-shadow:inset 0 2px 0 rgba(0,0,0,.3)
+}
+
 .c.navire.touche{
   background:linear-gradient(180deg,#F08A54 0%,var(--touche) 55%,#B4541F 100%)
 }
-.c.navire.touche::after{background:rgba(90,20,0,.5)}
+.c.navire.touche::after{background:rgba(90,20,0,.5);box-shadow:none}
 .c.pose{background:var(--ok)}
 .c.survol{background:var(--vague);box-shadow:inset 0 0 0 2px var(--clair)}
 .c.eau{background:var(--eau);color:rgba(255,255,255,.6)}
@@ -226,7 +258,7 @@ function vide(){
 function nomCase(c,r){ return COLS[c]+(r+1); }
 
 /* Position d'une case dans son bateau : sert a dessiner la coque
-   (proue arrondie, poupe, hublots) plutot qu'un carre uniforme. */
+   (proue pointue, poupe, superstructure) plutot qu'un carre. */
 function formeNavire(c,r){
   for (var i=0;i<S.navires.length;i++){
     var b=S.navires[i];
@@ -237,6 +269,7 @@ function formeNavire(c,r){
         if (k===0) cls+=" deb";
         if (k===b.cases.length-1) cls+=" fin";
         if (k===1) cls+=" pont";
+        if (k===2 && b.cases.length>=4) cls+=" cheminee";
         return cls;
       }
     }
