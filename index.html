@@ -131,6 +131,15 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
   box-shadow:0 2px 6px rgba(0,0,0,.38)
 }
 
+/* Mille Bornes : le panneau de borne kilometrique */
+.borne{
+  width:46px;height:70px;border-radius:5px 5px 3px 3px;
+  background:linear-gradient(180deg,#F4F1E8 0%,#F4F1E8 34%,#C0503F 34%,#C0503F 46%,#F4F1E8 46%);
+  box-shadow:0 2px 6px rgba(0,0,0,.38);
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:9px;
+  color:#22262B;font-size:15px;font-weight:800;letter-spacing:-.03em
+}
+
 /* Mini-jeux : section a part, ce ne sont pas des compteurs */
 .separateur{
   display:flex;align-items:center;gap:12px;margin:30px 0 14px;
@@ -296,6 +305,14 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Fléchettes</div>
         <div class="det">301, 501 ou 701</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="millebornes.html">
+      <div class="vignette"><div class="borne">1000</div></div>
+      <div>
+        <div class="jeu">Mille Bornes</div>
+        <div class="det">Bottes et primes</div>
       </div>
     </a>
   </div>
