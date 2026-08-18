@@ -134,6 +134,18 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .des i:nth-child(2){width:34px;height:34px}
 .des i:nth-child(3){width:44px;height:44px;font-size:15px}
 
+/* Puissance 4 : un coin de plateau */
+.p4{
+  background:#1B45A8;border-radius:9px;padding:5px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  box-shadow:0 2px 6px rgba(0,0,0,.35)
+}
+.p4 i{
+  width:17px;height:17px;border-radius:50%;background:#12327A;display:block
+}
+.p4 i.r{background:#DC3E3E}
+.p4 i.j{background:#F0C43C}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -226,6 +238,20 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Pile ou face</div>
         <div class="det">Qui commence ?</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="p4.html">
+      <div class="vignette">
+        <div class="p4">
+          <i></i><i></i><i class="j"></i>
+          <i></i><i class="r"></i><i class="j"></i>
+          <i class="r"></i><i class="j"></i><i class="r"></i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Puissance 4</div>
+        <div class="det">Trois niveaux contre le téléphone</div>
       </div>
     </a>
 
