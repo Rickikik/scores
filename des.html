@@ -81,6 +81,19 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
   padding:9px 6px 7px;text-align:center;box-shadow:0 3px 7px rgba(0,0,0,.35)
 }
 .de .v{font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.de.roule{animation:secousse .28s ease-in-out infinite}
+.de.roule .v{color:#8A82A0}
+@keyframes secousse{
+  0%{transform:translateY(0) rotate(0)}
+  25%{transform:translateY(-5px) rotate(-6deg)}
+  50%{transform:translateY(0) rotate(0)}
+  75%{transform:translateY(-3px) rotate(5deg)}
+  100%{transform:translateY(0) rotate(0)}
+}
+.total.roule .v{opacity:.35}
+@media (prefers-reduced-motion:reduce){
+  .de.roule{animation:none}
+}
 .de .t{font-size:10px;font-weight:800;color:#6B6480;letter-spacing:.05em;margin-top:3px}
 .de.max{background:var(--vert);color:#fff}
 .de.max .t{color:rgba(255,255,255,.8)}
@@ -143,13 +156,14 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 (function(){
 "use strict";
 
-var FACES = [4,6,8,10,12,20,100];
+var FACES = [3,4,6,8,10,12,20,100];
 var MAX_PAR_TYPE = 20;
 
 var S = {
   set:{},          // {6:2, 20:1} → deux dés à six faces et un à vingt
   dernier:null,    // {jets:[{f,v}], total}
-  histo:[]
+  histo:[],
+  roule:false      // un lancer est en cours
 };
 
 var $=function(id){ return document.getElementById(id); };
@@ -219,10 +233,10 @@ function rendreRecap(){
   $("btn-lancer").disabled = !n;
 }
 
-/* ---------- lancer ---------- */
-function lancer(){
-  var n=totalDes();
-  if (!n) return;
+/* ---------- lancer ----------
+   Les dés roulent une demi-seconde avant de se figer : on voit que
+   le tirage a lieu, au lieu d'un chiffre qui change sans prévenir. */
+function tirer(){
   var jets=[], total=0;
   FACES.forEach(function(f){
     for (var i=0;i<(S.set[f]||0);i++){
@@ -230,21 +244,43 @@ function lancer(){
       jets.push({f:f, v:v}); total+=v;
     }
   });
-  S.dernier={jets:jets, total:total, lib:libelle(S.set)};
-  S.histo.unshift({lib:S.dernier.lib, total:total,
-                   detail:jets.map(function(j){return j.v;}).join(" ")});
-  if (S.histo.length>12) S.histo.pop();
-  rendreResultat(); rendreHisto();
+  return {jets:jets, total:total, lib:libelle(S.set)};
 }
 
-function rendreResultat(){
+function lancer(){
+  var n=totalDes();
+  if (!n || S.roule) return;
+  S.roule=true;
+  $("btn-lancer").disabled=true;
+
+  var fin=Date.now()+560;
+  (function rouler(){
+    if (Date.now()<fin){
+      S.dernier=tirer();
+      rendreResultat(true);
+      setTimeout(rouler, 70);
+      return;
+    }
+    S.dernier=tirer();                       // le jet qui compte
+    S.histo.unshift({lib:S.dernier.lib, total:S.dernier.total,
+                     detail:S.dernier.jets.map(function(j){return j.v;}).join(" ")});
+    if (S.histo.length>12) S.histo.pop();
+    S.roule=false;
+    $("btn-lancer").disabled=false;
+    rendreResultat(false); rendreHisto();
+  })();
+}
+
+function rendreResultat(enCours){
   var z=$("resultat");
   if (!S.dernier){ z.innerHTML=""; return; }
   var d=S.dernier;
-  var h='<div class="total"><span class="lb">Total</span>'+
+  var h='<div class="total'+(enCours?" roule":"")+'"><span class="lb">Total</span>'+
         '<span class="v">'+d.total+'</span></div><div class="jets">';
   d.jets.forEach(function(j){
-    var cls = j.v===j.f ? " max" : (j.v===1 ? " min" : "");
+    // pendant le roulement, aucun de n'est mis en avant : le resultat
+    // n'est pas encore acquis
+    var cls = enCours ? " roule" : (j.v===j.f ? " max" : (j.v===1 ? " min" : ""));
     h+='<div class="de'+cls+'"><div class="v">'+j.v+'</div><div class="t">d'+j.f+'</div></div>';
   });
   h+='</div><p class="detail">'+echap(d.lib)+' · le vert marque un maximum, '+
