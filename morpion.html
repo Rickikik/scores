@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E8E2D4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Morpion">
+<meta name="format-detection" content="telephone=no">
+<title>Morpion – Scores</title>
+<style>
+:root{
+  --papier:#E8E2D4; --papier-clair:#F4F0E5;
+  --encre:#2B2A26; --crayon:#7C776C;
+  --bleu:#2F5FA8; --rouge:#C2453E; --vert:#4E8C5B;
+  --trait:rgba(43,42,38,.2);
+  --r:13px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--encre);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 25px, rgba(120,140,170,.13) 25px 26px),
+    linear-gradient(var(--papier-clair),var(--papier));
+  background-attachment:fixed;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-user-select:none;user-select:none;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior:none;touch-action:manipulation;
+  min-height:100vh;min-height:100dvh;
+}
+.wrap{max-width:520px;margin:0 auto;padding:14px 16px 40px}
+.vers-portail{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;
+  padding:13px 17px 13px 14px;border-radius:999px;background:#fff;
+  box-shadow:0 2px 5px rgba(60,50,30,.2);
+  font-size:13.5px;font-weight:800;color:var(--bleu);text-decoration:none
+}
+.vers-portail:active{transform:scale(.96)}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--crayon);font-weight:700}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 4px}
+.sous{color:var(--crayon);font-size:14px;margin:0 0 20px}
+
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.duo{display:flex;gap:8px;margin-bottom:18px}
+.duo button{
+  flex:1;padding:13px 8px;border-radius:11px;background:rgba(255,255,255,.75);
+  font-weight:700;font-size:14px;color:var(--encre);box-shadow:0 2px 4px rgba(60,50,30,.14)
+}
+.duo button[aria-pressed="true"]{background:var(--encre);color:var(--papier-clair)}
+
+/* le tableau des scores */
+.marque{
+  display:flex;gap:9px;margin-bottom:16px
+}
+.camp{
+  flex:1;border-radius:12px;padding:11px 8px;text-align:center;
+  background:rgba(255,255,255,.75);border:2px solid transparent;
+  box-shadow:0 2px 4px rgba(60,50,30,.14)
+}
+.camp.tour{border-color:currentColor}
+.camp .qui{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--crayon)}
+.camp .sig{font-size:26px;font-weight:800;line-height:1.1;margin-top:1px}
+.camp .sc{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--encre)}
+.camp.x{color:var(--bleu)}
+.camp.o{color:var(--rouge)}
+.camp.nul{color:var(--crayon);flex:0 0 74px}
+
+/* la grille */
+.plateau{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  aspect-ratio:1;margin-bottom:16px
+}
+.case{
+  border-radius:14px;background:rgba(255,255,255,.8);
+  box-shadow:0 2px 5px rgba(60,50,30,.16);
+  display:grid;place-items:center;
+  font-size:clamp(40px,17vw,74px);font-weight:800;line-height:1;
+  transition:transform .1s ease,background .15s ease
+}
+.case:active{transform:scale(.96)}
+.case.x{color:var(--bleu)}
+.case.o{color:var(--rouge)}
+.case.gagnante{background:var(--vert);color:#fff}
+.case[disabled]{cursor:default}
+
+.annonce{
+  border-radius:12px;padding:13px 15px;margin-bottom:12px;
+  font-size:15px;font-weight:800;text-align:center;
+  background:rgba(255,255,255,.8);box-shadow:0 2px 4px rgba(60,50,30,.14)
+}
+.annonce.gagne{background:var(--vert);color:#fff}
+.annonce.nul{background:var(--crayon);color:#fff}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:var(--r);
+  background:var(--bleu);color:#fff;font-weight:800;font-size:16px;
+  box-shadow:0 2px 5px rgba(60,50,30,.2)
+}
+.btn:active{transform:scale(.985);filter:brightness(1.1)}
+.btn.secondaire{background:rgba(255,255,255,.8);color:var(--encre);font-weight:700;box-shadow:none;margin-top:9px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="vers-portail" href="./">← Scores</a>
+  <p class="eyebrow">Mini-jeu</p>
+  <h1>Morpion</h1>
+  <p class="sous">Trois cases alignées. Le perdant de la manche commence la suivante.</p>
+
+  <div class="duo" id="choix-mode">
+    <button data-m="2" aria-pressed="true">À deux</button>
+    <button data-m="1" aria-pressed="false">Contre le téléphone</button>
+  </div>
+
+  <div class="marque" id="marque"></div>
+  <div class="plateau" id="plateau"></div>
+  <div id="annonce"></div>
+  <div id="actions"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var LIGNES = [
+  [0,1,2],[3,4,5],[6,7,8],   // rangées
+  [0,3,6],[1,4,7],[2,5,8],   // colonnes
+  [0,4,8],[2,4,6]            // diagonales
+];
+
+var S = {
+  mode:2,              // 2 = deux joueurs, 1 = contre le telephone
+  cases:new Array(9).fill(""),
+  tour:"X",
+  debut:"X",           // qui commence la manche
+  fini:false,
+  gagnante:null,
+  scores:{X:0, O:0, nul:0}
+};
+
+var $=function(id){ return document.getElementById(id); };
+
+/* ---------------------------------------------------------------
+   RÈGLES
+   --------------------------------------------------------------- */
+function vainqueur(c){
+  for (var i=0;i<LIGNES.length;i++){
+    var l=LIGNES[i];
+    if (c[l[0]] && c[l[0]]===c[l[1]] && c[l[1]]===c[l[2]]) return {qui:c[l[0]], ligne:l};
+  }
+  return null;
+}
+function libres(c){
+  var r=[];
+  for (var i=0;i<9;i++) if (!c[i]) r.push(i);
+  return r;
+}
+
+/* Minimax complet : la grille est assez petite pour l'explorer
+   entièrement, le téléphone est donc imbattable. Au mieux, nul. */
+function minimax(c, joueur, ia){
+  var v=vainqueur(c);
+  if (v) return {score: v.qui===ia ? 1 : -1};
+  var l=libres(c);
+  if (!l.length) return {score:0};
+
+  var meilleur=null;
+  for (var i=0;i<l.length;i++){
+    c[l[i]]=joueur;
+    var r=minimax(c, joueur==="X"?"O":"X", ia);
+    c[l[i]]="";
+    var s=r.score;
+    if (!meilleur ||
+        (joueur===ia ? s>meilleur.score : s<meilleur.score)){
+      meilleur={score:s, coup:l[i]};
+    }
+  }
+  return meilleur;
+}
+
+function jouer(i){
+  if (S.fini || S.cases[i]) return;
+  S.cases[i]=S.tour;
+  var v=vainqueur(S.cases);
+  if (v){
+    S.fini=true; S.gagnante=v.ligne; S.scores[v.qui]++;
+    S.debut = (v.qui==="X") ? "O" : "X";   // le perdant commence la suivante
+  } else if (!libres(S.cases).length){
+    S.fini=true; S.scores.nul++;
+    S.debut = (S.debut==="X") ? "O" : "X";
+  } else {
+    S.tour = (S.tour==="X") ? "O" : "X";
+  }
+  rendre();
+
+  // le telephone joue O
+  if (!S.fini && S.mode===1 && S.tour==="O"){
+    setTimeout(function(){
+      var r=minimax(S.cases.slice(), "O", "O");
+      if (r && r.coup!==undefined) jouer(r.coup);
+    }, 260);
+  }
+}
+
+function nouvelleManche(){
+  S.cases=new Array(9).fill("");
+  S.tour=S.debut; S.fini=false; S.gagnante=null;
+  rendre();
+  if (S.mode===1 && S.tour==="O"){
+    setTimeout(function(){
+      var r=minimax(S.cases.slice(), "O", "O");
+      if (r && r.coup!==undefined) jouer(r.coup);
+    }, 300);
+  }
+}
+function toutRemettre(){
+  S.scores={X:0,O:0,nul:0}; S.debut="X"; nouvelleManche();
+}
+
+/* ---------------------------------------------------------------
+   RENDU
+   --------------------------------------------------------------- */
+function nomDe(s){
+  if (s==="X") return "Joueur X";
+  return S.mode===1 ? "Téléphone" : "Joueur O";
+}
+
+function rendre(){
+  var m=$("marque"); m.innerHTML="";
+  [["X","x"],["nul","nul"],["O","o"]].forEach(function(p){
+    var d=document.createElement("div");
+    d.className="camp "+p[1];
+    if (p[0]!=="nul" && !S.fini && S.tour===p[0]) d.classList.add("tour");
+    if (p[0]==="nul"){
+      d.innerHTML='<div class="qui">Nuls</div><div class="sc">'+S.scores.nul+'</div>';
+    } else {
+      d.innerHTML='<div class="qui">'+echap(nomDe(p[0]))+'</div>'+
+                  '<div class="sig">'+p[0]+'</div>'+
+                  '<div class="sc">'+S.scores[p[0]]+'</div>';
+    }
+    m.appendChild(d);
+  });
+
+  var pl=$("plateau"); pl.innerHTML="";
+  for (var i=0;i<9;i++){
+    (function(i){
+      var b=document.createElement("button");
+      b.className="case"+(S.cases[i]?" "+S.cases[i].toLowerCase():"");
+      if (S.gagnante && S.gagnante.indexOf(i)>=0) b.classList.add("gagnante");
+      b.textContent=S.cases[i];
+      b.setAttribute("aria-label","Case "+(i+1)+(S.cases[i]?" : "+S.cases[i]:" libre"));
+      if (S.cases[i] || S.fini) b.disabled=true;
+      b.onclick=function(){ jouer(i); };
+      pl.appendChild(b);
+    })(i);
+  }
+
+  var a=$("annonce");
+  if (!S.fini){
+    a.innerHTML='<div class="annonce">Au tour de '+echap(nomDe(S.tour))+'</div>';
+  } else if (S.gagnante){
+    var g=S.cases[S.gagnante[0]];
+    a.innerHTML='<div class="annonce gagne">'+echap(nomDe(g))+' gagne la manche</div>';
+  } else {
+    a.innerHTML='<div class="annonce nul">Match nul</div>';
+  }
+
+  var ac=$("actions"); ac.innerHTML="";
+  if (S.fini){
+    var b1=document.createElement("button");
+    b1.className="btn"; b1.textContent="Manche suivante";
+    b1.onclick=nouvelleManche;
+    ac.appendChild(b1);
+  }
+  var b2=document.createElement("button");
+  b2.className="btn secondaire"; b2.textContent="Remettre les scores à zéro";
+  b2.onclick=toutRemettre;
+  ac.appendChild(b2);
+}
+
+function echap(s){
+  return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+  });
+}
+
+Array.prototype.forEach.call($("choix-mode").children,function(b){
+  b.onclick=function(){
+    S.mode=+b.dataset.m;
+    Array.prototype.forEach.call($("choix-mode").children,function(e){
+      e.setAttribute("aria-pressed", e.dataset.m===b.dataset.m?"true":"false");
+    });
+    toutRemettre();
+  };
+});
+
+nouvelleManche();
+})();
+</script>
+</body>
+</html>
