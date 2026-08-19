@@ -15,7 +15,8 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none;
+  touch-action:manipulation}
 body{min-height:100vh;padding-bottom:96px}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .wrap{max-width:520px;margin:0 auto;padding:0 12px}
@@ -29,7 +30,18 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 .plus{min-height:45px;min-width:45px;border-radius:23px;background:var(--panel);
   border:1px solid var(--line);font-size:19px;line-height:1;color:var(--dim)}
 
-/* rappel du personnage a trouver */
+.accueil{padding:8px 0 0}
+.accueil h2{font-size:22px;font-weight:800;margin:14px 0 4px}
+.accueil p{font-size:14px;color:var(--dim);line-height:1.6;margin:0 0 18px}
+.mode{display:block;width:100%;background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;padding:16px;margin-bottom:10px;text-align:left}
+.mode b{display:block;font-size:17px;font-weight:700}
+.mode span{display:block;font-size:13px;color:var(--dim);margin-top:5px;line-height:1.5}
+
+.bandeau{margin:0 0 10px;padding:12px 14px;border-radius:12px;font-size:13.5px;
+  line-height:1.55;background:rgba(217,164,65,.14);
+  border:1px solid rgba(217,164,65,.5)}
+
 .rappel{display:flex;align-items:center;gap:12px;background:var(--panel);
   border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:6px 0 10px;
   width:100%;text-align:left}
@@ -48,6 +60,7 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 .c u{display:block;font-size:9px;text-decoration:none;text-align:center;
   padding:2px 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   color:var(--dim);font-weight:600}
+.c.moi{border-color:var(--or);box-shadow:0 0 0 1px var(--or)}
 .c.bas img{filter:grayscale(1) brightness(.35)}
 .c.bas u{color:#6B5A73}
 .c.bas::after{content:"";position:absolute;inset:3px;border-radius:6px;
@@ -57,7 +70,6 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 
 .compte{font-size:12px;color:var(--dim);text-align:center;margin:10px 0 0}
 
-/* barre du bas */
 .barre{position:fixed;left:0;right:0;bottom:0;background:var(--bg);
   border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));
   z-index:30}
@@ -65,14 +77,13 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 .barre button{flex:1;min-height:54px;border-radius:12px;font-size:16px;font-weight:600}
 .barre .q{background:var(--or);color:#241B29}
 .barre .d{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
-.barre button:disabled{background:var(--panel);color:#6B5A73;border:1px solid var(--line)}
 
 .rep{margin:8px 0 0;padding:12px 14px;border-radius:12px;font-size:15px;
   text-align:center;font-weight:600}
 .rep.oui{background:rgba(62,138,99,.22);border:1px solid rgba(62,138,99,.6)}
 .rep.non{background:rgba(180,72,92,.18);border:1px solid rgba(180,72,92,.55)}
+.rep.neutre{background:var(--panel);border:1px solid var(--line)}
 
-/* feuilles */
 .voile{position:fixed;inset:0;background:rgba(14,10,16,.78);z-index:40}
 .feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--bg);
   border-top:1px solid var(--line);border-radius:18px 18px 0 0;
@@ -85,9 +96,13 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 .qlist button{display:block;width:100%;min-height:50px;border-radius:10px;
   background:var(--panel);border:1px solid var(--line);font-size:15px;
   margin-bottom:7px;padding:0 14px;text-align:left}
-.qlist button:disabled{opacity:.35}
+.qlist button:disabled{opacity:.4}
 .titreq{font-size:12px;color:var(--dim);text-transform:uppercase;
   letter-spacing:.09em;margin:14px 0 7px}
+.duo{display:flex;gap:8px;margin-top:6px}
+.duo button{flex:1;min-height:52px;border-radius:12px;font-size:16px;font-weight:700}
+.duo .o{background:var(--vert);color:#fff}
+.duo .n{background:var(--rouge);color:#fff}
 
 .zoom{position:fixed;inset:0;z-index:50;background:rgba(14,10,16,.92);
   display:grid;place-items:center;padding:16px}
@@ -95,17 +110,19 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
 .zoom img{width:100%;aspect-ratio:1;border-radius:16px;display:block;
   background:var(--panel)}
 .zoom b{display:block;font-size:24px;font-weight:700;margin-top:12px}
-.zoom .act{display:flex;gap:8px;margin-top:14px}
-.zoom .act button{flex:1;min-height:52px;border-radius:12px;font-size:16px;
-  font-weight:600;background:var(--panel);border:1px solid var(--line)}
+.zoom .act{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.zoom .act button{flex:1;min-width:130px;min-height:52px;border-radius:12px;
+  font-size:16px;font-weight:600;background:var(--panel);border:1px solid var(--line)}
 .zoom .act .p{background:var(--or);color:#241B29;border-color:var(--or)}
 
-.fin{text-align:center;padding:24px 10px}
+.fin{text-align:center;padding:22px 10px}
 .fin .t{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
 .fin .n{font-size:28px;font-weight:800;margin:8px 0 6px}
 .fin img{width:150px;height:150px;border-radius:16px;margin:8px auto;display:block}
 .primaire{display:block;width:100%;min-height:54px;border-radius:12px;
   background:var(--or);color:#241B29;font-size:17px;font-weight:700;margin-top:10px}
+.secondaire{display:block;width:100%;min-height:50px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);font-size:15px;margin-top:8px}
 .pied{margin:14px 0 6px;padding:14px;border-radius:12px;background:var(--panel);
   border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.6}
 .menu{margin:0 0 10px;padding:12px;border-radius:12px;background:var(--panel);
@@ -121,7 +138,7 @@ header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
   <header>
     <a class="retour" href="./index.html">← Scores</a>
     <h1 id="titre">Qui est-ce</h1>
-    <button class="plus" id="btnMenu" aria-label="Options">⋯</button>
+    <button class="plus" id="btnMenu" aria-label="Options" hidden>⋯</button>
   </header>
   <main id="vue"></main>
 </div>
@@ -198,65 +215,119 @@ const QEC = {
       p.nom.toLowerCase().replace(/ï/g, "i").replace(/é/g, "e");
     return p;
   }),
-  /* la reponse est vraie si et seulement si l'attribut vaut la valeur */
   repond(p, q){ return p[q[0]] === q[1]; },
-  /* un personnage reste en lice si sa valeur s'accorde avec la reponse donnee */
   compatible(p, q, oui){ return QEC.repond(p, q) === oui; },
-  /* ceux que la reponse ecarte : ce que le joueur devrait rabattre */
   ecartes(liste, q, oui){ return liste.filter(p => !QEC.compatible(p, q, oui)); }
 };
 window.QEC = QEC;
 
-/* ================= ETAT ================= */
-const S = {secret:null, bas:new Set(), posees:new Set(), derniere:null,
-           zoom:null, feuille:null, fini:null, menu:false, designation:false};
+/* ================= ETAT =================
+   solo  : cible est tire au sort et n'apparait NULLE PART avant la fin.
+   duo   : moi est le personnage que l'adversaire doit deviner ; l'app ne
+           connait pas celui de l'adversaire et ne repond donc a rien. */
+const S = {phase:"accueil", mode:null, cible:null, moi:null,
+           bas:new Set(), posees:[], enCours:null, zoom:null, feuille:null,
+           fini:null, designe:false, propose:null, menu:false, bandeau:true};
 const el = id => document.getElementById(id);
 const esc = t => String(t).replace(/[&<>"]/g, c =>
   ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const img = (p, zoom) => (zoom ? "personnages-zoom/" : "personnages/") + p.fichier + ".webp";
+const img = (p, z) => (z ? "personnages-zoom/" : "personnages/") + p.fichier + ".webp";
+const auHasard = () => QEC.perso[Math.floor(Math.random() * QEC.perso.length)];
 
-function nouvelle(){
-  S.secret = QEC.perso[Math.floor(Math.random() * QEC.perso.length)];
-  S.bas = new Set(); S.posees = new Set(); S.derniere = null;
-  S.zoom = null; S.feuille = null; S.fini = null; S.menu = false;
-  S.designation = false;
+function accueil(){
+  S.phase = "accueil"; S.mode = null; S.cible = null; S.moi = null;
+  S.bas = new Set(); S.posees = []; S.enCours = null; S.zoom = null;
+  S.feuille = null; S.fini = null; S.designe = false; S.propose = null;
+  S.menu = false;
+  S.bandeau = true; rendu();
+}
+function demarrer(mode){
+  S.mode = mode;
+  if(mode === "solo"){ S.cible = auHasard(); S.phase = "partie"; }
+  else { S.phase = "choix"; }
   rendu();
 }
 
 /* ================= RENDU ================= */
 function rendu(){
-  if(S.fini){ vueFin(); return; }
-  const restants = QEC.perso.length - S.bas.size;
+  el("btnMenu").hidden = S.phase === "accueil";
+  if(S.fini === "attente") return vueAttente();
+  if(S.phase === "accueil") return vueAccueil();
+  if(S.phase === "choix")   return vueChoix();
+  if(S.fini)                return vueFin();
+  vuePartie();
+}
+
+function vueAccueil(){
+  el("vue").innerHTML = `<div class="accueil">
+    <h2>Comment voulez-vous jouer ?</h2>
+    <p>Trente personnages. Il faut deviner lequel, en posant des questions.</p>
+    <button class="mode" data-m="duo"><b>À deux téléphones</b>
+      <span>Chacun choisit son personnage sur son appareil. Vous vous posez
+      les questions à voix haute et vous répondez en regardant votre écran.</span></button>
+    <button class="mode" data-m="solo"><b>Seul contre le téléphone</b>
+      <span>Le téléphone cache un personnage. Tu poses les questions, il
+      répond, et tu élimines.</span></button>
+    <div class="pied">Rien n’est enregistré : en rechargeant la page, la partie
+      repart de zéro.</div></div>`;
+  el("barre").innerHTML = ""; el("sheet").innerHTML = "";
+  el("vue").querySelectorAll("[data-m]").forEach(b =>
+    b.onclick = () => demarrer(b.dataset.m));
+}
+
+function vueChoix(){
+  el("vue").innerHTML = `
+    <div class="bandeau"><b>Il faut deux téléphones.</b> Ouvrez le jeu chacun
+      de votre côté et choisissez votre personnage sans le montrer.</div>
+    <p class="compte" style="font-size:15px;color:var(--ink);margin:4px 0 10px">
+      Choisis ton personnage. Touche un visage pour l’agrandir.</p>
+    <div class="plateau">${QEC.perso.map(p => `
+      <button class="c" data-p="${p.n}">
+        <img src="${img(p)}" alt="" loading="lazy"><u>${esc(p.nom)}</u>
+      </button>`).join("")}</div>`;
+  el("barre").innerHTML = `<div class="in">
+      <button class="d" id="bRetour">Changer de mode</button>
+      <button class="q" id="bHasard">Au hasard</button></div>`;
+  el("sheet").innerHTML = S.zoom ? feuilleZoom() : "";
+  brancher();
+}
+
+function vuePartie(){
+  const restants = 30 - S.bas.size;
+  const derniere = S.posees.length ? S.posees[S.posees.length - 1] : null;
 
   el("vue").innerHTML =
     (S.menu ? `<div class="menu">
         <button id="mNeuve">Nouvelle partie</button>
         <button id="mRemettre" ${S.bas.size ? "" : "disabled"}>Tout remettre debout</button>
+        <button id="mAccueil">Changer de mode</button>
       </div>` : "") +
-    `<button class="rappel" id="rappel">
-      <img src="${img(S.secret)}" alt="">
-      <div class="t"><span>Ton personnage</span><b>${esc(S.secret.nom)}</b>
-        <i>Touche pour l’agrandir</i></div>
-    </button>` +
-    (S.derniere ? `<div class="rep ${S.derniere.oui ? "oui" : "non"}">
-        ${esc(S.derniere.libelle)} &nbsp;→&nbsp; ${S.derniere.oui ? "Oui" : "Non"}
-      </div>` : "") +
-    (S.designation ? `<div class="rep oui">Touche le personnage que tu proposes.</div>` : "") +
+    (S.mode === "duo" && S.bandeau ? `<div class="bandeau">
+        Ton personnage est celui que l’autre doit deviner. Le téléphone ne
+        connaît pas le sien : c’est lui qui répond, à voix haute.</div>` : "") +
+    (S.mode === "duo" ? `<button class="rappel" id="rappel">
+        <img src="${img(S.moi)}" alt="">
+        <div class="t"><span>Ton personnage</span><b>${esc(S.moi.nom)}</b>
+          <i>Touche pour l’agrandir</i></div></button>` : "") +
+    (derniere ? `<div class="rep ${derniere.oui === null ? "neutre"
+        : derniere.oui ? "oui" : "non"}">
+        ${esc(derniere.libelle)}${derniere.oui === null ? ""
+        : " \u00a0→\u00a0 " + (derniere.oui ? "Oui" : "Non")}</div>` : "") +
+    (S.designe ? `<div class="rep neutre">Touche le personnage que tu proposes.</div>` : "") +
     `<div class="plateau">${QEC.perso.map(p => `
-      <button class="c ${S.bas.has(p.n) ? "bas" : ""}" data-p="${p.n}">
-        <img src="${img(p)}" alt="" loading="lazy">
-        <u>${esc(p.nom)}</u>
+      <button class="c ${S.bas.has(p.n) ? "bas" : ""}${
+        S.mode === "duo" && S.moi.n === p.n ? " moi" : ""}" data-p="${p.n}">
+        <img src="${img(p)}" alt="" loading="lazy"><u>${esc(p.nom)}</u>
       </button>`).join("")}</div>
-    <p class="compte">${restants} debout sur 30 · ${S.posees.size}
-      ${S.posees.size > 1 ? "questions posées" : "question posée"}</p>
-    <div class="pied">Touche un visage pour le rabattre, appuie longuement pour
-      l’agrandir. L’app répond aux questions, c’est toi qui élimines.</div>`;
+    <p class="compte">${restants} debout sur 30 · ${S.posees.length}
+      ${S.posees.length > 1 ? "questions posées" : "question posée"}</p>
+    <div class="pied">Touche un visage pour l’agrandir, touche deux fois pour
+      le barrer.</div>`;
 
   el("barre").innerHTML = `<div class="in">
-      <button class="q" id="bQ">Poser une question</button>
-      <button class="d" id="bD">C’est lui !</button>
-    </div>`;
-
+      <button class="q" id="bQ">${S.mode === "solo"
+        ? "Poser une question" : "Liste des questions"}</button>
+      <button class="d" id="bD">C’est lui !</button></div>`;
   el("sheet").innerHTML =
     (S.feuille === "questions" ? feuilleQuestions() : "") +
     (S.zoom ? feuilleZoom() : "");
@@ -264,148 +335,170 @@ function rendu(){
 }
 
 function feuilleQuestions(){
-  const dispo = QUESTIONS.map((q, i) => [q, i]).filter(([, i]) => !S.posees.has(i));
-  const faites = QUESTIONS.map((q, i) => [q, i]).filter(([, i]) => S.posees.has(i));
+  const faites = new Set(S.posees.map(x => x.i));
+  if(S.enCours !== null){
+    const q = QUESTIONS[S.enCours];
+    return `<div class="voile" id="voile"></div><div class="feuille">
+      <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
+      <h3>${esc(q[2])}</h3>
+      <p class="compte" style="margin-bottom:4px">Qu’a répondu l’autre joueur ?</p>
+      <div class="duo"><button class="o" id="rOui">Oui</button>
+        <button class="n" id="rNon">Non</button></div></div>`;
+  }
+  const dispo = QUESTIONS.map((q, i) => [q, i]).filter(([, i]) => !faites.has(i));
   return `<div class="voile" id="voile"></div><div class="feuille">
     <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
     <h3>Quelle question ?</h3>
     <div class="qlist">${dispo.map(([q, i]) =>
       `<button data-q="${i}">${esc(q[2])}</button>`).join("")}</div>
-    ${faites.length ? `<p class="titreq">Déjà posées</p>
-      <div class="qlist">${faites.map(([q, i]) => {
-        const oui = QEC.repond(S.secret, q);
-        return `<button disabled>${esc(q[2])} — ${oui ? "Oui" : "Non"}</button>`;
-      }).join("")}</div>` : ""}
+    ${S.posees.length ? `<p class="titreq">Déjà posées</p><div class="qlist">
+      ${S.posees.map(x => `<button disabled>${esc(x.libelle)}${
+        x.oui === null ? "" : " — " + (x.oui ? "Oui" : "Non")}</button>`).join("")}
+      </div>` : ""}
   </div>`;
 }
 
 function feuilleZoom(){
-  const p = S.zoom, secret = p.n === S.secret.n;
+  const p = S.zoom;
+  const enChoix = S.phase === "choix";
   return `<div class="zoom" id="zoomFond"><div class="bloc">
     <img src="${img(p, true)}" alt="">
     <b>${esc(p.nom)}</b>
     <div class="act">
-      ${secret ? "" : `<button id="zBas">${S.bas.has(p.n)
-        ? "Remettre debout" : "Rabattre"}</button>`}
-      <button class="p" id="zFerme">Fermer</button>
-    </div>
-  </div></div>`;
+      ${enChoix ? `<button class="p" id="zMoi">C’est mon personnage</button>`
+        : `<button id="zBas">${S.bas.has(p.n) ? "Remettre debout" : "Barrer"}</button>`}
+      <button class="${enChoix ? "" : "p"}" id="zFerme">Fermer</button>
+    </div></div></div>`;
 }
 
 function vueFin(){
-  const g = S.fini === "gagne";
-  el("vue").innerHTML = `<div class="fin">
-      <div class="t">${g ? "Trouvé" : "Raté"}</div>
-      <div class="n">${esc(S.secret.nom)}</div>
-      <img src="${img(S.secret, true)}" alt="">
-      <p class="compte">${g
-        ? `En ${S.posees.size} ${S.posees.size > 1 ? "questions" : "question"}.`
-        : `Ce n’était pas lui. C’était ${esc(S.secret.nom)}.`}</p>
-    </div>
-    <button class="primaire" id="rejouer">Nouvelle partie</button>`;
-  el("barre").innerHTML = "";
-  el("sheet").innerHTML = "";
-  el("rejouer").onclick = nouvelle;
+  const p = S.propose;
+  const solo = S.mode === "solo";
+  const gagne = solo ? (p && p.n === S.cible.n) : S.fini === "gagne";
+  el("vue").innerHTML = solo
+    ? `<div class="fin"><div class="t">${gagne ? "Trouvé" : "Raté"}</div>
+        <div class="n">${esc(S.cible.nom)}</div>
+        <img src="${img(S.cible, true)}" alt="">
+        <p class="compte">${gagne
+          ? `En ${S.posees.length} ${S.posees.length > 1 ? "questions" : "question"}.`
+          : `Tu proposais ${esc(p.nom)}. C’était ${esc(S.cible.nom)}.`}</p></div>
+       <button class="primaire" id="rejouer">Nouvelle partie</button>
+       <button class="secondaire" id="retourAccueil">Changer de mode</button>`
+    : `<div class="fin"><div class="t">${gagne ? "Gagné" : "Raté"}</div>
+        <div class="n">${esc(p.nom)}</div>
+        <img src="${img(p, true)}" alt="">
+        <p class="compte">En ${S.posees.length}
+          ${S.posees.length > 1 ? "questions" : "question"}.</p></div>
+       <button class="primaire" id="rejouer">Nouvelle partie</button>
+       <button class="secondaire" id="retourAccueil">Changer de mode</button>`;
+  el("barre").innerHTML = ""; el("sheet").innerHTML = "";
+  el("rejouer").onclick = () => demarrer(S.mode);
+  el("retourAccueil").onclick = accueil;
 }
 
 /* ================= INTERACTIONS ================= */
 function brancher(){
-  const m = el("mNeuve"); if(m) m.onclick = nouvelle;
-  const r = el("mRemettre"); if(r) r.onclick = () => {
+  const m = el("mNeuve"); if(m) m.onclick = () => demarrer(S.mode);
+  const rm = el("mRemettre"); if(rm) rm.onclick = () => {
     S.bas = new Set(); S.menu = false; rendu(); };
+  const ma = el("mAccueil"); if(ma) ma.onclick = accueil;
 
-  const rap = el("rappel");
-  if(rap) rap.onclick = () => { S.zoom = S.secret; rendu(); };
+  const rap = el("rappel"); if(rap) rap.onclick = () => { S.zoom = S.moi; rendu(); };
+  const br = el("bRetour"); if(br) br.onclick = accueil;
+  const bh = el("bHasard"); if(bh) bh.onclick = () => choisirMoi(auHasard());
 
   const bQ = el("bQ"); if(bQ) bQ.onclick = () => {
-    S.feuille = "questions"; S.designation = false; rendu(); };
+    S.feuille = "questions"; S.designe = false; rendu(); };
   const bD = el("bD"); if(bD) bD.onclick = () => {
-    S.designation = !S.designation; rendu(); };
+    S.designe = !S.designe; rendu(); };
 
   const v = el("voile"); if(v) v.onclick = fermerFeuille;
   const f = el("fermer"); if(f) f.onclick = fermerFeuille;
+
   el("sheet").querySelectorAll("[data-q]").forEach(b => b.onclick = () => {
     const i = +b.dataset.q, q = QUESTIONS[i];
-    S.posees.add(i);
-    S.derniere = {libelle:q[2], oui:QEC.repond(S.secret, q)};
-    S.feuille = null; rendu();
+    if(S.mode === "solo"){
+      S.posees.push({i:i, libelle:q[2], oui:QEC.repond(S.cible, q)});
+      S.feuille = null;
+    } else {
+      S.enCours = i;                 /* l'app ne sait pas : le joueur saisit */
+    }
+    rendu();
   });
+  const ro = el("rOui"), rn = el("rNon");
+  if(ro) ro.onclick = () => noterReponse(true);
+  if(rn) rn.onclick = () => noterReponse(false);
 
   const zf = el("zFerme"); if(zf) zf.onclick = () => { S.zoom = null; rendu(); };
   const zb = el("zBas"); if(zb) zb.onclick = () => {
     basculer(S.zoom.n); S.zoom = null; rendu(); };
+  const zm = el("zMoi"); if(zm) zm.onclick = () => choisirMoi(S.zoom);
   const zfond = el("zoomFond");
   if(zfond) zfond.onclick = e => { if(e.target === zfond){ S.zoom = null; rendu(); } };
 
   brancherCartes();
 }
-function fermerFeuille(){ S.feuille = null; rendu(); }
-
+function fermerFeuille(){ S.feuille = null; S.enCours = null; rendu(); }
+function noterReponse(oui){
+  const q = QUESTIONS[S.enCours];
+  S.posees.push({i:S.enCours, libelle:q[2], oui:oui});
+  S.enCours = null; S.feuille = null; rendu();
+}
+function choisirMoi(p){
+  S.moi = p; S.zoom = null; S.phase = "partie"; rendu();
+}
 function basculer(n){
-  if(n === S.secret.n) return;          /* on ne rabat pas son propre personnage */
   if(S.bas.has(n)) S.bas.delete(n); else S.bas.add(n);
 }
 
-/* touche court = rabattre, appui long = agrandir.
-   Le seuil de mouvement annule l'appui long des que le doigt fait defiler. */
-const SEUIL = 14, LONG = 450;
-let presse = null, tactile = false;
+/* un tap agrandit, deux taps barrent. Le premier tap doit attendre de savoir
+   si un second arrive : c'est le prix du double tap, il n'y a pas d'autre voie. */
+const DOUBLE = 260;
+let attente = null, tactile = false;
 
 function brancherCartes(){
-  el("vue").querySelectorAll("[data-p]").forEach(b => {
-    const n = +b.dataset.p;
-    const p = QEC.perso[n - 1];
-    b.addEventListener("touchstart", e => {
-      tactile = true;
-      const t = e.touches[0];
-      presse = {n:n, x:t.clientX, y:t.clientY, long:false};
-      presse.minuteur = setTimeout(() => {
-        if(!presse) return;
-        presse.long = true;
-        S.zoom = p; rendu();
-        if(navigator.vibrate) navigator.vibrate(12);
-      }, LONG);
-    }, {passive:true});
-    b.addEventListener("touchmove", e => {
-      if(!presse) return;
-      const t = e.touches[0];
-      if(Math.abs(t.clientX - presse.x) > SEUIL ||
-         Math.abs(t.clientY - presse.y) > SEUIL){
-        clearTimeout(presse.minuteur); presse = null;
+  const zone = S.phase === "choix" || S.phase === "partie" ? el("vue") : null;
+  if(!zone) return;
+  zone.querySelectorAll("[data-p]").forEach(b => {
+    const n = +b.dataset.p, p = QEC.perso[n - 1];
+    const tape = () => {
+      if(S.designe){                 /* on designe : un seul tap suffit */
+        S.designe = false; S.propose = p;
+        S.fini = (S.mode === "duo") ? "attente" : "fini";
+        rendu(); return;
       }
-    }, {passive:true});
-    b.addEventListener("touchend", () => {
-      if(!presse) return;
-      clearTimeout(presse.minuteur);
-      if(!presse.long) choisir(n);
-      presse = null;
-    });
-    b.addEventListener("touchcancel", () => {
-      if(presse) clearTimeout(presse.minuteur);
-      presse = null;
-    });
-    b.addEventListener("click", () => { if(!tactile) choisir(n); });
-    b.addEventListener("contextmenu", e => {
-      /* Android emet contextmenu vers 500 ms : sans ce garde il annulerait
-         l'agrandissement que le minuteur vient d'ouvrir */
-      e.preventDefault();
-      if(tactile) return;
-      S.zoom = p; rendu();
-    });
+      if(attente && attente.n === n){        /* second tap : on barre */
+        clearTimeout(attente.minuteur); attente = null;
+        if(S.phase === "partie"){ basculer(n); rendu(); }
+        return;
+      }
+      if(attente){ clearTimeout(attente.minuteur); attente = null; }
+      attente = {n:n, minuteur:setTimeout(() => {
+        attente = null; S.zoom = p; rendu();
+      }, DOUBLE)};
+    };
+    b.addEventListener("touchend", e => { tactile = true; e.preventDefault(); tape(); });
+    b.addEventListener("click", () => { if(!tactile) tape(); });
   });
 }
 
-function choisir(n){
-  if(S.designation){
-    S.designation = false;
-    S.fini = (n === S.secret.n) ? "gagne" : "perdu";
-    rendu(); return;
-  }
-  basculer(n); rendu();
+/* en duo l'app ne peut pas valider : c'est l'adversaire qui tranche */
+function vueAttente(){
+  const p = S.propose;
+  el("vue").innerHTML = `<div class="fin">
+      <div class="t">Tu proposes</div><div class="n">${esc(p.nom)}</div>
+      <img src="${img(p, true)}" alt="">
+      <p class="compte">Annonce-le à ton adversaire. Lui seul sait si c’est
+        le bon — le téléphone ne connaît pas son personnage.</p></div>
+    <button class="primaire" id="ok">C’était le bon</button>
+    <button class="secondaire" id="ko">Raté, on continue</button>`;
+  el("barre").innerHTML = ""; el("sheet").innerHTML = "";
+  el("ok").onclick = () => { S.fini = "gagne"; rendu(); };
+  el("ko").onclick = () => { S.fini = null; S.propose = null; rendu(); };
 }
 
 el("btnMenu").onclick = () => { S.menu = !S.menu; rendu(); };
-nouvelle();
+accueil();
 </script>
 </body>
 </html>
