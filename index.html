@@ -256,6 +256,33 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .demineur i.d{color:#D2621F}
 .demineur i.m{background:#C6392F;color:#fff}
 
+/* Qui est-ce : quatre visages, dont un barre */
+.qec{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px;
+  background:#33253A;padding:4px;border-radius:9px;
+  box-shadow:0 2px 6px rgba(0,0,0,.35)
+}
+.qec i{
+  position:relative;width:26px;height:26px;border-radius:4px;
+  background:#E8E4DC;overflow:hidden;display:block
+}
+.qec i::before{
+  content:"";position:absolute;left:50%;top:4px;width:11px;height:11px;
+  margin-left:-5.5px;border-radius:50%;background:#6E5A46
+}
+.qec i::after{
+  content:"";position:absolute;left:50%;bottom:0;width:19px;height:9px;
+  margin-left:-9.5px;border-radius:9px 9px 0 0;background:#4F7183
+}
+.qec i.x{background:#8A7F92}
+.qec i.x::before{background:#5E5266}
+.qec i.x::after{
+  background:
+    linear-gradient(135deg,transparent 44%,#B4485C 44%,#B4485C 56%,transparent 56%),
+    linear-gradient(45deg,transparent 44%,#B4485C 44%,#B4485C 56%,transparent 56%);
+  left:0;bottom:0;width:26px;height:26px;margin:0;border-radius:0
+}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -447,6 +474,16 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Démineur</div>
         <div class="det">Trois formats</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="quiestce.html">
+      <div class="vignette">
+        <div class="qec"><i></i><i></i><i class="x"></i><i></i></div>
+      </div>
+      <div>
+        <div class="jeu">Qui est-ce</div>
+        <div class="det">Trente personnages</div>
       </div>
     </a>
 
