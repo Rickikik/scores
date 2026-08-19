@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#1C1C1F">
+<title>Démineur</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231C1C1F'/%3E%3Crect x='7' y='7' width='23' height='23' rx='3' fill='%238A8F98'/%3E%3Crect x='34' y='7' width='23' height='23' rx='3' fill='%23DCDDE0'/%3E%3Crect x='7' y='34' width='23' height='23' rx='3' fill='%23DCDDE0'/%3E%3Ccircle cx='45' cy='45' r='9' fill='%23C6392F'/%3E%3Crect x='34' y='34' width='23' height='23' rx='3' fill='none' stroke='%238A8F98' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#1C1C1F; --cadre:#2A2A2E; --line:#3A3A40; --ink:#EDEDEF; --dim:#9096A0;
+  --couverte:#8A8F98; --couverte-h:#9BA1AA; --revelee:#DCDDE0; --revelee-l:#E7E8EA;
+  --mine:#C6392F; --drapeau:#D2621F; --acier:#3A3A40;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;padding-bottom:24px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 0 6px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  background:var(--ink);color:#3A3A40;font-weight:600;font-size:15px;
+  text-decoration:none}
+header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
+
+.niveaux{display:flex;gap:8px;margin:6px 0 10px}
+.niveaux button{flex:1;min-height:46px;border-radius:10px;background:var(--cadre);
+  border:1px solid var(--line);font-size:14px;color:var(--dim)}
+.niveaux button[aria-pressed="true"]{background:var(--couverte);
+  border-color:var(--couverte);color:#1C1C1F;font-weight:700}
+
+.tableau{display:flex;align-items:center;gap:10px;background:var(--cadre);
+  border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+.tableau .c{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
+  min-width:56px}
+.tableau .c span{font-size:11px;color:var(--dim);font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;display:block}
+.tableau .neuve{margin-left:auto;min-height:44px;padding:0 16px;border-radius:10px;
+  background:var(--acier);border:1px solid var(--line);font-size:15px}
+
+.cadre{background:var(--cadre);border:1px solid var(--line);border-radius:12px;
+  padding:8px;overflow:auto;-webkit-overflow-scrolling:touch}
+.grille{display:grid;gap:2px;width:max-content;margin:0 auto;touch-action:pan-x pan-y}
+.k{width:var(--k);height:var(--k);border-radius:3px;background:var(--couverte);
+  -webkit-touch-callout:none;
+  display:grid;place-items:center;font-weight:800;
+  font-size:calc(var(--k) * .56);font-variant-numeric:tabular-nums;
+  color:#1C1C1F;line-height:1}
+.k.o{background:var(--revelee)}
+.k.o.vide{background:var(--revelee-l)}
+.k.f{background:var(--couverte-h);color:var(--drapeau);
+  font-size:calc(var(--k) * .5)}
+.k.m{background:var(--mine);color:#fff}
+.k.boum{background:#8E2018;color:#fff}
+.k.n1{color:#1F5FBF} .k.n2{color:#1E7A3C} .k.n3{color:#C6392F}
+.k.n4{color:#26307A} .k.n5{color:#8A2E1C} .k.n6{color:#177C86}
+.k.n7{color:#1C1C1F} .k.n8{color:#5B6068}
+
+.etat{margin:10px 0 0;padding:12px 14px;border-radius:12px;font-size:14px;
+  text-align:center;font-weight:600}
+.etat.gagne{background:rgba(30,122,60,.2);border:1px solid rgba(30,122,60,.55)}
+.etat.perdu{background:rgba(198,57,47,.18);border:1px solid rgba(198,57,47,.5)}
+.pied{margin:14px 0 6px;padding:14px;border-radius:12px;background:var(--cadre);
+  border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./index.html">← Scores</a>
+    <h1>Démineur</h1>
+    <span style="min-width:45px"></span>
+  </header>
+  <div class="niveaux" id="niveaux"></div>
+  <div class="tableau">
+    <div class="c"><span>Mines</span><b id="mines">0</b></div>
+    <div class="c"><span>Temps</span><b id="temps">0</b></div>
+    <button class="neuve" id="neuve">Nouvelle grille</button>
+  </div>
+  <div class="cadre" id="cadre"><div class="grille" id="grille"></div></div>
+  <div id="etat"></div>
+  <div class="pied">Touche pour ouvrir, <b>appuie longuement pour poser un
+    drapeau</b>. Un chiffre compte les mines des huit cases voisines. La
+    première case ouverte n’est jamais une mine, ni aucune de ses voisines.
+    Rien n’est enregistré.</div>
+</div>
+
+<script>
+/* ================= MOTEUR =================
+   Regles verifiees sur cinq sources concordantes. Le hasard est injectable
+   pour rendre les tests reproductibles. */
+const D = {
+  NIVEAUX: {
+    debutant:     {L:9,  C:9,  M:10, k:38, defile:false, nom:"Débutant"},
+    intermediaire:{L:16, C:16, M:40, k:24, defile:false, nom:"Intermédiaire"},
+    expert:       {L:16, C:30, M:99, k:26, defile:true,  nom:"Expert"}
+  },
+
+  voisins(l, c, L, C){
+    const v = [];
+    for(let dl = -1; dl <= 1; dl++) for(let dc = -1; dc <= 1; dc++){
+      if(!dl && !dc) continue;
+      const a = l + dl, b = c + dc;
+      if(a >= 0 && a < L && b >= 0 && b < C) v.push([a, b]);
+    }
+    return v;
+  },
+
+  /* la zone franche de neuf cases impose mines <= cases - 9 :
+     contrainte du code, pas un coup de chance sur les formats standards */
+  maxMines(L, C){ return L * C - 9; },
+
+  /* grille generee APRES le premier clic : ni la case touchee ni ses huit
+     voisines ne peuvent porter une mine */
+  generer(L, C, M, l0, c0, rnd){
+    const franche = new Set([l0 + ":" + c0]);
+    D.voisins(l0, c0, L, C).forEach(([a, b]) => franche.add(a + ":" + b));
+    const libres = [];
+    for(let l = 0; l < L; l++) for(let c = 0; c < C; c++)
+      if(!franche.has(l + ":" + c)) libres.push([l, c]);
+
+    const n = Math.min(M, D.maxMines(L, C));
+    for(let i = libres.length - 1; i > 0; i--){
+      const j = Math.floor(rnd() * (i + 1));
+      const t = libres[i]; libres[i] = libres[j]; libres[j] = t;
+    }
+    const mines = Array.from({length:L}, () => new Array(C).fill(false));
+    for(let i = 0; i < n; i++) mines[libres[i][0]][libres[i][1]] = true;
+    return mines;
+  },
+
+  compter(mines, l, c){
+    const L = mines.length, C = mines[0].length;
+    return D.voisins(l, c, L, C).filter(([a, b]) => mines[a][b]).length;
+  },
+
+  /* ouverture en cascade : un zero ouvre ses voisines, chiffres inclus,
+     et la cascade s'arrete a ces chiffres */
+  ouvrir(mines, etat, l, c){
+    const L = mines.length, C = mines[0].length;
+    if(etat[l][c] !== 0) return etat;
+    const pile = [[l, c]];
+    while(pile.length){
+      const [a, b] = pile.pop();
+      if(etat[a][b] !== 0) continue;
+      etat[a][b] = 1;
+      if(D.compter(mines, a, b) === 0)
+        D.voisins(a, b, L, C).forEach(([x, y]) => {
+          if(etat[x][y] === 0) pile.push([x, y]);
+        });
+    }
+    return etat;
+  },
+
+  /* victoire : toutes les cases sans mine revelees. Les drapeaux ne comptent
+     pas, on peut gagner sans en avoir pose un seul */
+  gagne(mines, etat){
+    const L = mines.length, C = mines[0].length;
+    for(let l = 0; l < L; l++) for(let c = 0; c < C; c++)
+      if(!mines[l][c] && etat[l][c] !== 1) return false;
+    return true;
+  },
+
+  nbMines(mines){
+    return mines.reduce((a, l) => a + l.filter(Boolean).length, 0);
+  }
+};
+window.D = D;
+
+/* ================= ETAT ================= */
+const S = {niveau:"debutant", mines:null, etat:null, drapeaux:0,
+           demarre:false, fini:null, t0:0, chrono:null, boum:null};
+const el = id => document.getElementById(id);
+const N = () => D.NIVEAUX[S.niveau];
+
+function nouvelle(){
+  const n = N();
+  S.mines = null;
+  S.etat = Array.from({length:n.L}, () => new Array(n.C).fill(0));
+  S.drapeaux = 0; S.demarre = false; S.fini = null; S.boum = null;
+  arreterChrono();
+  rendu();
+}
+
+/* le temps se lit sur l'horloge systeme, jamais sur un cumul d'images */
+function demarrerChrono(){
+  S.t0 = Date.now();
+  S.chrono = setInterval(() => {
+    el("temps").textContent = Math.floor((Date.now() - S.t0) / 1000);
+  }, 250);
+}
+function arreterChrono(){
+  if(S.chrono){ clearInterval(S.chrono); S.chrono = null; }
+}
+function secondes(){
+  return S.t0 ? Math.floor((Date.now() - S.t0) / 1000) : 0;
+}
+
+/* ================= COUPS ================= */
+function toucher(l, c){
+  if(S.fini) return;
+  if(S.etat[l][c] === 2 || S.etat[l][c] === 1) return;
+
+  if(!S.demarre){
+    const n = N();
+    S.mines = D.generer(n.L, n.C, n.M, l, c, Math.random);
+    S.demarre = true;
+    demarrerChrono();
+  }
+  if(S.mines[l][c]){
+    S.fini = "perdu"; S.boum = l + ":" + c;
+    arreterChrono();
+    rendu(); return;
+  }
+  D.ouvrir(S.mines, S.etat, l, c);
+  if(D.gagne(S.mines, S.etat)){ S.fini = "gagne"; arreterChrono(); }
+  rendu();
+}
+
+function marquer(l, c){
+  if(S.fini || S.etat[l][c] === 1) return;
+  if(S.etat[l][c] === 2){ S.etat[l][c] = 0; S.drapeaux--; }
+  else { S.etat[l][c] = 2; S.drapeaux++; }
+  if(navigator.vibrate) navigator.vibrate(12);
+  /* mise a jour de la seule case touchee : reconstruire toute la grille
+     detacherait le noeud sous le doigt et le touchend n'arriverait jamais */
+  const n = el("grille").querySelector(`[data-l="${l}"][data-c="${c}"]`);
+  if(n){
+    n.className = S.etat[l][c] === 2 ? "k f" : "k";
+    n.textContent = S.etat[l][c] === 2 ? "⚑" : "";
+  }
+  el("mines").textContent = Math.max(0, N().M - S.drapeaux);
+}
+
+/* seul l'expert defile, par decision. Les deux autres niveaux retrecissent
+   leurs cases pour tenir dans le cadre, plancher a 16 px. */
+function tailleCase(n){
+  if(n.defile) return n.k;
+  const dispo = el("cadre").clientWidth - 16 - (n.C - 1) * 2;
+  return Math.max(16, Math.min(n.k, Math.floor(dispo / n.C)));
+}
+
+/* ================= RENDU ================= */
+function rendu(){
+  const n = N();
+  el("niveaux").innerHTML = Object.keys(D.NIVEAUX).map(k =>
+    `<button data-n="${k}" aria-pressed="${k === S.niveau}">${D.NIVEAUX[k].nom}</button>`
+  ).join("");
+  el("niveaux").querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
+    S.niveau = b.dataset.n; nouvelle();
+  });
+
+  el("mines").textContent = Math.max(0, n.M - S.drapeaux);
+  el("temps").textContent = S.demarre ? secondes() : 0;
+
+  const g = el("grille");
+  g.style.setProperty("--k", tailleCase(n) + "px");
+  g.style.gridTemplateColumns = `repeat(${n.C}, var(--k))`;
+
+  let html = "";
+  for(let l = 0; l < n.L; l++) for(let c = 0; c < n.C; c++){
+    const e = S.etat[l][c];
+    const estMine = S.mines && S.mines[l][c];
+    let cls = "k", txt = "";
+
+    if(S.fini && estMine && e !== 2){
+      cls += (S.boum === l + ":" + c) ? " m boum" : " m";
+      txt = "✱";
+    } else if(e === 2){
+      cls += " f"; txt = "⚑";
+    } else if(e === 1){
+      const v = D.compter(S.mines, l, c);
+      cls += v ? " o n" + v : " o vide";
+      txt = v || "";
+    }
+    html += `<div class="${cls}" data-l="${l}" data-c="${c}">${txt}</div>`;
+  }
+  g.innerHTML = html;
+
+  el("etat").innerHTML = S.fini === "gagne"
+    ? `<div class="etat gagne">Grille déminée en ${secondes()} s.</div>`
+    : S.fini === "perdu"
+    ? `<div class="etat perdu">Mine. La grille est révélée.</div>` : "";
+}
+
+/* ================= GESTES =================
+   Appui long pour le drapeau. Il s'annule des que le doigt bouge de plus de
+   14 px, ce qui est aussi la detection du defilement sur la grille expert.
+   Apres un appui long, le relachement n'ouvre rien.
+   Un appareil tactile ignore souris et contextmenu : Android emettait
+   contextmenu vers 500 ms et annulait le drapeau pose a 450 ms. */
+const SEUIL_MOUVEMENT = 14, DUREE_LONG = 450;
+let presse = null, tactile = false;
+
+function cible(e){
+  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+  const n = document.elementFromPoint(t.clientX, t.clientY);
+  if(!n || !n.dataset || n.dataset.l === undefined) return null;
+  return {l:+n.dataset.l, c:+n.dataset.c, x:t.clientX, y:t.clientY};
+}
+
+const grille = el("grille");
+
+grille.addEventListener("touchstart", e => {
+  tactile = true;          /* desactive souris et contextmenu pour de bon */
+  const p = cible(e);
+  if(!p) return;
+  presse = {...p, long:false};
+  presse.minuteur = setTimeout(() => {
+    if(!presse) return;
+    presse.long = true;
+    marquer(presse.l, presse.c);
+  }, DUREE_LONG);
+}, {passive:true});
+
+grille.addEventListener("touchmove", e => {
+  if(!presse) return;
+  const t = e.touches[0];
+  if(Math.abs(t.clientX - presse.x) > SEUIL_MOUVEMENT ||
+     Math.abs(t.clientY - presse.y) > SEUIL_MOUVEMENT){
+    clearTimeout(presse.minuteur);
+    presse = null;          /* le doigt fait defiler, pas un coup */
+  }
+}, {passive:true});
+
+grille.addEventListener("touchend", e => {
+  if(!presse) return;
+  clearTimeout(presse.minuteur);
+  if(!presse.long) toucher(presse.l, presse.c);
+  presse = null;
+});
+grille.addEventListener("touchcancel", () => {
+  if(presse) clearTimeout(presse.minuteur);
+  presse = null;
+});
+
+/* souris : clic gauche ouvre, clic droit pose un drapeau */
+grille.addEventListener("mousedown", e => {
+  if(tactile || e.button === 2) return;
+  const p = cible(e);
+  if(!p) return;
+  presse = {...p, long:false};
+  presse.minuteur = setTimeout(() => {
+    if(!presse) return;
+    presse.long = true;
+    marquer(presse.l, presse.c);
+  }, DUREE_LONG);
+});
+grille.addEventListener("mouseup", () => {
+  if(tactile || !presse) return;
+  clearTimeout(presse.minuteur);
+  if(!presse.long) toucher(presse.l, presse.c);
+  presse = null;
+});
+grille.addEventListener("contextmenu", e => {
+  /* Android emet contextmenu vers 500 ms : sans ce garde, il annulait le
+     drapeau que le minuteur venait de poser a 450 ms */
+  e.preventDefault();
+  if(tactile) return;
+  const p = cible(e);
+  if(p) marquer(p.l, p.c);
+});
+
+el("neuve").onclick = nouvelle;
+nouvelle();
+</script>
+</body>
+</html>
