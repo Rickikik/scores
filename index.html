@@ -239,6 +239,23 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .deuxmille i:nth-child(3){background:#B0A855;color:#14202B}
 .deuxmille i:nth-child(4){background:#E08C3C;color:#14202B}
 
+/* Demineur : un coin de grille, un chiffre, un drapeau, une mine */
+.demineur{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  background:#2A2A2E;padding:4px;border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,.35)
+}
+.demineur i{
+  width:19px;height:19px;border-radius:3px;background:#8A8F98;display:grid;
+  place-items:center;font-size:12px;font-weight:800;font-style:normal;
+  color:#1C1C1F;line-height:1
+}
+.demineur i.o{background:#DCDDE0}
+.demineur i.b{color:#1F5FBF}
+.demineur i.v{color:#1E7A3C}
+.demineur i.d{color:#D2621F}
+.demineur i.m{background:#C6392F;color:#fff}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -416,6 +433,20 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">2048</div>
         <div class="det">Glisse et fusionne</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="demineur.html">
+      <div class="vignette">
+        <div class="demineur">
+          <i class="o b">1</i><i class="o v">2</i><i class="d">⚑</i>
+          <i class="o b">1</i><i></i><i class="m">✱</i>
+          <i class="o"></i><i class="o b">1</i><i></i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Démineur</div>
+        <div class="det">Trois formats</div>
       </div>
     </a>
 
