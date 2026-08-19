@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#241B29">
+<title>Qui est-ce</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23241B29'/%3E%3Ccircle cx='32' cy='25' r='11' fill='%23F2EAF0'/%3E%3Cpath d='M14 56 c0-11 8-18 18-18 s18 7 18 18 z' fill='%23F2EAF0'/%3E%3Ccircle cx='27' cy='24' r='2.5' fill='%23241B29'/%3E%3Ccircle cx='37' cy='24' r='2.5' fill='%23241B29'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#241B29; --panel:#33253A; --panel2:#3E2E47; --line:#4B3856;
+  --ink:#F2EAF0; --dim:#A491AC; --or:#D9A441; --vert:#3E8A63; --rouge:#B4485C;
+  --retour:#4A2F55;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;padding-bottom:96px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:0 12px}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 0 4px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  background:var(--ink);color:var(--retour);font-weight:600;font-size:15px;
+  text-decoration:none}
+header h1{flex:1;margin:0;font-size:16px;font-weight:600;text-align:center}
+.plus{min-height:45px;min-width:45px;border-radius:23px;background:var(--panel);
+  border:1px solid var(--line);font-size:19px;line-height:1;color:var(--dim)}
+
+/* rappel du personnage a trouver */
+.rappel{display:flex;align-items:center;gap:12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:6px 0 10px;
+  width:100%;text-align:left}
+.rappel img{width:58px;height:58px;border-radius:10px;flex:none;background:var(--panel2)}
+.rappel .t{flex:1;min-width:0}
+.rappel .t span{display:block;font-size:11px;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.09em}
+.rappel .t b{display:block;font-size:19px;font-weight:700;margin-top:2px}
+.rappel .t i{display:block;font-style:normal;font-size:11px;color:var(--or);margin-top:2px}
+
+.plateau{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.c{position:relative;background:var(--panel);border:1px solid var(--line);
+  border-radius:9px;padding:3px;overflow:hidden;display:block;width:100%}
+.c img{width:100%;aspect-ratio:1;border-radius:6px;display:block;
+  background:var(--panel2);object-fit:cover}
+.c u{display:block;font-size:9px;text-decoration:none;text-align:center;
+  padding:2px 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--dim);font-weight:600}
+.c.bas img{filter:grayscale(1) brightness(.35)}
+.c.bas u{color:#6B5A73}
+.c.bas::after{content:"";position:absolute;inset:3px;border-radius:6px;
+  background:linear-gradient(135deg,transparent 46%,var(--rouge) 46%,var(--rouge) 54%,transparent 54%),
+             linear-gradient(45deg,transparent 46%,var(--rouge) 46%,var(--rouge) 54%,transparent 54%);
+  opacity:.85;pointer-events:none}
+
+.compte{font-size:12px;color:var(--dim);text-align:center;margin:10px 0 0}
+
+/* barre du bas */
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--bg);
+  border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  z-index:30}
+.barre .in{max-width:520px;margin:0 auto;display:flex;gap:8px}
+.barre button{flex:1;min-height:54px;border-radius:12px;font-size:16px;font-weight:600}
+.barre .q{background:var(--or);color:#241B29}
+.barre .d{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
+.barre button:disabled{background:var(--panel);color:#6B5A73;border:1px solid var(--line)}
+
+.rep{margin:8px 0 0;padding:12px 14px;border-radius:12px;font-size:15px;
+  text-align:center;font-weight:600}
+.rep.oui{background:rgba(62,138,99,.22);border:1px solid rgba(62,138,99,.6)}
+.rep.non{background:rgba(180,72,92,.18);border:1px solid rgba(180,72,92,.55)}
+
+/* feuilles */
+.voile{position:fixed;inset:0;background:rgba(14,10,16,.78);z-index:40}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--bg);
+  border-top:1px solid var(--line);border-radius:18px 18px 0 0;
+  padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow:auto;max-width:520px;margin:0 auto}
+.feuille h3{margin:2px 44px 12px;font-size:15px;font-weight:600;text-align:center}
+.fermer{position:absolute;top:8px;right:10px;min-width:45px;min-height:45px;
+  border-radius:23px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--dim);font-size:16px}
+.qlist button{display:block;width:100%;min-height:50px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--line);font-size:15px;
+  margin-bottom:7px;padding:0 14px;text-align:left}
+.qlist button:disabled{opacity:.35}
+.titreq{font-size:12px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.09em;margin:14px 0 7px}
+
+.zoom{position:fixed;inset:0;z-index:50;background:rgba(14,10,16,.92);
+  display:grid;place-items:center;padding:16px}
+.zoom .bloc{max-width:min(92vw,440px);width:100%;text-align:center}
+.zoom img{width:100%;aspect-ratio:1;border-radius:16px;display:block;
+  background:var(--panel)}
+.zoom b{display:block;font-size:24px;font-weight:700;margin-top:12px}
+.zoom .act{display:flex;gap:8px;margin-top:14px}
+.zoom .act button{flex:1;min-height:52px;border-radius:12px;font-size:16px;
+  font-weight:600;background:var(--panel);border:1px solid var(--line)}
+.zoom .act .p{background:var(--or);color:#241B29;border-color:var(--or)}
+
+.fin{text-align:center;padding:24px 10px}
+.fin .t{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.fin .n{font-size:28px;font-weight:800;margin:8px 0 6px}
+.fin img{width:150px;height:150px;border-radius:16px;margin:8px auto;display:block}
+.primaire{display:block;width:100%;min-height:54px;border-radius:12px;
+  background:var(--or);color:#241B29;font-size:17px;font-weight:700;margin-top:10px}
+.pied{margin:14px 0 6px;padding:14px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.6}
+.menu{margin:0 0 10px;padding:12px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line)}
+.menu button{display:block;width:100%;min-height:46px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);font-size:15px;
+  margin-bottom:8px}
+.menu button:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./index.html">← Scores</a>
+    <h1 id="titre">Qui est-ce</h1>
+    <button class="plus" id="btnMenu" aria-label="Options">⋯</button>
+  </header>
+  <main id="vue"></main>
+</div>
+<div class="barre" id="barre"></div>
+<div id="sheet"></div>
+
+<script>
+/* ================= DONNEES =================
+   Table et questions generees depuis la spec, jamais retapees a la main. */
+const CHAMPS=["nom","genre","teint","cheveux","texture","couleur","pilosite","lunettes","chapeau","boucles","collier","haut"];
+const BRUT=[
+  "Camille,femme,clair,longs,raides,blond,aucune,1,0,0,1,vert",
+  "Elsa,femme,clair,longs,raides,roux,aucune,0,1,0,0,bleu",
+  "Fanny,femme,clair,courts,raides,roux,aucune,1,1,0,0,jaune",
+  "Iris,femme,clair,longs,boucles,blond,aucune,1,0,1,0,jaune",
+  "Nadia,femme,mat,longs,boucles,brun,aucune,1,0,1,1,bleu",
+  "Awa,femme,fonce,courts,boucles,blanc,aucune,0,1,0,1,rouge",
+  "Fatou,femme,fonce,longs,boucles,blanc,aucune,0,0,0,0,bleu",
+  "Maya,femme,fonce,courts,boucles,brun,aucune,1,1,1,0,vert",
+  "Marius,homme,clair,longs,raides,brun,barbe,1,1,1,1,jaune",
+  "Victor,homme,clair,chauve,aucune,aucune,aucune,0,1,0,1,vert",
+  "Tom,homme,clair,courts,raides,roux,barbe,1,0,0,0,bleu",
+  "Nils,homme,clair,courts,raides,blond,aucune,0,1,1,0,vert",
+  "Samir,homme,mat,longs,raides,brun,moustache,0,0,1,1,bleu",
+  "Walid,homme,mat,courts,raides,blanc,aucune,1,0,1,1,rouge",
+  "Mehdi,homme,mat,courts,raides,blanc,barbe,0,0,0,1,jaune",
+  "Kofi,homme,fonce,chauve,aucune,aucune,moustache,0,1,1,0,vert",
+  "Ibrahim,homme,fonce,chauve,aucune,aucune,barbe,1,0,1,1,bleu",
+  "Malik,homme,fonce,courts,raides,brun,aucune,1,0,0,0,vert",
+  "Aissatou,femme,fonce,longs,raides,brun,aucune,0,1,1,0,jaune",
+  "Amadou,homme,fonce,longs,boucles,blanc,moustache,0,0,0,0,jaune",
+  "Sofia,femme,mat,courts,raides,brun,aucune,0,1,0,0,rouge",
+  "Yasmine,femme,mat,longs,raides,blanc,aucune,0,0,1,0,jaune",
+  "Kenza,femme,mat,courts,raides,blanc,aucune,0,0,0,0,jaune",
+  "Rachid,homme,mat,courts,boucles,brun,moustache,0,0,1,0,vert",
+  "Mei,femme,clair,longs,raides,brun,aucune,0,1,0,0,bleu",
+  "Linh,femme,clair,courts,raides,blanc,aucune,1,0,1,0,rouge",
+  "Sakura,femme,clair,courts,raides,brun,aucune,1,0,0,1,vert",
+  "Kenji,homme,clair,courts,raides,brun,moustache,1,1,1,1,rouge",
+  "Minh,homme,mat,courts,raides,brun,moustache,0,0,0,1,jaune",
+  "Wei,homme,mat,courts,raides,brun,barbe,0,0,1,0,rouge"
+];
+const QUESTIONS=[
+  ["genre","femme","C’est une femme ?"],
+  ["teint","clair","La peau claire ?"],
+  ["teint","mat","La peau mate ?"],
+  ["teint","fonce","La peau foncée ?"],
+  ["cheveux","longs","Les cheveux longs ?"],
+  ["cheveux","courts","Les cheveux courts ?"],
+  ["cheveux","chauve","Chauve ?"],
+  ["texture","boucles","Les cheveux bouclés ?"],
+  ["couleur","blond","Les cheveux blonds ?"],
+  ["couleur","brun","Les cheveux bruns ?"],
+  ["couleur","roux","Les cheveux roux ?"],
+  ["couleur","blanc","Les cheveux blancs ?"],
+  ["pilosite","barbe","Une barbe ?"],
+  ["pilosite","moustache","Une moustache ?"],
+  ["lunettes","1","Des lunettes ?"],
+  ["chapeau","1","Un chapeau ?"],
+  ["boucles","1","Une boucle d’oreille ?"],
+  ["collier","1","Un collier ?"],
+  ["haut","rouge","Un haut rouge ?"],
+  ["haut","bleu","Un haut bleu ?"],
+  ["haut","vert","Un haut vert ?"],
+  ["haut","jaune","Un haut jaune ?"]
+];
+
+/* ================= MOTEUR ================= */
+const QEC = {
+  perso: BRUT.map((l, i) => {
+    const v = l.split(","), p = {n:i + 1};
+    CHAMPS.forEach((c, k) => p[c] = v[k]);
+    p.fichier = String(i + 1).padStart(2, "0") + "-" +
+      p.nom.toLowerCase().replace(/ï/g, "i").replace(/é/g, "e");
+    return p;
+  }),
+  /* la reponse est vraie si et seulement si l'attribut vaut la valeur */
+  repond(p, q){ return p[q[0]] === q[1]; },
+  /* un personnage reste en lice si sa valeur s'accorde avec la reponse donnee */
+  compatible(p, q, oui){ return QEC.repond(p, q) === oui; },
+  /* ceux que la reponse ecarte : ce que le joueur devrait rabattre */
+  ecartes(liste, q, oui){ return liste.filter(p => !QEC.compatible(p, q, oui)); }
+};
+window.QEC = QEC;
+
+/* ================= ETAT ================= */
+const S = {secret:null, bas:new Set(), posees:new Set(), derniere:null,
+           zoom:null, feuille:null, fini:null, menu:false, designation:false};
+const el = id => document.getElementById(id);
+const esc = t => String(t).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const img = (p, zoom) => (zoom ? "personnages-zoom/" : "personnages/") + p.fichier + ".webp";
+
+function nouvelle(){
+  S.secret = QEC.perso[Math.floor(Math.random() * QEC.perso.length)];
+  S.bas = new Set(); S.posees = new Set(); S.derniere = null;
+  S.zoom = null; S.feuille = null; S.fini = null; S.menu = false;
+  S.designation = false;
+  rendu();
+}
+
+/* ================= RENDU ================= */
+function rendu(){
+  if(S.fini){ vueFin(); return; }
+  const restants = QEC.perso.length - S.bas.size;
+
+  el("vue").innerHTML =
+    (S.menu ? `<div class="menu">
+        <button id="mNeuve">Nouvelle partie</button>
+        <button id="mRemettre" ${S.bas.size ? "" : "disabled"}>Tout remettre debout</button>
+      </div>` : "") +
+    `<button class="rappel" id="rappel">
+      <img src="${img(S.secret)}" alt="">
+      <div class="t"><span>Ton personnage</span><b>${esc(S.secret.nom)}</b>
+        <i>Touche pour l’agrandir</i></div>
+    </button>` +
+    (S.derniere ? `<div class="rep ${S.derniere.oui ? "oui" : "non"}">
+        ${esc(S.derniere.libelle)} &nbsp;→&nbsp; ${S.derniere.oui ? "Oui" : "Non"}
+      </div>` : "") +
+    (S.designation ? `<div class="rep oui">Touche le personnage que tu proposes.</div>` : "") +
+    `<div class="plateau">${QEC.perso.map(p => `
+      <button class="c ${S.bas.has(p.n) ? "bas" : ""}" data-p="${p.n}">
+        <img src="${img(p)}" alt="" loading="lazy">
+        <u>${esc(p.nom)}</u>
+      </button>`).join("")}</div>
+    <p class="compte">${restants} debout sur 30 · ${S.posees.size}
+      ${S.posees.size > 1 ? "questions posées" : "question posée"}</p>
+    <div class="pied">Touche un visage pour le rabattre, appuie longuement pour
+      l’agrandir. L’app répond aux questions, c’est toi qui élimines.</div>`;
+
+  el("barre").innerHTML = `<div class="in">
+      <button class="q" id="bQ">Poser une question</button>
+      <button class="d" id="bD">C’est lui !</button>
+    </div>`;
+
+  el("sheet").innerHTML =
+    (S.feuille === "questions" ? feuilleQuestions() : "") +
+    (S.zoom ? feuilleZoom() : "");
+  brancher();
+}
+
+function feuilleQuestions(){
+  const dispo = QUESTIONS.map((q, i) => [q, i]).filter(([, i]) => !S.posees.has(i));
+  const faites = QUESTIONS.map((q, i) => [q, i]).filter(([, i]) => S.posees.has(i));
+  return `<div class="voile" id="voile"></div><div class="feuille">
+    <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
+    <h3>Quelle question ?</h3>
+    <div class="qlist">${dispo.map(([q, i]) =>
+      `<button data-q="${i}">${esc(q[2])}</button>`).join("")}</div>
+    ${faites.length ? `<p class="titreq">Déjà posées</p>
+      <div class="qlist">${faites.map(([q, i]) => {
+        const oui = QEC.repond(S.secret, q);
+        return `<button disabled>${esc(q[2])} — ${oui ? "Oui" : "Non"}</button>`;
+      }).join("")}</div>` : ""}
+  </div>`;
+}
+
+function feuilleZoom(){
+  const p = S.zoom, secret = p.n === S.secret.n;
+  return `<div class="zoom" id="zoomFond"><div class="bloc">
+    <img src="${img(p, true)}" alt="">
+    <b>${esc(p.nom)}</b>
+    <div class="act">
+      ${secret ? "" : `<button id="zBas">${S.bas.has(p.n)
+        ? "Remettre debout" : "Rabattre"}</button>`}
+      <button class="p" id="zFerme">Fermer</button>
+    </div>
+  </div></div>`;
+}
+
+function vueFin(){
+  const g = S.fini === "gagne";
+  el("vue").innerHTML = `<div class="fin">
+      <div class="t">${g ? "Trouvé" : "Raté"}</div>
+      <div class="n">${esc(S.secret.nom)}</div>
+      <img src="${img(S.secret, true)}" alt="">
+      <p class="compte">${g
+        ? `En ${S.posees.size} ${S.posees.size > 1 ? "questions" : "question"}.`
+        : `Ce n’était pas lui. C’était ${esc(S.secret.nom)}.`}</p>
+    </div>
+    <button class="primaire" id="rejouer">Nouvelle partie</button>`;
+  el("barre").innerHTML = "";
+  el("sheet").innerHTML = "";
+  el("rejouer").onclick = nouvelle;
+}
+
+/* ================= INTERACTIONS ================= */
+function brancher(){
+  const m = el("mNeuve"); if(m) m.onclick = nouvelle;
+  const r = el("mRemettre"); if(r) r.onclick = () => {
+    S.bas = new Set(); S.menu = false; rendu(); };
+
+  const rap = el("rappel");
+  if(rap) rap.onclick = () => { S.zoom = S.secret; rendu(); };
+
+  const bQ = el("bQ"); if(bQ) bQ.onclick = () => {
+    S.feuille = "questions"; S.designation = false; rendu(); };
+  const bD = el("bD"); if(bD) bD.onclick = () => {
+    S.designation = !S.designation; rendu(); };
+
+  const v = el("voile"); if(v) v.onclick = fermerFeuille;
+  const f = el("fermer"); if(f) f.onclick = fermerFeuille;
+  el("sheet").querySelectorAll("[data-q]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.q, q = QUESTIONS[i];
+    S.posees.add(i);
+    S.derniere = {libelle:q[2], oui:QEC.repond(S.secret, q)};
+    S.feuille = null; rendu();
+  });
+
+  const zf = el("zFerme"); if(zf) zf.onclick = () => { S.zoom = null; rendu(); };
+  const zb = el("zBas"); if(zb) zb.onclick = () => {
+    basculer(S.zoom.n); S.zoom = null; rendu(); };
+  const zfond = el("zoomFond");
+  if(zfond) zfond.onclick = e => { if(e.target === zfond){ S.zoom = null; rendu(); } };
+
+  brancherCartes();
+}
+function fermerFeuille(){ S.feuille = null; rendu(); }
+
+function basculer(n){
+  if(n === S.secret.n) return;          /* on ne rabat pas son propre personnage */
+  if(S.bas.has(n)) S.bas.delete(n); else S.bas.add(n);
+}
+
+/* touche court = rabattre, appui long = agrandir.
+   Le seuil de mouvement annule l'appui long des que le doigt fait defiler. */
+const SEUIL = 14, LONG = 450;
+let presse = null, tactile = false;
+
+function brancherCartes(){
+  el("vue").querySelectorAll("[data-p]").forEach(b => {
+    const n = +b.dataset.p;
+    const p = QEC.perso[n - 1];
+    b.addEventListener("touchstart", e => {
+      tactile = true;
+      const t = e.touches[0];
+      presse = {n:n, x:t.clientX, y:t.clientY, long:false};
+      presse.minuteur = setTimeout(() => {
+        if(!presse) return;
+        presse.long = true;
+        S.zoom = p; rendu();
+        if(navigator.vibrate) navigator.vibrate(12);
+      }, LONG);
+    }, {passive:true});
+    b.addEventListener("touchmove", e => {
+      if(!presse) return;
+      const t = e.touches[0];
+      if(Math.abs(t.clientX - presse.x) > SEUIL ||
+         Math.abs(t.clientY - presse.y) > SEUIL){
+        clearTimeout(presse.minuteur); presse = null;
+      }
+    }, {passive:true});
+    b.addEventListener("touchend", () => {
+      if(!presse) return;
+      clearTimeout(presse.minuteur);
+      if(!presse.long) choisir(n);
+      presse = null;
+    });
+    b.addEventListener("touchcancel", () => {
+      if(presse) clearTimeout(presse.minuteur);
+      presse = null;
+    });
+    b.addEventListener("click", () => { if(!tactile) choisir(n); });
+    b.addEventListener("contextmenu", e => {
+      /* Android emet contextmenu vers 500 ms : sans ce garde il annulerait
+         l'agrandissement que le minuteur vient d'ouvrir */
+      e.preventDefault();
+      if(tactile) return;
+      S.zoom = p; rendu();
+    });
+  });
+}
+
+function choisir(n){
+  if(S.designation){
+    S.designation = false;
+    S.fini = (n === S.secret.n) ? "gagne" : "perdu";
+    rendu(); return;
+  }
+  basculer(n); rendu();
+}
+
+el("btnMenu").onclick = () => { S.menu = !S.menu; rendu(); };
+nouvelle();
+</script>
+</body>
+</html>
