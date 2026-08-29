@@ -283,6 +283,21 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
   left:0;bottom:0;width:26px;height:26px;margin:0;border-radius:0
 }
 
+/* Mahjong : cinq tuiles ivoire en pyramide */
+.mahjong{position:relative;width:66px;height:58px}
+.mahjong i{
+  position:absolute;width:22px;height:30px;border-radius:4px;
+  background:linear-gradient(180deg,#F7F3E6 0%,#E6DFCB 100%);
+  box-shadow:0 2px 4px rgba(0,0,0,.34), inset 0 -2px 0 #C7BEA4;
+  display:grid;place-items:center;font-size:13px;font-weight:800;
+  font-style:normal;line-height:1
+}
+.mahjong i:nth-child(1){left:0;top:28px;color:#1E7A4C}
+.mahjong i:nth-child(2){left:22px;top:28px;color:#C1272D}
+.mahjong i:nth-child(3){left:44px;top:28px;color:#22405E}
+.mahjong i:nth-child(4){left:11px;top:0;color:#22405E}
+.mahjong i:nth-child(5){left:33px;top:0;color:#1E7A4C}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -484,6 +499,19 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Qui est-ce</div>
         <div class="det">Trente personnages</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="mahjong-solo.html">
+      <div class="vignette">
+        <div class="mahjong">
+          <i>≡</i><i>中</i><i>●</i>
+          <i>●</i><i>≡</i>
+        </div>
+      </div>
+      <div>
+        <div class="jeu">Mahjong solitaire</div>
+        <div class="det">Assemble les paires</div>
       </div>
     </a>
 
