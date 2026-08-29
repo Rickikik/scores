@@ -16,10 +16,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--feutre2);
 body{display:flex;flex-direction:column}
 
 /* ---------- barre du haut ---------- */
-#barre{flex:0 0 auto;height:44px;display:flex;align-items:center;gap:10px;
+#barre{flex:0 0 auto;height:46px;display:flex;align-items:center;gap:10px;
   padding:0 8px;background:var(--feutre2);border-bottom:1px solid #0F241D;font-size:13px}
 #barre .val{font-variant-numeric:tabular-nums;font-weight:600}
 #barre .sep{flex:1}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:45px;min-width:45px;padding:0 14px;border-radius:23px;
+  border:1px solid #3A6656;background:#2A5445;color:var(--ivoire);
+  font-weight:600;font-size:15px;text-decoration:none}
 .icone{background:transparent;border:1px solid #3A6656;color:var(--ivoire);
   border-radius:8px;height:30px;min-width:34px;font:inherit;font-size:14px;cursor:pointer}
 .icone:active{background:#2E5B4B}
@@ -105,6 +109,7 @@ body{display:flex;flex-direction:column}
 <body>
 
 <header id="barre">
+  <a class="retour" href="./index.html">← Scores</a>
   <button class="icone" id="b-menu" aria-label="Options">☰</button>
   <span>Paires <span class="val" id="i-paires">–</span></span>
   <span>Coups <span class="val" id="i-coups">–</span></span>
