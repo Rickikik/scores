@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Mahjong solitaire</title>
+<style>
+:root{
+  --feutre:#22493C; --feutre2:#1B3B31; --ivoire:#FBF8F0; --bord:#B4A98D;
+  --encre:#1F2A37; --or:#8A6A2F; --accent:#C0392B; --clair:#E5DDC8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--feutre2);
+  color:var(--ivoire);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column}
+
+/* ---------- barre du haut ---------- */
+#barre{flex:0 0 auto;height:44px;display:flex;align-items:center;gap:10px;
+  padding:0 8px;background:var(--feutre2);border-bottom:1px solid #0F241D;font-size:13px}
+#barre .val{font-variant-numeric:tabular-nums;font-weight:600}
+#barre .sep{flex:1}
+.icone{background:transparent;border:1px solid #3A6656;color:var(--ivoire);
+  border-radius:8px;height:30px;min-width:34px;font:inherit;font-size:14px;cursor:pointer}
+.icone:active{background:#2E5B4B}
+
+/* ---------- plateau ---------- */
+#zone{flex:1 1 auto;position:relative;z-index:0;isolation:isolate;overflow:hidden;background:
+  radial-gradient(120% 100% at 50% 0%,var(--feutre) 0%,var(--feutre2) 100%)}
+#plateau{position:absolute;left:0;top:0}
+.tuile{position:absolute;display:block;cursor:pointer}
+.tuile svg{position:absolute;left:0;top:0;display:block;overflow:visible}
+.motif{transition:opacity .12s}
+.tuile.bloquee .motif{opacity:.34;filter:saturate(.15)}
+.tuile.choisie .motif{transform-box:fill-box;transform-origin:50% 50%;
+  transform:scale(1.09);
+  filter:drop-shadow(0 0 1.5px var(--accent)) drop-shadow(0 0 4px var(--accent))}
+.tuile.choisie .lisere{stroke:var(--accent);stroke-width:2.6}
+.tuile.indice .motif{animation:bat 1s ease-in-out 3}
+@keyframes bat{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ---------- pied ---------- */
+#pied{flex:0 0 auto;height:52px;display:flex;gap:8px;align-items:center;
+  justify-content:center;padding:0 8px;background:var(--feutre2);
+  border-top:1px solid #0F241D}
+#pied button{flex:1 1 0;max-width:130px;height:38px;border-radius:9px;
+  border:1px solid #3A6656;background:#2A5445;color:var(--ivoire);
+  font:inherit;font-size:14px;cursor:pointer}
+#pied button:active{background:#356B57}
+#pied button:disabled{opacity:.4}
+
+/* ---------- voiles ---------- */
+.voile{position:fixed;inset:0;z-index:50;background:rgba(11,26,21,.93);
+  display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+.carte{width:100%;max-width:430px;background:#173026;border:1px solid #35604F;
+  border-radius:14px;padding:16px}
+.carte h1{font-size:19px;margin:0 0 4px}
+.carte h2{font-size:15px;margin:16px 0 8px;color:#A9C6B9;font-weight:600}
+.sous{margin:0 0 14px;font-size:13px;color:#9DB8AC}
+.bascule{display:flex;gap:8px;margin-bottom:12px}
+.pos{flex:1;padding:11px 8px;border-radius:10px;border:1px solid #3A6656;
+  background:#1E4034;color:var(--ivoire);font:inherit;font-size:14px;cursor:pointer}
+.pos[aria-pressed="true"]{background:#3E7B64;border-color:#63A98D;font-weight:600}
+.item{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
+  padding:9px;margin-bottom:7px;border-radius:10px;border:1px solid #35604F;
+  background:#1B372C;color:var(--ivoire);font:inherit;cursor:pointer}
+.item[aria-pressed="true"]{border-color:#63A98D;background:#2C5849}
+.item:disabled{cursor:default;opacity:1}
+.item:disabled .nom{color:#8AA79A}
+.item .nom{font-size:14px;display:block}
+.item .det{font-size:11.5px;color:#8FB0A2;display:block;margin-top:2px}
+.item .apercu{flex:0 0 auto;width:56px;height:44px;background:#12281F;
+  border-radius:6px}
+.item:disabled .apercu{opacity:.5}
+.primaire{width:100%;height:46px;margin-top:8px;border-radius:11px;border:0;
+  background:#C7A24B;color:#221A05;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.primaire:disabled{opacity:.45}
+.secondaire{width:100%;height:40px;margin-top:8px;border-radius:10px;
+  border:1px solid #3A6656;background:transparent;color:var(--ivoire);
+  font:inherit;font-size:14px;cursor:pointer}
+.avis{font-size:12.5px;line-height:1.45;color:#E3C77E;background:#2A2415;
+  border:1px solid #5C4C1E;border-radius:9px;padding:9px;margin:10px 0 0}
+.ligne{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-top:1px solid #2A4C3F;font-size:14px}
+.ligne .sep{flex:1}
+.inter{width:52px;height:30px;border-radius:15px;border:1px solid #3A6656;
+  background:#1E4034;position:relative;cursor:pointer;flex:0 0 auto}
+.inter::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;
+  border-radius:50%;background:#7E9C90;transition:left .15s,background .15s}
+.inter[aria-pressed="true"]{background:#3E7B64;border-color:#63A98D}
+.inter[aria-pressed="true"]::after{left:25px;background:#F3EFE2}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;
+  word-break:break-all;background:#101F19;border:1px solid #2A4C3F;border-radius:8px;
+  padding:8px;margin-top:8px;max-height:88px;overflow:auto;-webkit-user-select:text;user-select:text}
+#bandeau{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  background:rgba(11,26,21,.94);border:1px solid #3A6656;border-radius:10px;
+  padding:9px 13px;font-size:13px;max-width:92%;text-align:center;z-index:59000}
+#voile-jeu{position:absolute;inset:0;z-index:60000;background:rgba(11,26,21,.9);
+  display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
+#voile-jeu .dedans{max-width:330px}
+#voile-jeu h2{font-size:18px;margin:0 0 8px}
+#voile-jeu p{font-size:14px;color:#B6D0C4;margin:0 0 14px;line-height:1.5}
+[hidden]{display:none!important}
+</style></head>
+<body>
+
+<header id="barre">
+  <button class="icone" id="b-menu" aria-label="Options">☰</button>
+  <span>Paires <span class="val" id="i-paires">–</span></span>
+  <span>Coups <span class="val" id="i-coups">–</span></span>
+  <span class="sep"></span>
+  <span class="val" id="i-chrono">0:00</span>
+</header>
+
+<main id="zone">
+  <div id="plateau"></div>
+  <div id="bandeau" hidden></div>
+  <div id="voile-jeu" hidden><div class="dedans">
+    <h2 id="vj-titre"></h2><p id="vj-texte"></p>
+    <button class="primaire" id="vj-action"></button>
+    <button class="secondaire" id="vj-second" hidden></button>
+  </div></div>
+</main>
+
+<footer id="pied">
+  <button id="b-indice">Indice</button>
+  <button id="b-annuler">Annuler</button>
+  <button id="b-melanger">Mélanger</button>
+</footer>
+
+<div class="voile" id="accueil"><div class="carte">
+  <h1>Mahjong solitaire</h1>
+  <p class="sous">Retire les tuiles par paires. Une tuile se prend si rien
+    ne la couvre et si son côté gauche ou droit est dégagé.</p>
+  <div class="bascule" role="group" aria-label="Choix du plateau">
+    <button class="pos" id="p-court" aria-pressed="true">Plateau court</button>
+    <button class="pos" id="p-complet" aria-pressed="false">Plateau complet</button>
+  </div>
+  <div class="bascule" id="bascule-taille" role="group" aria-label="Taille des tuiles" hidden>
+    <button class="pos" id="t-plancher" aria-pressed="true">Tuiles d'au moins 44 px</button>
+    <button class="pos" id="t-tout" aria-pressed="false">Les 144 tuiles, plus petites</button>
+  </div>
+  <div id="liste"></div>
+  <p class="avis" id="avis-stock" hidden></p>
+  <button class="primaire" id="b-jouer">Commencer</button>
+  <button class="secondaire" id="b-reprendre" hidden>Reprendre la partie en cours</button>
+  <button class="secondaire" id="b-coller">Coller un code de reprise</button>
+</div></div>
+
+<div class="voile" id="panneau" hidden><div class="carte">
+  <h1>Options</h1>
+  <div class="ligne">Surbrillance des tuiles libres<span class="sep"></span>
+    <button class="inter" id="o-surbrillance" aria-pressed="false" aria-label="Surbrillance"></button></div>
+  <div class="ligne">Chrono<span class="sep"></span>
+    <button class="inter" id="o-chrono" aria-pressed="true" aria-label="Chrono"></button></div>
+  <h2>Code de reprise</h2>
+  <p class="sous" style="margin:0">Transporte la partie en cours sur un autre
+    appareil. Rien ne passe par le réseau.</p>
+  <div class="code" id="zone-code" hidden></div>
+  <button class="secondaire" id="b-copier">Afficher et copier le code</button>
+  <h2>Partie</h2>
+  <button class="secondaire" id="b-nouvelle">Nouvelle partie</button>
+  <button class="primaire" id="b-fermer">Fermer</button>
+</div></div>
+
+<svg id="defs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+
+<script>
+/* ==================== NOYAU (testable hors navigateur) ==================== */
+var NOYAU = (function(){
+"use strict";
+
+/* --- les 42 types de tuiles, §2.10.1 --- */
+var TYPES = [];
+for (var v=1; v<=9; v++) TYPES.push({id:'car'+v, f:'car', v:v});
+for (var v=1; v<=9; v++) TYPES.push({id:'bam'+v, f:'bam', v:v});
+for (var v=1; v<=9; v++) TYPES.push({id:'cer'+v, f:'cer', v:v});
+['E','S','O','N'].forEach(function(c){ TYPES.push({id:'vent'+c, f:'vent', v:c}); });
+['R','V','B'].forEach(function(c){ TYPES.push({id:'dragon'+c, f:'dragon', v:c}); });
+for (var v=1; v<=4; v++) TYPES.push({id:'fleur'+v, f:'fleur', v:v});
+for (var v=1; v<=4; v++) TYPES.push({id:'saison'+v, f:'saison', v:v});
+
+var PAR_ID = {}; TYPES.forEach(function(t){ PAR_ID[t.id]=t; });
+var ORDINAIRES = TYPES.filter(function(t){ return t.f!=='fleur' && t.f!=='saison'; });
+
+/* Appariement : identique strict, sauf fleurs entre elles et saisons entre
+   elles – jamais une fleur avec une saison (§2.10.2). */
+function apparie(a,b){
+  if (a===b) return true;
+  var fa=PAR_ID[a].f, fb=PAR_ID[b].f;
+  return (fa==='fleur'&&fb==='fleur') || (fa==='saison'&&fb==='saison');
+}
+
+/* --- dispositions --- */
+function rect(z,x,y,cols,rows){
+  var a=[];
+  for (var r=0;r<rows;r++) for (var c=0;c<cols;c++) a.push({x:x+2*c, y:y+2*r, z:z});
+  return a;
+}
+function moins(liste, exclus){
+  var cle={}; exclus.forEach(function(p){ cle[p.x+':'+p.y+':'+p.z]=1; });
+  return liste.filter(function(p){ return !cle[p.x+':'+p.y+':'+p.z]; });
+}
+
+function posTortue(){
+  var a = [].concat(
+    rect(0,2,0,12,1), rect(0,6,2,8,1), rect(0,4,4,10,1), rect(0,2,6,12,1),
+    rect(0,2,8,12,1), rect(0,4,10,10,1), rect(0,6,12,8,1), rect(0,2,14,12,1),
+    [{x:0,y:7,z:0},{x:26,y:7,z:0},{x:28,y:7,z:0}],
+    rect(1,6,2,6,6), rect(2,8,4,4,4), rect(3,10,6,2,2), [{x:11,y:7,z:4}]);
+  return a;
+}
+function posPlate(){ return rect(0,0,0,12,12); }
+function posPyramide(){
+  return [].concat(rect(0,0,0,8,7), rect(1,1,1,7,6), rect(2,2,2,6,5), rect(3,4,3,4,4));
+}
+function posForteresse(){
+  return [].concat(rect(0,0,0,10,8), rect(1,2,2,8,6),
+    rect(2,2,2,2,2), rect(2,14,2,2,2), rect(2,2,10,2,2), rect(2,14,10,2,2));
+}
+function coins(z,x,y,cols,rows){
+  var x2=x+2*(cols-1), y2=y+2*(rows-1);
+  return [{x:x,y:y,z:z},{x:x2,y:y,z:z},{x:x,y:y2,z:z},{x:x2,y:y2,z:z}];
+}
+function posAraignee(){
+  return [].concat(
+    moins(rect(0,0,0,10,8), coins(0,0,0,10,8)),
+    moins(rect(1,2,2,8,6), coins(1,2,2,8,6)),
+    moins(rect(2,4,4,6,4), coins(2,4,4,6,4)),
+    rect(3,8,6,2,2));
+}
+function posCourte(cols,rows){
+  var a = rect(0,0,0,cols,rows);
+  if (a.length % 2) a.pop();
+  return a;
+}
+
+var DISPOSITIONS = [
+  {cle:'tortue',      nom:'Tortue',      desc:'la classique, cinq étages', pos:posTortue},
+  {cle:'plate',       nom:'Plate',       desc:'un seul étage, la plus lisible', pos:posPlate},
+  {cle:'pyramide',    nom:'Pyramide',    desc:'quatre étages en retrait', pos:posPyramide},
+  {cle:'forteresse',  nom:'Forteresse',  desc:'muraille et quatre tours', pos:posForteresse},
+  {cle:'araignee',    nom:'Araignée',    desc:'toile octogonale, corps central', pos:posAraignee}
+];
+
+/* --- topologie : voisinages précalculés, tests de liberté en O(1) --- */
+function topologie(positions){
+  var n=positions.length, sup=[], inf=[], gch=[], drt=[], i, j, a, b;
+  for (i=0;i<n;i++){ sup.push([]); inf.push([]); gch.push([]); drt.push([]); }
+  for (i=0;i<n;i++){
+    a=positions[i];
+    for (j=0;j<n;j++){
+      if (i===j) continue;
+      b=positions[j];
+      var dx=b.x-a.x, dy=b.y-a.y;
+      if (b.z===a.z+1 && Math.abs(dx)<2 && Math.abs(dy)<2) { sup[i].push(j); inf[j].push(i); }
+      if (b.z===a.z && Math.abs(dy)<2){
+        if (dx<0 && dx>-4) gch[i].push(j);
+        if (dx>0 && dx<4)  drt[i].push(j);
+      }
+    }
+  }
+  var maxX=0, maxY=0, maxZ=0;
+  positions.forEach(function(p){
+    if (p.x>maxX) maxX=p.x; if (p.y>maxY) maxY=p.y; if (p.z>maxZ) maxZ=p.z;
+  });
+  return {pos:positions, n:n, sup:sup, inf:inf, gch:gch, drt:drt,
+          maxX:maxX, maxY:maxY, maxZ:maxZ};
+}
+
+function etatPlein(topo){
+  var e={present:new Uint8Array(topo.n), nSup:new Int16Array(topo.n),
+         nG:new Int16Array(topo.n), nD:new Int16Array(topo.n), reste:topo.n};
+  for (var i=0;i<topo.n;i++){
+    e.present[i]=1; e.nSup[i]=topo.sup[i].length;
+    e.nG[i]=topo.gch[i].length; e.nD[i]=topo.drt[i].length;
+  }
+  return e;
+}
+function estLibre(e,i){ return e.present[i]===1 && e.nSup[i]===0 && (e.nG[i]===0 || e.nD[i]===0); }
+function retirer(topo,e,i){
+  e.present[i]=0; e.reste--;
+  topo.inf[i].forEach(function(j){ e.nSup[j]--; });
+  topo.drt[i].forEach(function(j){ e.nG[j]--; });
+  topo.gch[i].forEach(function(j){ e.nD[j]--; });
+}
+function remettre(topo,e,i){
+  e.present[i]=1; e.reste++;
+  topo.inf[i].forEach(function(j){ e.nSup[j]++; });
+  topo.drt[i].forEach(function(j){ e.nG[j]++; });
+  topo.gch[i].forEach(function(j){ e.nD[j]++; });
+}
+function listeLibres(topo,e){
+  var l=[]; for (var i=0;i<topo.n;i++) if (estLibre(e,i)) l.push(i);
+  return l;
+}
+
+/* --- génération à rebours (§2.10.3) --- */
+function ordreRetrait(topo, presents, rnd){
+  for (var essai=0; essai<80; essai++){
+    var e = etatPlein(topo);
+    if (presents){
+      for (var k=0;k<topo.n;k++) if (!presents[k]) retirer(topo,e,k);
+    }
+    var ordre=[], echec=false;
+    while (e.reste>0){
+      var l=listeLibres(topo,e);
+      if (l.length<2){ echec=true; break; }
+      var i=l[(rnd()*l.length)|0], j=i;
+      while (j===i) j=l[(rnd()*l.length)|0];
+      retirer(topo,e,i); retirer(topo,e,j);
+      ordre.push([i,j]);
+    }
+    if (!echec) return ordre;
+  }
+  return null;
+}
+
+function melangeTableau(a, rnd){
+  for (var i=a.length-1;i>0;i--){ var j=(rnd()*(i+1))|0; var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+
+/* 72 paires du jeu complet : 4 exemplaires par tuile ordinaire, un seul
+   exemplaire par fleur et par saison (§2.10.1). */
+function pairesCompletes(){
+  var p=[];
+  ORDINAIRES.forEach(function(t){ p.push([t.id,t.id]); p.push([t.id,t.id]); });
+  p.push(['fleur1','fleur2']); p.push(['fleur3','fleur4']);
+  p.push(['saison1','saison2']); p.push(['saison3','saison4']);
+  return p;
+}
+
+/* Plateau court : une paire par type au plus, les sept familles présentes,
+   fleurs et saisons toujours par paire (§2.10.4). */
+function pairesCourtes(n, rnd){
+  var parFam={}, p=[], utilises={};
+  ORDINAIRES.forEach(function(t){ (parFam[t.f]=parFam[t.f]||[]).push(t.id); });
+  ['car','bam','cer','vent','dragon'].forEach(function(f){
+    var l=melangeTableau(parFam[f].slice(), rnd), id=l[0];
+    utilises[id]=1; p.push([id,id]);
+  });
+  var fl=melangeTableau(['fleur1','fleur2','fleur3','fleur4'], rnd);
+  var sa=melangeTableau(['saison1','saison2','saison3','saison4'], rnd);
+  if (n>=7){ p.push([fl[0],fl[1]]); p.push([sa[0],sa[1]]); }
+  var reste=[];
+  ORDINAIRES.forEach(function(t){ if (!utilises[t.id]) reste.push(t.id); });
+  melangeTableau(reste, rnd);
+  while (p.length<n && reste.length){ var id=reste.pop(); p.push([id,id]); }
+  melangeTableau(p, rnd);
+  return p.slice(0,n);
+}
+
+/* Réappariement des tuiles encore en jeu, pour le mélange. */
+function apparierRestants(ids, rnd){
+  var parType={}, fl=[], sa=[], p=[];
+  ids.forEach(function(id){ (parType[id]=parType[id]||[]).push(id); });
+  Object.keys(parType).forEach(function(id){
+    var l=parType[id];
+    if (PAR_ID[id].f==='fleur'){ fl=fl.concat(l); return; }
+    if (PAR_ID[id].f==='saison'){ sa=sa.concat(l); return; }
+    while (l.length>=2) p.push([l.pop(), l.pop()]);
+  });
+  melangeTableau(fl, rnd); melangeTableau(sa, rnd);
+  while (fl.length>=2) p.push([fl.pop(), fl.pop()]);
+  while (sa.length>=2) p.push([sa.pop(), sa.pop()]);
+  return p;
+}
+
+/* Distribue les paires sur l'ordre de retrait : la partie est solvable par
+   construction, la solution étant le rejeu de cet ordre. */
+function distribuer(ordre, paires, rnd){
+  var p=melangeTableau(paires.slice(), rnd), tuiles=[];
+  for (var k=0;k<ordre.length;k++){
+    tuiles[ordre[k][0]] = p[k][0];
+    tuiles[ordre[k][1]] = p[k][1];
+  }
+  return tuiles;
+}
+
+/* Contrôle : rejoue l'ordre enregistré et vérifie que le plateau se vide. */
+function verifieSolution(topo, tuiles, ordre, presents){
+  var e=etatPlein(topo), k;
+  if (presents) for (k=0;k<topo.n;k++) if (!presents[k]) retirer(topo,e,k);
+  for (k=0;k<ordre.length;k++){
+    var i=ordre[k][0], j=ordre[k][1];
+    if (!estLibre(e,i) || !estLibre(e,j)) return 'position bloquée au coup '+k;
+    if (!apparie(tuiles[i], tuiles[j])) return 'paire invalide au coup '+k;
+    retirer(topo,e,i); retirer(topo,e,j);
+  }
+  return e.reste===0 ? null : 'reste '+e.reste+' tuiles';
+}
+
+/* Coups jouables : nombre de paires distinctes réalisables tout de suite. */
+function coupsPossibles(topo, e, tuiles){
+  var l=listeLibres(topo,e), n=0, vus=[];
+  for (var a=0;a<l.length;a++) for (var b=a+1;b<l.length;b++)
+    if (apparie(tuiles[l[a]], tuiles[l[b]])) { n++; if (vus.length<2) vus=[l[a],l[b]]; }
+  return {nombre:n, exemple:vus.length===2?vus:null};
+}
+
+/* --- mesures d'écran (§2.10.5) --- */
+var PLANCHER=44, CIBLE=56, PLAFOND=80, JEU=2, DECALAGE=0.17, VOLUME=7/60;
+
+function tailleTuile(topo, dispoW, dispoH){
+  var cols=(topo.maxX+2)/2, rows=(topo.maxY+2)/2, dz=DECALAGE*topo.maxZ;
+  var w=(dispoW-(cols-1)*JEU)/(cols+dz+VOLUME);
+  var h=(dispoH-(rows-1)*JEU)*3/(4*(rows+dz+VOLUME));
+  return Math.min(w,h);
+}
+function disponible(topo, dispoW, dispoH){
+  var t=tailleTuile(topo, dispoW, dispoH);
+  return {taille:Math.min(t,PLAFOND), ok:t>=PLANCHER, brut:t};
+}
+/* Grille de la courte : sept colonnes au plus, rangées tirées de la hauteur. */
+function grilleCourte(dispoW, dispoH){
+  var cols=0, c, r;
+  for (c=7;c>=3;c--){ if ((dispoW-(c-1)*JEU)/c >= PLANCHER){ cols=c; break; } }
+  if (!cols) return null;
+  var wLim=(dispoW-(cols-1)*JEU)/cols, cible=Math.min(wLim, CIBLE), rows=0;
+  for (r=10;r>=3;r--){ if ((dispoH-(r-1)*JEU)*3/(4*r) >= cible){ rows=r; break; } }
+  if (!rows) for (r=10;r>=2;r--){ if ((dispoH-(r-1)*JEU)*3/(4*r) >= PLANCHER){ rows=r; break; } }
+  if (!rows) return null;
+  return {cols:cols, rows:rows};
+}
+
+return {TYPES:TYPES, PAR_ID:PAR_ID, DISPOSITIONS:DISPOSITIONS, apparie:apparie,
+  posCourte:posCourte, topologie:topologie, etatPlein:etatPlein, estLibre:estLibre,
+  retirer:retirer, remettre:remettre, listeLibres:listeLibres, ordreRetrait:ordreRetrait,
+  pairesCompletes:pairesCompletes, pairesCourtes:pairesCourtes,
+  apparierRestants:apparierRestants, distribuer:distribuer, verifieSolution:verifieSolution,
+  coupsPossibles:coupsPossibles, melangeTableau:melangeTableau,
+  tailleTuile:tailleTuile, disponible:disponible, grilleCourte:grilleCourte,
+  PLANCHER:PLANCHER, CIBLE:CIBLE, PLAFOND:PLAFOND, JEU:JEU,
+  DECALAGE:DECALAGE, VOLUME:VOLUME};
+})();
+/* ==================== FIN NOYAU ==================== */
+
+/* ==================== LES 42 MOTIFS ====================
+   Tracé intégral en SVG (§2.10.7). Cadre commun, viewBox 60 × 80.
+   Les six motifs témoins de la planche du 2026-08-29 – 1 bambou, 5 cercles,
+   9 caractères, vent est, dragon rouge, fleur 1 – sont repris tels quels et
+   servent de gabarit aux 36 autres. */
+var MOTIFS = (function(){
+var BLEU='#23528F', ROUGE='#C0392B', VERT='#2E7D4F', NOIR='#1F2A37', OR='#8A6A2F',
+    ROSE='#D9748C', JAUNE='#E8B84B', BRUN='#B98B1E', VIOLET='#7B5EA7',
+    ORANGE='#D2762B', FOND='#FBF8F0';
+
+/* Corps de la tuile, viewBox 70 × 91 : la face occupe 60 × 80 au coin haut
+   gauche, le volume déborde de 7 unités vers le bas et la droite, l'ombre
+   portée de 3 de plus. Le motif reste dessiné dans les 60 × 80 de la face. */
+var CADRE = '<rect x="3" y="4" width="67" height="87" rx="9" fill="#0C1F19" opacity=".34"/>'
+  + '<rect x="0.8" y="0.8" width="66.4" height="86.4" rx="8" fill="url(#o1cote)"/>'
+  + '<path d="M67.2 12 V79.2 Q67.2 87.2 59.2 87.2 H12" fill="none" stroke="#8E866B"'
+  + ' stroke-width="1.1" opacity=".55"/>'
+  + '<rect x="0.8" y="0.8" width="58.4" height="78.4" rx="7" fill="'+FOND+'"'
+  + ' stroke="#B4A98D" stroke-width="1.5"/>'
+  + '<path d="M2 12 V8 Q2 2 8 2 H30" fill="none" stroke="#FFFFFF" stroke-width="1.6"'
+  + ' opacity=".85"/>'
+  + '<rect class="lisere" x="4.5" y="4.5" width="51" height="71" rx="5" fill="none"'
+  + ' stroke="#E5DDC8" stroke-width="1"/>';
+
+/* --- chiffres chinois tracés, boîte locale 22 × 22 --- */
+var NUM = {
+ 1:'<path d="M1 11 H21"/>',
+ 2:'<path d="M4 6 H18"/><path d="M1 17 H21"/>',
+ 3:'<path d="M4 3 H18"/><path d="M6 11 H16"/><path d="M1 19 H21"/>',
+ 4:'<path d="M2 4 H20 V19 H2 Z"/><path d="M8 8 V15"/><path d="M14 8 V14 C14 17 16 18 18 17"/>',
+ 5:'<path d="M2 2 H20"/><path d="M8 2 V11"/><path d="M8 11 H17"/><path d="M17 11 V20"/><path d="M1 20 H21"/>',
+ 6:'<path d="M11 1 V4"/><path d="M2 8 H20"/><path d="M8 12 L3 20"/><path d="M14 12 L19 20"/>',
+ 7:'<path d="M1 8 H19"/><path d="M12 1 V16 C12 19 14 20 20 19"/>',
+ 8:'<path d="M9 4 L2 20"/><path d="M13 4 L20 20"/>',
+ 9:'<path d="M1 6 H13"/><path d="M10 6 C9 12 7 16 2 21"/><path d="M13 1 V12 C13 18 15 20 20 20 L21 16"/>'
+};
+var TRAIT = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+function num(v,c,ep){ return '<g stroke="'+c+'" stroke-width="'+ep+'" '+TRAIT+'>'+NUM[v]+'</g>'; }
+function petitNum(v,c,x,y){
+  return '<g transform="translate('+x+','+y+') scale(0.5)" stroke="'+c+'" stroke-width="5" '
+    + TRAIT+'>'+NUM[v]+'</g>';
+}
+
+/* --- caractères : chiffre au-dessus, 萬 au-dessous (gabarit : 9 caractères) --- */
+var WAN = '<g transform="translate(15,33)" stroke="'+ROUGE+'" stroke-width="2.5" '+TRAIT+'>'
+  + '<path d="M2 6 H28"/><path d="M9 1 V11"/><path d="M21 1 V11"/>'
+  + '<rect x="6" y="13" width="18" height="12"/><path d="M15 13 V25"/><path d="M6 19 H24"/>'
+  + '<path d="M2 29 H28"/><path d="M15 25 V34"/>'
+  + '<path d="M9 29 L5 35"/><path d="M21 29 L25 35"/></g>';
+function caractere(v){
+  return '<g transform="translate(16.4,6.4) scale(1.15)" stroke="'+BLEU+'"'
+    + ' stroke-width="2.6" '+TRAIT+'>' + NUM[v] + '</g>' + WAN;
+}
+
+/* --- bambous : bâton segmenté, gabarit du 1 bambou (l'oiseau) --- */
+function oiseau(){ return '<g>'
+ + '<path d="M30 31 C22 33 18 43 22 51 C25 57 35 57 38 51 C42 43 38 33 30 31Z" fill="'+VERT+'"/>'
+ + '<circle cx="30" cy="28" r="7.2" fill="'+VERT+'"/>'
+ + '<path d="M36.5 26.5 L46 30 L36.5 32.5Z" fill="'+ROUGE+'"/>'
+ + '<circle cx="32.2" cy="26" r="1.7" fill="'+FOND+'"/>'
+ + '<path d="M26 37 C32 35 36 41 33 47 C30 51 25 47 26 37Z" fill="#1B5C3C"/>'
+ + '<path d="M24 52 L14 63 L21 61 L19 68 L29 55Z" fill="'+ROUGE+'"/>'
+ + '<path d="M27.5 56 L26.5 62 M32.5 56 L33.5 62" stroke="'+OR+'" stroke-width="1.7"'
+ + ' stroke-linecap="round" fill="none"/></g>'; }
+function bat(x,y,s,c){
+  return '<g transform="translate('+x+','+y+') scale('+s+')">'
+   + '<rect x="-3.9" y="-10" width="7.8" height="20" rx="2.7" fill="'+c+'"/>'
+   + '<rect x="-3.9" y="-3.9" width="7.8" height="2" fill="'+FOND+'"/>'
+   + '<rect x="-3.9" y="2.1" width="7.8" height="2" fill="'+FOND+'"/>'
+   + '<path d="M0 -10 L-4.6 -13.6 M0 -10 L4.6 -13.6" stroke="'+c+'" stroke-width="2.2"'
+   + ' stroke-linecap="round" fill="none"/></g>';
+}
+function bambou(v){
+  var b=[];
+  function p(x,y,s,c){ b.push(bat(x,y,s,c||VERT)); }
+  if (v===1) return oiseau();
+  if (v===2){ p(30,26,1.05); p(30,58,1.05); }
+  if (v===3){ p(30,24,.92); p(19,57,.92); p(41,57,.92); }
+  if (v===4){ p(19,26,.9); p(41,26,.9); p(19,58,.9); p(41,58,.9); }
+  if (v===5){ p(17,24,.8); p(43,24,.8); p(30,42,.8,ROUGE); p(17,60,.8); p(43,60,.8); }
+  if (v===6){ p(15,27,.82); p(30,27,.82); p(45,27,.82); p(15,59,.82); p(30,59,.82); p(45,59,.82); }
+  if (v===7){ p(30,20,.66,ROUGE); p(15,43,.66); p(30,43,.66); p(45,43,.66);
+              p(15,65,.66); p(30,65,.66); p(45,65,.66); }
+  if (v===8){ [13.5,24.5,35.5,46.5].forEach(function(x){ p(x,29,.66); p(x,60,.66); }); }
+  if (v===9){ [23,44,65].forEach(function(y){ p(15,y,.64); p(30,y,.64,ROUGE); p(45,y,.64); }); }
+  return b.join('');
+}
+
+/* --- cercles : gabarit du 5 cercles --- */
+function ce(x,y,r,c){
+  return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+c+'"/>'
+   + '<circle cx="'+x+'" cy="'+y+'" r="'+(r*0.535).toFixed(2)+'" fill="'+FOND+'"/>'
+   + '<circle cx="'+x+'" cy="'+y+'" r="'+(r*0.25).toFixed(2)+'" fill="'+c+'"/>';
+}
+function cercle(v){
+  var o=[];
+  if (v===1) return '<circle cx="30" cy="41" r="18" fill="'+BLEU+'"/>'
+    + '<circle cx="30" cy="41" r="13.6" fill="'+FOND+'"/>'
+    + '<circle cx="30" cy="41" r="10" fill="'+ROUGE+'"/>'
+    + '<circle cx="30" cy="41" r="5.6" fill="'+FOND+'"/>'
+    + '<circle cx="30" cy="41" r="2.6" fill="'+BLEU+'"/>';
+  if (v===2){ o.push(ce(30,26,11,VERT), ce(30,56,11,BLEU)); }
+  if (v===3){ o.push(ce(17,22,9.5,BLEU), ce(30,41,9.5,ROUGE), ce(43,60,9.5,VERT)); }
+  if (v===4){ o.push(ce(19,27,10,BLEU), ce(41,27,10,VERT), ce(19,57,10,VERT), ce(41,57,10,BLEU)); }
+  if (v===5){ o.push(ce(19,28,8.4,BLEU), ce(41,28,8.4,BLEU), ce(30,42,8.4,ROUGE),
+                     ce(19,56,8.4,BLEU), ce(41,56,8.4,BLEU)); }
+  if (v===6){ [22,41,60].forEach(function(y,i){
+                var c=(i===1)?ROUGE:BLEU; o.push(ce(19,y,9,c), ce(41,y,9,c)); }); }
+  if (v===7){ o.push(ce(16,19,7,VERT), ce(29,25,7,VERT), ce(42,31,7,VERT),
+                     ce(20,51,7.4,BLEU), ce(40,51,7.4,BLEU), ce(20,66,7.4,BLEU), ce(40,66,7.4,BLEU)); }
+  if (v===8){ [20,35,50,65].forEach(function(y){ o.push(ce(21,y,7,BLEU), ce(39,y,7,BLEU)); }); }
+  if (v===9){ [22,41,60].forEach(function(y,i){ [16,30,44].forEach(function(x,j){
+                o.push(ce(x,y,7.6,(i===1&&j===1)?ROUGE:BLEU)); }); }); }
+  return o.join('');
+}
+
+/* --- vents : idéogramme seul, plein cadre (gabarit : vent est) --- */
+var VENTS = {
+ E:'<path d="M2 7 H26"/><path d="M14 1 V30"/><rect x="6" y="11" width="16" height="12"/>'
+   +'<path d="M6 17 H22"/><path d="M14 23 L5 31"/><path d="M14 23 L23 31"/>',
+ S:'<path d="M14 0 V5"/><path d="M2 5 H26"/><path d="M5 9 H23"/>'
+   +'<path d="M5 9 V31"/><path d="M23 9 V31"/><path d="M9 14 H19"/>'
+   +'<path d="M14 12 V26"/><path d="M9 21 H19"/><path d="M9 26 H19"/>',
+ O:'<path d="M2 3 H26"/><rect x="4" y="8" width="20" height="20"/>'
+   +'<path d="M10 8 V16"/><path d="M18 8 V16"/><path d="M4 20 H24"/>',
+ N:'<path d="M8 2 V31"/><path d="M2 11 H8"/><path d="M8 21 L2 30"/>'
+   +'<path d="M15 10 L23 5"/><path d="M23 3 V24 C23 29 25 30 27 29"/>'
+};
+function vent(c){
+  return '<g transform="translate(16,24)" stroke="'+NOIR+'" stroke-width="3" '+TRAIT+'>'
+    + VENTS[c] + '</g>';
+}
+
+/* --- dragons : rouge 中 (gabarit), vert 發 approché, blanc au cadre --- */
+function dragon(c){
+  if (c==='R') return '<g transform="translate(17,23)" stroke="'+ROUGE+'" stroke-width="3.4" '
+    + TRAIT + '><rect x="5" y="7" width="16" height="17"/><path d="M13 1 V31"/></g>';
+  if (c==='V') return '<g transform="translate(15,21)" stroke="'+VERT+'" stroke-width="2.7" '
+    + TRAIT + '><path d="M4 2 L1 9"/><path d="M9 1 L6 8"/><path d="M13 5 H27"/>'
+    + '<path d="M20 1 V9"/><path d="M2 13 H13"/><path d="M2 13 V20"/><path d="M2 20 H12"/>'
+    + '<path d="M12 20 V27"/><path d="M2 27 H11"/><path d="M17 13 L27 27"/>'
+    + '<path d="M27 13 L17 27"/><path d="M8 31 H22"/><path d="M15 27 V35"/></g>';
+  return '<g stroke="'+BLEU+'" fill="none"><rect x="13" y="15" width="34" height="50" rx="3"'
+    + ' stroke-width="3.2"/><rect x="18.5" y="20.5" width="23" height="39" rx="2"'
+    + ' stroke-width="1.5"/></g>';
+}
+
+/* --- fleurs : quatre dessins différents, chiffre vert en haut à gauche --- */
+function fleur(v){
+  var n = petitNum(v, VERT, 9, 12);
+  if (v===1){
+    var p='';
+    for (var i=0;i<5;i++) p += '<ellipse cx="30" cy="32.5" rx="6.4" ry="9.6" fill="'+ROSE+'"'
+      + ' transform="rotate('+(i*72)+' 30 45)"/>';
+    return '<path d="M30 62 C26 56 22 54 17 53" stroke="'+OR+'" stroke-width="2.2" fill="none"'
+      + ' stroke-linecap="round"/><path d="M30 68 V50" stroke="'+OR+'" stroke-width="2.2"'
+      + ' stroke-linecap="round"/>' + p
+      + '<circle cx="30" cy="45" r="5" fill="'+JAUNE+'"/><circle cx="30" cy="45" r="1.8"'
+      + ' fill="'+BRUN+'"/>' + n;
+  }
+  if (v===2){
+    var q='';
+    for (var j=0;j<5;j++){
+      var a=j*72*Math.PI/180;
+      q += '<circle cx="'+(30+12*Math.sin(a)).toFixed(2)+'" cy="'+(44-12*Math.cos(a)).toFixed(2)
+        + '" r="7.6" fill="'+ROUGE+'"/>';
+    }
+    return '<path d="M12 68 C20 60 24 52 26 44" stroke="#6B4A2A" stroke-width="2.6" fill="none"'
+      + ' stroke-linecap="round"/>' + q
+      + '<circle cx="30" cy="44" r="5.4" fill="'+FOND+'"/><circle cx="30" cy="44" r="2.4"'
+      + ' fill="'+JAUNE+'"/>' + n;
+  }
+  if (v===3){
+    var r='';
+    for (var k=0;k<12;k++) r += '<ellipse cx="30" cy="31" rx="3.1" ry="11" fill="'+ORANGE+'"'
+      + ' transform="rotate('+(k*30)+' 30 44)"/>';
+    return '<path d="M30 70 V56" stroke="'+VERT+'" stroke-width="2.4" stroke-linecap="round"/>'
+      + r + '<circle cx="30" cy="44" r="5.6" fill="'+JAUNE+'"/>' + n;
+  }
+  return '<path d="M10 66 C14 46 24 34 34 26" stroke="'+VERT+'" stroke-width="2.6" fill="none"'
+    + ' stroke-linecap="round"/>'
+    + '<path d="M50 64 C44 48 38 38 30 30" stroke="'+VERT+'" stroke-width="2.6" fill="none"'
+    + ' stroke-linecap="round"/>'
+    + '<path d="M22 70 C26 56 30 48 38 42" stroke="#4C8A63" stroke-width="2.2" fill="none"'
+    + ' stroke-linecap="round"/>'
+    + '<ellipse cx="30" cy="52" rx="6" ry="9" fill="'+VIOLET+'" transform="rotate(-28 30 52)"/>'
+    + '<ellipse cx="38" cy="52" rx="6" ry="9" fill="'+VIOLET+'" transform="rotate(28 38 52)"/>'
+    + '<ellipse cx="34" cy="45" rx="5" ry="7.5" fill="#9A7EC4"/>'
+    + '<circle cx="34" cy="52" r="3" fill="'+JAUNE+'"/>' + n;
+}
+
+/* --- saisons : quatre dessins différents, chiffre or en haut à droite --- */
+function saison(v){
+  var n = petitNum(v, OR, 38, 12);
+  if (v===1) return '<path d="M30 70 V40" stroke="'+VERT+'" stroke-width="3" fill="none"'
+    + ' stroke-linecap="round"/>'
+    + '<path d="M30 46 C20 46 14 40 14 31 C25 31 30 37 30 46Z" fill="'+VERT+'"/>'
+    + '<path d="M30 54 C40 54 46 48 46 39 C35 39 30 45 30 54Z" fill="#4C8A63"/>'
+    + '<path d="M22 70 H38" stroke="#6B4A2A" stroke-width="3" stroke-linecap="round"/>' + n;
+  if (v===2){
+    var s='';
+    for (var i=0;i<8;i++){
+      var a=i*45*Math.PI/180;
+      s += '<path d="M'+(30+15*Math.sin(a)).toFixed(1)+' '+(44-15*Math.cos(a)).toFixed(1)
+        + ' L'+(30+22*Math.sin(a)).toFixed(1)+' '+(44-22*Math.cos(a)).toFixed(1)+'"/>';
+    }
+    return '<g stroke="'+ORANGE+'" stroke-width="3" stroke-linecap="round">'+s+'</g>'
+      + '<circle cx="30" cy="44" r="12" fill="'+ROUGE+'"/>'
+      + '<circle cx="30" cy="44" r="6" fill="'+JAUNE+'"/>' + n;
+  }
+  if (v===3) return '<path d="M30 72 V52" stroke="#6B4A2A" stroke-width="2.6"'
+    + ' stroke-linecap="round"/>'
+    + '<path d="M30 24 L36 36 L45 32 L41 43 L50 46 L38 51 L42 60 L31 55 L30 62 L29 55'
+    + ' L18 60 L22 51 L10 46 L19 43 L15 32 L24 36 Z" fill="'+ROUGE+'"/>'
+    + '<path d="M30 30 V54 M30 42 L20 45 M30 42 L40 45" stroke="#8E2B21" stroke-width="1.4"'
+    + ' fill="none"/>' + n;
+  var f='';
+  for (var k=0;k<6;k++){
+    var b=k*60;
+    f += '<g transform="rotate('+b+' 30 44)"><path d="M30 44 V22"/>'
+      + '<path d="M30 28 L25 33"/><path d="M30 28 L35 33"/>'
+      + '<path d="M30 36 L26 40"/><path d="M30 36 L34 40"/></g>';
+  }
+  return '<g stroke="'+BLEU+'" stroke-width="2.4" fill="none" stroke-linecap="round">'+f+'</g>'
+    + '<circle cx="30" cy="44" r="3.4" fill="'+BLEU+'"/>' + n;
+}
+
+/* --- assemblage des 42 --- */
+var M = {};
+for (var v=1; v<=9; v++){ M['car'+v]=caractere(v); M['bam'+v]=bambou(v); M['cer'+v]=cercle(v); }
+['E','S','O','N'].forEach(function(c){ M['vent'+c]=vent(c); });
+['R','V','B'].forEach(function(c){ M['dragon'+c]=dragon(c); });
+for (var v=1; v<=4; v++){ M['fleur'+v]=fleur(v); M['saison'+v]=saison(v); }
+M.CADRE = CADRE;
+return M;
+})();
+
+/* ==================== MOTEUR ET INTERFACE ==================== */
+(function(){
+"use strict";
+var N = NOYAU;
+var $ = function(id){ return document.getElementById(id); };
+var MARGE = 8;
+
+/* --- symboles SVG : le cadre une fois, chaque motif une fois --- */
+(function(){
+  var d='<defs>'
+    + '<linearGradient id="o1cote" x1="0" y1="0" x2="0.75" y2="1">'
+    + '<stop offset="0" stop-color="#E4DFC7"/><stop offset="0.45" stop-color="#CFC8AB"/>'
+    + '<stop offset="1" stop-color="#A79E80"/></linearGradient>'
+    + '<symbol id="cadre" viewBox="0 0 70 91">'+MOTIFS.CADRE+'</symbol>';
+  N.TYPES.forEach(function(t){
+    d += '<symbol id="m-'+t.id+'" viewBox="0 0 60 80">'+MOTIFS[t.id]+'</symbol>';
+  });
+  $('defs').innerHTML = d+'</defs>';
+})();
+function svgTuile(id){
+  return '<svg viewBox="0 0 70 91"><use href="#cadre" width="70" height="91"/>'
+    + '<g class="motif"><use href="#m-'+id+'" width="60" height="80"/></g></svg>';
+}
+
+/* --- stockage : détection au démarrage, bascule en mémoire (§3) --- */
+var memoire = {}, STOCK = (function(){
+  try {
+    var c='__mj_test'; window.localStorage.setItem(c,'1'); window.localStorage.removeItem(c);
+    return {lire:function(k){ return localStorage.getItem(k); },
+            ecrire:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+            effacer:function(k){ try{ localStorage.removeItem(k); }catch(e){} }, reel:true};
+  } catch(e){
+    return {lire:function(k){ return memoire[k]||null; },
+            ecrire:function(k,v){ memoire[k]=v; },
+            effacer:function(k){ delete memoire[k]; }, reel:false};
+  }
+})();
+var CLE_PARTIE='mahjong-solo-partie', CLE_OPT='mahjong-solo-options';
+
+/* --- code de reprise : chaîne compacte, rien ne passe par le réseau --- */
+var ALPH='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function n2c(n,l){ var s=''; for (var k=0;k<l;k++){ s=ALPH[n%64]+s; n=Math.floor(n/64); } return s; }
+function c2n(s){ var n=0; for (var k=0;k<s.length;k++) n=n*64+ALPH.indexOf(s[k]); return n; }
+var IDX={}; N.TYPES.forEach(function(t,i){ IDX[t.id]=i; });
+
+function encoderPartie(p){
+  var s='MJ1'+n2c(p.d,1)+n2c(p.c,1)+n2c(p.r,1)+n2c(Math.min(p.s,262143),3);
+  s += n2c(p.t.length,2);
+  p.t.forEach(function(id){ s+=n2c(IDX[id],1); });
+  p.h.forEach(function(c){ s+=n2c(c[0],2)+n2c(c[1],2); });
+  return s;
+}
+function decoderPartie(s){
+  try {
+    s=(s||'').replace(/\s+/g,'');
+    if (s.slice(0,3)!=='MJ1') return null;
+    var d=c2n(s[3]), c=c2n(s[4]), r=c2n(s[5]), sec=c2n(s.slice(6,9)), n=c2n(s.slice(9,11));
+    var t=[], k, base=11;
+    for (k=0;k<n;k++){ var i=c2n(s[base+k]); if (i<0||i>=N.TYPES.length) return null; t.push(N.TYPES[i].id); }
+    var h=[], rest=s.slice(base+n);
+    if (rest.length%4) return null;
+    for (k=0;k<rest.length;k+=4) h.push([c2n(rest.slice(k,k+2)), c2n(rest.slice(k+2,k+4))]);
+    return {d:d, c:c, r:r, s:sec, t:t, h:h};
+  } catch(e){ return null; }
+}
+
+/* --- état courant --- */
+var J = null, opt = {surbrillance:false, chrono:true}, choixCourt=true, choixDispo=0,
+    forcerTout = false;
+(function(){
+  var o=STOCK.lire(CLE_OPT);
+  if (o){ try{ var p=JSON.parse(o); opt.surbrillance=!!p.s; opt.chrono=p.c!==false; }catch(e){} }
+})();
+function sauverOptions(){ STOCK.ecrire(CLE_OPT, JSON.stringify({s:opt.surbrillance, c:opt.chrono})); }
+
+/* --- mesure de l'espace de jeu --- */
+function dispoW(){ return $('zone').clientWidth - 2*MARGE; }
+function dispoH(){ return $('zone').clientHeight - 2*MARGE; }
+function espacePivote(){
+  var w=window.innerWidth, h=window.innerHeight, chrome=$('barre').offsetHeight+$('pied').offsetHeight;
+  return {w:h-2*MARGE, h:w-chrome-2*MARGE};
+}
+
+function positionsDe(cle, c, r){
+  if (cle==='courte') return N.posCourte(c,r);
+  var d=N.DISPOSITIONS.filter(function(x){ return x.cle===cle; })[0];
+  return d.pos();
+}
+
+/* --- aperçu du plateau, affiché même quand la position est indisponible --- */
+function apercu(positions){
+  var maxX=0, maxY=0, maxZ=0;
+  positions.forEach(function(p){
+    if (p.x>maxX) maxX=p.x; if (p.y>maxY) maxY=p.y; if (p.z>maxZ) maxZ=p.z; });
+  var W=(maxX+2)/2, H=(maxY+2)/2, dz=N.DECALAGE;
+  var u=Math.min(52/(W+maxZ*dz), 40/((H+maxZ*dz)*1.15));
+  var lw=(W+maxZ*dz)*u, lh=(H+maxZ*dz)*u*1.15;
+  var ox=(56-lw)/2, oy=(44-lh)/2, s='<svg viewBox="0 0 56 44" width="56" height="44">';
+  positions.slice().sort(function(a,b){ return a.z-b.z || a.y-b.y || a.x-b.x; })
+   .forEach(function(p){
+    var x=ox+(p.x/2)*u+(maxZ-p.z)*u*dz, y=oy+(p.y/2)*u*1.15+(maxZ-p.z)*u*dz;
+    s += '<rect x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" width="'+(u*0.96).toFixed(2)
+      + '" height="'+(u*1.1).toFixed(2)+'" rx="'+(u*0.14).toFixed(2)
+      + '" fill="#F0EAD8" stroke="#7E9C90" stroke-width="0.35"/>';
+  });
+  return s+'</svg>';
+}
+
+/* --- écran d'accueil --- */
+function texteTaille(d){ return 'tuiles de '+Math.round(d.taille)+' px'; }
+function construireAccueil(){
+  var W=dispoW(), H=dispoH(), piv=espacePivote(), liste=$('liste'), h='';
+  var g=N.grilleCourte(W,H);
+  var courteOK = !!g, posCourte = g ? N.posCourte(g.cols,g.rows) : null;
+  var dCourte = g ? N.disponible(N.topologie(posCourte), W, H) : null;
+
+  var completDispo = N.DISPOSITIONS.map(function(d){
+    var topo=N.topologie(d.pos()), dd=N.disponible(topo,W,H);
+    var pv=N.disponible(topo, piv.w, piv.h);
+    return {d:d, ok:dd.ok, taille:dd.taille, brut:dd.brut, pivote:!dd.ok && pv.ok,
+            positions:topo.pos};
+  });
+  var unCompletOK = completDispo.some(function(x){ return x.ok; });
+  var sousPlancher = completDispo.some(function(x){ return !x.ok; });
+  var completPossible = unCompletOK || forcerTout;
+
+  $('bascule-taille').hidden = !sousPlancher;
+  $('t-plancher').setAttribute('aria-pressed', String(!forcerTout));
+  $('t-tout').setAttribute('aria-pressed', String(forcerTout));
+  $('p-complet').disabled = !completPossible;
+  $('p-court').disabled = !courteOK;
+  if (!completPossible && choixCourt===false) choixCourt=true;
+  if (!courteOK && completPossible) choixCourt=false;
+  $('p-court').setAttribute('aria-pressed', String(choixCourt));
+  $('p-complet').setAttribute('aria-pressed', String(!choixCourt));
+  $('p-complet').textContent = completPossible ? 'Plateau complet'
+    : 'Plateau complet – demande un écran plus large';
+
+  if (choixCourt){
+    if (courteOK){
+      h += '<button class="item" aria-pressed="true"><span class="apercu">'+apercu(posCourte)
+        + '</span><span><span class="nom">Plateau court</span><span class="det">'
+        + posCourte.length+' tuiles, grille '+g.cols+' × '+g.rows+', '+texteTaille(dCourte)
+        + '</span></span></button>';
+    } else {
+      h += '<p class="avis">Même le plateau court ne tient pas sur cet écran. '
+        + 'Agrandis la fenêtre ou tourne l\'appareil.</p>';
+    }
+  } else {
+    var jouable = function(x){ return x.ok || forcerTout; };
+    if (!completDispo[choixDispo] || !jouable(completDispo[choixDispo])){
+      for (var k=0;k<completDispo.length;k++) if (jouable(completDispo[k])){ choixDispo=k; break; }
+    }
+    completDispo.forEach(function(x,i){
+      var det;
+      if (x.ok) det = texteTaille(x)+', 144 tuiles';
+      else if (forcerTout) det = 'tuiles de '+Math.round(x.brut)
+        + ' px – sous le plancher, moins sûres au doigt';
+      else det = 'demande un écran plus large'+(x.pivote?' – ou tourne l\'appareil':'');
+      h += '<button class="item" data-i="'+i+'"'+(jouable(x)?'':' disabled')
+        + ' aria-pressed="'+(jouable(x) && i===choixDispo)+'"><span class="apercu">'
+        + apercu(x.positions)+'</span><span><span class="nom">'+x.d.nom+'</span>'
+        + '<span class="det">'+x.d.desc+' – '+det+'</span></span></button>';
+    });
+  }
+  liste.innerHTML = h;
+  $('b-jouer').disabled = choixCourt ? !courteOK : !completPossible;
+  $('b-reprendre').hidden = !STOCK.lire(CLE_PARTIE);
+  if (!STOCK.reel){
+    $('avis-stock').hidden = false;
+    $('avis-stock').textContent = 'Le stockage du navigateur est indisponible ici : '
+      + 'la partie tient en mémoire et sera perdue si la page se recharge. '
+      + 'Le code de reprise reste disponible dans les options.';
+  }
+}
+
+/* --- démarrage d'une partie --- */
+function nouvellePartie(cle, c, r){
+  var positions = positionsDe(cle,c,r), topo = N.topologie(positions);
+  var paires = (cle==='courte') ? N.pairesCourtes(positions.length/2, Math.random)
+                                : N.pairesCompletes();
+  var ordre = N.ordreRetrait(topo, null, Math.random);
+  if (!ordre){ bandeau('Génération impossible sur ce plateau, réessaie.'); return false; }
+  J = {cle:cle, c:c||0, r:r||0, topo:topo, tuiles:N.distribuer(ordre,paires,Math.random),
+       etat:N.etatPlein(topo), histoire:[], choisie:null, secondes:0, t0:Date.now(),
+       forcer:(cle!=='courte' && forcerTout)};
+  dessiner(); majCompteurs(); sauver(); relancerAuto(); return true;
+}
+function reprendre(p){
+  var positions = positionsDe(N.DISPOSITIONS[p.d] ? N.DISPOSITIONS[p.d].cle : 'courte', p.c, p.r);
+  if (p.d>=N.DISPOSITIONS.length) positions = N.posCourte(p.c,p.r);
+  if (positions.length !== p.t.length) return false;
+  var topo=N.topologie(positions), e=N.etatPlein(topo), ok=true;
+  p.h.forEach(function(c){
+    if (!e.present[c[0]] || !e.present[c[1]]) { ok=false; return; }
+    N.retirer(topo,e,c[0]); N.retirer(topo,e,c[1]);
+  });
+  if (!ok) return false;
+  J = {cle:(p.d>=N.DISPOSITIONS.length?'courte':N.DISPOSITIONS[p.d].cle), c:p.c, r:p.r,
+       topo:topo, tuiles:p.t, etat:e, histoire:p.h.slice(), choisie:null,
+       secondes:p.s, t0:Date.now(), forcer:false};
+  dessiner(); majCompteurs(); relancerAuto(); return true;
+}
+function sauver(){
+  if (!J) return;
+  var d = (J.cle==='courte') ? N.DISPOSITIONS.length
+    : N.DISPOSITIONS.map(function(x){ return x.cle; }).indexOf(J.cle);
+  STOCK.ecrire(CLE_PARTIE, encoderPartie({d:d, c:J.c, r:J.r, s:secondes(), t:J.tuiles, h:J.histoire}));
+}
+function secondes(){ return J ? J.secondes + Math.floor((Date.now()-J.t0)/1000) : 0; }
+
+/* --- dessin du plateau --- */
+var elements = [];
+function dessiner(){
+  var pl=$('plateau'); pl.innerHTML=''; elements=[];
+  var ordre = J.topo.pos.map(function(p,i){ return i; }).sort(function(a,b){
+    var A=J.topo.pos[a], B=J.topo.pos[b];
+    return A.z-B.z || A.y-B.y || A.x-B.x; });
+  var frag=document.createDocumentFragment();
+  ordre.forEach(function(i){
+    var el=document.createElement('div');
+    el.className='tuile'; el.dataset.i=i;
+    el.innerHTML=svgTuile(J.tuiles[i]);
+    el.style.zIndex = (J.topo.pos[i].z+1)*10000 + J.topo.pos[i].y*100 + J.topo.pos[i].x;
+    elements[i]=el; frag.appendChild(el);
+  });
+  pl.appendChild(frag);
+  placer();
+}
+function placer(){
+  if (!J) return true;
+  var W=dispoW(), H=dispoH(), d=N.disponible(J.topo, W, H);
+  var t=d.taille, th=t*4/3, ux=(t+N.JEU)/2, uy=(th+N.JEU)/2;
+  var dx=N.DECALAGE*t, dy=N.DECALAGE*th, mz=J.topo.maxZ, u=t/60;
+  var lw=J.topo.maxX*ux+t*70/60+mz*dx, lh=J.topo.maxY*uy+th+11*u+mz*dy;
+  var pl=$('plateau');
+  pl.style.left=Math.max(0,($('zone').clientWidth-lw)/2)+'px';
+  pl.style.top=Math.max(0,($('zone').clientHeight-lh)/2)+'px';
+  pl.style.width=lw+'px'; pl.style.height=lh+'px';
+  J.topo.pos.forEach(function(p,i){
+    var el=elements[i]; if (!el) return;
+    el.style.left=(p.x*ux+(mz-p.z)*dx)+'px';
+    el.style.top=(p.y*uy+(mz-p.z)*dy)+'px';
+    el.style.width=t+'px'; el.style.height=th+'px';
+    var g=el.firstChild;
+    if (g){ g.style.width=(70*u)+'px'; g.style.height=(91*u)+'px'; }
+  });
+  return d.ok;
+}
+function majEtats(){
+  J.topo.pos.forEach(function(p,i){
+    var el=elements[i]; if (!el) return;
+    var present=J.etat.present[i]===1;
+    el.hidden = !present;
+    el.classList.toggle('choisie', J.choisie===i);
+    el.classList.toggle('bloquee', opt.surbrillance && present && !N.estLibre(J.etat,i));
+  });
+}
+function majCompteurs(){
+  var c=N.coupsPossibles(J.topo, J.etat, J.tuiles);
+  $('i-paires').textContent=(J.etat.reste/2);
+  $('i-coups').textContent=c.nombre;
+  $('i-chrono').hidden=!opt.chrono;
+  majEtats();
+  $('b-annuler').disabled = J.histoire.length===0;
+  if (J.etat.reste===0) fin('Plateau vide', 'Tout est retiré en '+duree(secondes())
+    + '. Le plateau se termine ici.', 'Nouvelle partie', 'nouvelle');
+  else if (c.nombre===0) fin('Plus aucun coup possible',
+    'Il reste '+(J.etat.reste/2)+' paires mais aucune n\'est jouable. '
+    + 'Mélange les tuiles restantes, ou reviens en arrière.', 'Mélanger', 'melanger', 'Annuler le dernier coup', 'annuler');
+  return c;
+}
+function duree(s){ return Math.floor(s/60)+' min '+('0'+(s%60)).slice(-2)+' s'; }
+
+/* --- interactions --- */
+var minuteurBandeau=null;
+function bandeau(txt, ms){
+  var b=$('bandeau'); b.textContent=txt; b.hidden=false;
+  clearTimeout(minuteurBandeau);
+  minuteurBandeau=setTimeout(function(){ b.hidden=true; }, ms||2200);
+}
+$('plateau').addEventListener('click', function(ev){
+  var el=ev.target.closest ? ev.target.closest('.tuile') : null;
+  if (!el || !J) return;
+  var i=+el.dataset.i;
+  if (J.etat.present[i]!==1) return;
+  if (!N.estLibre(J.etat,i)){
+    bandeau('Tuile bloquée : il faut le côté gauche ou droit dégagé, et rien au-dessus.');
+    return;
+  }
+  if (J.choisie===i){ J.choisie=null; majEtats(); return; }
+  if (J.choisie===null || !N.apparie(J.tuiles[J.choisie], J.tuiles[i])){
+    J.choisie=i; majEtats(); return;
+  }
+  var a=J.choisie; J.choisie=null;
+  N.retirer(J.topo,J.etat,a); N.retirer(J.topo,J.etat,i);
+  J.histoire.push([a,i]);
+  effacerIndice(); majCompteurs(); sauver();
+});
+$('b-annuler').addEventListener('click', function(){
+  if (!J || !J.histoire.length) return;
+  var c=J.histoire.pop();
+  N.remettre(J.topo,J.etat,c[0]); N.remettre(J.topo,J.etat,c[1]);
+  J.choisie=null; cacherVoileJeu(); effacerIndice(); majCompteurs(); sauver();
+});
+var minuteurIndice=null;
+function effacerIndice(){
+  clearTimeout(minuteurIndice);
+  elements.forEach(function(el){ if (el) el.classList.remove('indice'); });
+}
+$('b-indice').addEventListener('click', function(){
+  if (!J) return;
+  var c=N.coupsPossibles(J.topo,J.etat,J.tuiles);
+  effacerIndice();
+  if (!c.exemple){ bandeau('Aucune paire jouable pour le moment.'); return; }
+  c.exemple.forEach(function(i){ elements[i].classList.add('indice'); });
+  minuteurIndice=setTimeout(effacerIndice, 3200);
+});
+/* Indice automatique : vingt secondes sans le moindre geste, et l'app
+   signale d'elle-même une paire jouable. Le compte repart à chaque action. */
+var DELAI_AUTO=20000, minuteurAuto=null;
+function voileOuvert(){
+  return !$('accueil').hidden || !$('panneau').hidden || !$('voile-jeu').hidden;
+}
+function relancerAuto(){
+  clearTimeout(minuteurAuto);
+  if (!J) return;
+  minuteurAuto=setTimeout(function(){
+    if (!J || voileOuvert()){ relancerAuto(); return; }
+    var c=N.coupsPossibles(J.topo,J.etat,J.tuiles);
+    if (!c.exemple){ relancerAuto(); return; }
+    effacerIndice();
+    c.exemple.forEach(function(i){ if (elements[i]) elements[i].classList.add('indice'); });
+    minuteurIndice=setTimeout(function(){ effacerIndice(); relancerAuto(); }, 3200);
+  }, DELAI_AUTO);
+}
+document.addEventListener('pointerdown', relancerAuto, true);
+
+$('b-melanger').addEventListener('click', melanger);
+function melanger(){
+  if (!J) return;
+  var presents=[], restants=[];
+  for (var i=0;i<J.topo.n;i++){
+    presents.push(J.etat.present[i]===1);
+    if (J.etat.present[i]===1) restants.push(J.tuiles[i]);
+  }
+  var paires=N.apparierRestants(restants, Math.random);
+  var ordre=N.ordreRetrait(J.topo, presents, Math.random);
+  if (!ordre || ordre.length!==paires.length){
+    bandeau('Le mélange n\'a rien trouvé de solvable, la position est conservée.');
+    return;
+  }
+  var t=J.tuiles.slice();
+  N.melangeTableau(paires, Math.random);
+  ordre.forEach(function(c,k){ t[c[0]]=paires[k][0]; t[c[1]]=paires[k][1]; });
+  J.tuiles=t; J.choisie=null; J.histoire=[];
+  cacherVoileJeu();
+  J.topo.pos.forEach(function(p,i){
+    if (elements[i] && J.etat.present[i]===1) elements[i].innerHTML=svgTuile(J.tuiles[i]); });
+  bandeau('Tuiles remélangées : la position redevient solvable, l\'historique repart à zéro.');
+  majCompteurs(); sauver();
+}
+
+/* --- voile de fin / d'impasse --- */
+var actionsVoile={};
+function fin(titre, texte, libelle, action, libelle2, action2){
+  $('vj-titre').textContent=titre; $('vj-texte').textContent=texte;
+  $('vj-action').textContent=libelle; actionsVoile.a=action;
+  $('vj-second').hidden=!libelle2;
+  if (libelle2){ $('vj-second').textContent=libelle2; actionsVoile.b=action2; }
+  $('voile-jeu').hidden=false;
+}
+function cacherVoileJeu(){ $('voile-jeu').hidden=true; }
+$('vj-action').addEventListener('click', function(){ executer(actionsVoile.a); });
+$('vj-second').addEventListener('click', function(){ executer(actionsVoile.b); });
+function executer(a){
+  cacherVoileJeu();
+  if (a==='nouvelle'){ STOCK.effacer(CLE_PARTIE); J=null; ouvrirAccueil(); }
+  if (a==='melanger') melanger();
+  if (a==='annuler') $('b-annuler').click();
+  if (a==='rien'){}
+}
+
+/* --- accueil, options --- */
+function ouvrirAccueil(){ construireAccueil(); $('accueil').hidden=false; }
+$('p-court').addEventListener('click', function(){ choixCourt=true; construireAccueil(); });
+$('p-complet').addEventListener('click', function(){ choixCourt=false; construireAccueil(); });
+$('t-plancher').addEventListener('click', function(){ forcerTout=false; construireAccueil(); });
+$('t-tout').addEventListener('click', function(){ forcerTout=true; construireAccueil(); });
+$('liste').addEventListener('click', function(ev){
+  var b=ev.target.closest ? ev.target.closest('.item') : null;
+  if (!b || b.disabled || !b.dataset.i) return;
+  choixDispo=+b.dataset.i; construireAccueil();
+});
+$('b-jouer').addEventListener('click', function(){
+  var W=dispoW(), H=dispoH(), ok;
+  if (choixCourt){ var g=N.grilleCourte(W,H); ok=nouvellePartie('courte', g.cols, g.rows); }
+  else ok=nouvellePartie(N.DISPOSITIONS[choixDispo].cle);
+  if (ok) $('accueil').hidden=true;
+});
+$('b-reprendre').addEventListener('click', function(){
+  var p=decoderPartie(STOCK.lire(CLE_PARTIE));
+  if (p && reprendre(p)) $('accueil').hidden=true;
+  else bandeau('La partie enregistrée n\'a pas pu être relue.');
+});
+$('b-coller').addEventListener('click', function(){
+  if (!navigator.clipboard || !navigator.clipboard.readText){
+    bandeau('Ce navigateur ne laisse pas lire le presse-papiers. Le code se recolle depuis '
+      + 'l\'appareil qui l\'a produit.', 4200); return;
+  }
+  navigator.clipboard.readText().then(function(txt){
+    var p=decoderPartie(txt);
+    if (p && reprendre(p)){ $('accueil').hidden=true; sauver(); bandeau('Partie reprise.'); }
+    else bandeau('Ce code n\'est pas lisible.');
+  }).catch(function(){ bandeau('Lecture du presse-papiers refusée par le navigateur.', 3500); });
+});
+$('b-menu').addEventListener('click', function(){
+  $('o-surbrillance').setAttribute('aria-pressed', String(opt.surbrillance));
+  $('o-chrono').setAttribute('aria-pressed', String(opt.chrono));
+  $('zone-code').hidden=true; $('panneau').hidden=false;
+});
+$('b-fermer').addEventListener('click', function(){ $('panneau').hidden=true; });
+$('o-surbrillance').addEventListener('click', function(){
+  opt.surbrillance=!opt.surbrillance;
+  this.setAttribute('aria-pressed', String(opt.surbrillance));
+  sauverOptions(); if (J) majEtats();
+});
+$('o-chrono').addEventListener('click', function(){
+  opt.chrono=!opt.chrono;
+  this.setAttribute('aria-pressed', String(opt.chrono));
+  sauverOptions(); $('i-chrono').hidden=!opt.chrono;
+});
+$('b-copier').addEventListener('click', function(){
+  if (!J){ bandeau('Aucune partie en cours.'); return; }
+  sauver();
+  var code=STOCK.lire(CLE_PARTIE) || '';
+  var z=$('zone-code'); z.textContent=code; z.hidden=false;
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(code).then(function(){
+      bandeau('Code copié.'); }, function(){});
+});
+$('b-nouvelle').addEventListener('click', function(){
+  $('panneau').hidden=true; STOCK.effacer(CLE_PARTIE); J=null; ouvrirAccueil();
+});
+
+/* --- rotation : on recalcule la taille, jamais le plateau (§2.10.8) --- */
+var minuteurTaille=null;
+function surRedimensionnement(){
+  clearTimeout(minuteurTaille);
+  minuteurTaille=setTimeout(function(){
+    if (!$('accueil').hidden){ construireAccueil(); return; }
+    var ok=placer() || J.forcer;
+    if (!ok) fin('Il faut plus de place', 'La partie est conservée. Tourne l\'appareil ou '
+      + 'agrandis la fenêtre : les tuiles passeraient sous 44 px, elles ne seraient plus '
+      + 'sûres à toucher.', 'Continuer quand même', 'rien');
+    else if (!$('voile-jeu').hidden && $('vj-titre').textContent==='Il faut plus de place')
+      cacherVoileJeu();
+  }, 160);
+}
+window.addEventListener('resize', surRedimensionnement);
+window.addEventListener('orientationchange', surRedimensionnement);
+
+/* --- chrono --- */
+setInterval(function(){
+  if (!J || !opt.chrono) return;
+  var s=secondes();
+  $('i-chrono').textContent=Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);
+}, 1000);
+setInterval(function(){ if (J) sauver(); }, 15000);
+
+/* --- démarrage --- */
+$('i-chrono').hidden=!opt.chrono;
+ouvrirAccueil();
+})();
+</script>
+</body></html>
