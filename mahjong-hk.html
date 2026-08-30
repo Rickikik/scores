@@ -47,7 +47,9 @@ body{display:flex;flex-direction:column}
 #defausse .vide{font-size:12px;color:#7FA294;padding:4px}
 #moi{flex:0 0 auto;display:flex;align-items:flex-end;gap:8px;min-height:0}
 #mes-ensembles{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end}
-#ma-main{display:flex;gap:2px;align-items:flex-end;flex:1 1 auto;justify-content:flex-end}
+#ma-main{display:flex;flex-direction:column;gap:2px;align-items:flex-end;flex:1 1 auto}
+.rangee-main{display:flex;gap:2px;align-items:flex-end;justify-content:flex-end}
+.tuile.decalee{margin-left:calc(var(--t) / 6)}
 
 /* ---------- tuiles ---------- */
 .tuile{position:relative;display:block;padding:0;border:0;background:none;cursor:pointer;
@@ -96,6 +98,22 @@ body{display:flex;flex-direction:column}
   font:inherit;font-size:14px;cursor:pointer}
 .avis{font-size:12.5px;line-height:1.45;color:#E3C77E;background:#2A2415;
   border:1px solid #5C4C1E;border-radius:9px;padding:9px;margin:10px 0 0}
+.conseil{display:flex;align-items:flex-start;gap:11px;font-size:12.5px;line-height:1.45;
+  color:#CFE0D8;background:rgba(11,26,21,.34);border:1px solid #35604F;
+  border-radius:9px;padding:9px;margin:10px 0 0}
+.conseil p{margin:0}
+.conseil .tel{flex:0 0 auto;width:34px;height:34px}
+.conseil .corps{transform-origin:17px 17px;animation:tourner 4s ease-in-out infinite}
+.conseil .chiffre{color:#E3C77E;font-weight:600}
+.conseil .repli{display:block;color:#9DB8AC;margin-top:4px}
+@keyframes tourner{
+  0%,20%{transform:rotate(0deg)}
+  36%,80%{transform:rotate(-90deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .conseil .corps{animation:none;transform:rotate(-90deg)}
+}
 .ligne{display:flex;align-items:center;gap:10px;padding:9px 0;
   border-top:1px solid #2A4C3F;font-size:14px}
 .ligne .sep{flex:1}
@@ -197,6 +215,15 @@ body{display:flex;flex-direction:column}
 
   <div class="deux">
   <p class="avis" id="avis-place" hidden></p>
+  <div class="conseil" id="conseil-tourner" hidden>
+    <svg class="tel" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+      <g class="corps" fill="none" stroke="#9DB8AC" stroke-width="2">
+        <rect x="11" y="3" width="12" height="28" rx="3"/>
+        <line x1="15" y1="27.5" x2="19" y2="27.5" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <p id="conseil-texte"></p>
+  </div>
   <p class="avis" id="avis-stock" hidden></p>
   <button class="primaire" id="b-jouer">Commencer</button>
   <button class="secondaire" id="b-reprendre" hidden>Reprendre la partie en cours</button>
@@ -1549,17 +1576,36 @@ function secondes(){ return Math.floor((ecoule + (depart ? Date.now() - depart :
 function sauver(){ if (P && !P.fini) STOCK.ecrire(CLE_PARTIE, encoder()); }
 
 /* --- mesure de la place (§2.10.5, §2.11.6) --- */
-/* Une main de quatorze tuiles sur une rangée : la largeur donne
-   t x 14 + 13 jeux + le volume de la dernière tuile ; la hauteur donne
-   la part de table que la main peut prendre. Le plancher de 44 px vaut
-   pour la main, seule zone où l'on touche une tuile. */
+/* Deux mises en page figées par l'orientation : deux rangées de sept en
+   portrait, une rangée de quatorze en paysage. L'orientation se déduit de
+   la table mesurée – largeur supérieure à hauteur vaut paysage – et jamais
+   de l'API d'orientation. La largeur donne t x n + les jeux + le volume de
+   la tuile piochée ; la hauteur donne la part de table que la main peut
+   prendre, à couvrir autant de fois qu'il y a de rangées. Le plancher de
+   44 px vaut pour la main, seule zone où l'on touche une tuile. */
+function mesurerTable(largeur, hauteur){
+  var paysage = largeur > hauteur;
+  var parRangee = paysage ? 14 : 7, rangees = paysage ? 1 : 2;
+  var W = largeur - 16, H = hauteur - 12;
+  var parLargeur = (W - (parRangee - 1)*JEU) / (parRangee + 1/6);
+  var parHauteur = (H * 0.32) / (rangees * 91/60);
+  var t = Math.floor(Math.min(parLargeur, parHauteur));
+  return {t: Math.min(t, PLAFOND), brut: t, ok: t >= PLANCHER,
+          paysage: paysage, rangees: rangees, parRangee: parRangee};
+}
 function mesurer(){
   var z = $('table');
-  var W = z.clientWidth - 16, H = z.clientHeight - 12;
-  var parLargeur = (W - 13*JEU) / (14 + 1/6);
-  var parHauteur = (H * 0.32) / (91/60);
-  var t = Math.floor(Math.min(parLargeur, parHauteur));
-  return {t: Math.min(t, PLAFOND), brut: t, ok: t >= PLANCHER};
+  return mesurerTable(z.clientWidth, z.clientHeight);
+}
+/* Ce que donnerait l'autre orientation, sans jamais la supposer : la
+   rotation échange les côtés de la fenêtre, la hauteur prise par l'en-tête
+   et la barre d'actions ne bouge pas. Sert au bandeau de conseil, dont les
+   deux chiffres se calculent et ne sont jamais écrits en dur. */
+function mesurerTourne(){
+  var z = $('table');
+  var chrome = Math.max(0, window.innerHeight - z.clientHeight);
+  return mesurerTable(Math.max(40, z.clientHeight + chrome),
+                      Math.max(40, z.clientWidth - chrome));
 }
 function appliquerTaille(){
   taille = mesurer();
@@ -1653,17 +1699,29 @@ function rendreMoi(){
   if (S.tri) N.trier(main);
   var conseil = -1;
   if (S.assiste && P.attente && P.attente.type === 'defausse') conseil = meilleureDefausse(main);
+  /* Le tri porte sur la main entière : les deux rangées se lisent à la
+     suite. La tuile en trop – celle qui vient d'être piochée – occupe le
+     bout de la seconde rangée, décalée du sixième de tuile que la mesure
+     lui réserve. */
+  var parRangee = taille.parRangee || 14;
+  var decalee = (main.length % 3 === 2) ? main.length - 1 : -1;
+  var rangee = null;
   for (k=0; k<main.length; k++){
+    if (k % parRangee === 0){
+      rangee = document.createElement('div');
+      rangee.className = 'rangee-main';
+      zm.appendChild(rangee);
+    }
     var cls = '';
     if (k === sel) cls += ' choisie';
     if (S.assiste && main[k] === conseil && sel < 0) cls += ' conseil';
+    if (k === decalee) cls += ' decalee';
     var el = elTuile(main[k], t, cls.trim());
     el.style.zIndex = 10 + k;
     el.dataset.k = k;
     el.dataset.tuile = main[k];
-    zm.appendChild(el);
+    rangee.appendChild(el);
   }
-  zm.style.paddingRight = Math.round(t/6) + 'px';
 }
 
 function meilleureDefausse(main){
@@ -1800,9 +1858,9 @@ $('ma-main').addEventListener('click', function(ev){
    le nœud sous le doigt et ferait perdre le second appui (leçon du démineur,
    spec §2.8.2). */
 function majSelection(){
-  var n = $('ma-main').children;
+  var n = $('ma-main').querySelectorAll('.tuile');
   for (var k=0; k<n.length; k++){
-    n[k].classList.toggle('choisie', k === sel);
+    n[k].classList.toggle('choisie', +n[k].dataset.k === sel);
     if (sel >= 0) n[k].classList.remove('conseil');
   }
 }
@@ -1916,16 +1974,16 @@ function demarrer(){
 }
 
 function voilePlace(){
-  $('vj-titre').textContent = 'Tourne l’appareil';
-  $('vj-texte').innerHTML = '<p>Une main de quatorze tuiles ne tient pas en largeur ici : '
-    + 'la tuile tomberait à ' + taille.brut + ' px, sous le plancher de ' + PLANCHER + ' px. '
-    + 'La partie est conservée telle quelle.</p>';
-  $('vj-action').textContent = 'J’ai tourné l’appareil';
+  $('vj-titre').textContent = 'Trop à l’étroit';
+  $('vj-texte').innerHTML = '<p>La place manque ici, dans la meilleure des deux mises en '
+    + 'page : la tuile tomberait à ' + taille.brut + ' px, sous le plancher de '
+    + PLANCHER + ' px. La partie est conservée telle quelle.</p>';
+  $('vj-action').textContent = 'J’ai agrandi la fenêtre';
   $('vj-action').onclick = function(){
     appliquerTaille();
     if (taille.ok){ $('voile-jeu').hidden = true; rendre(); lancerBoucle(); }
     else { voilePlace(); bandeau('Toujours ' + taille.brut + ' px : la fenêtre n’a pas changé '
-      + 'de largeur. Ouvre le jeu dans le navigateur, en paysage.', 4200); }
+      + 'de taille. Ouvre le jeu dans le navigateur.', 4200); }
   };
   /* Jamais de cul-de-sac : on ressort toujours vers l'accueil, et la partie
      reste enregistrée telle quelle. */
@@ -1953,6 +2011,25 @@ function ouvrirAccueil(){
   $('accueil').hidden = false;
   majAccueil();
 }
+function nomPose(m){
+  return m.paysage ? 'une rangée de quatorze' : 'deux rangées de sept';
+}
+/* Régime conseil (§2.11.6) : l'autre orientation n'est proposée que si la
+   mesure la donne strictement meilleure, avec les deux chiffres calculés et
+   la valeur d'arrivée écrêtée au plafond comme partout ailleurs. Le bandeau
+   ne se referme pas et n'écrit aucune clé de stockage. */
+function majConseil(m){
+  var z = $('conseil-tourner'), autre = mesurerTourne();
+  /* Ne jamais conseiller une rotation qui ne rend pas le jeu jouable :
+     sous le plancher des deux côtés, seul l'avis de place a un sens. */
+  if (autre.t <= m.t || !autre.ok){ z.hidden = true; return; }
+  $('conseil-texte').innerHTML = 'Tuiles de <span class="chiffre">' + m.t
+    + ' px</span> ici, en ' + nomPose(m) + '. En tournant l’appareil : '
+    + '<span class="chiffre">' + autre.t + ' px</span>, en ' + nomPose(autre) + '.'
+    + '<span class="repli">Dans une fenêtre de prévisualisation, où l’appareil ne '
+    + 'tourne pas, ouvre le jeu dans le navigateur.</span>';
+  z.hidden = false;
+}
 function majAccueil(){
   $('d-manche').setAttribute('aria-pressed', S.mode === 'manche');
   $('d-tour').setAttribute('aria-pressed', S.mode === 'tour');
@@ -1965,17 +2042,18 @@ function majAccueil(){
   var a = $('avis-place');
   if (!m.ok){
     a.hidden = false;
-    a.textContent = 'Ici la tuile tomberait à ' + m.brut + ' px, sous le plancher de '
-      + PLANCHER + ' px : une main de quatorze tuiles ne tient pas en largeur. '
-      + 'Tourne l’appareil en paysage, ou ouvre le jeu dans le navigateur plutôt que dans '
-      + 'une fenêtre de prévisualisation.';
+    a.textContent = 'Ici la tuile tomberait à ' + m.brut + ' px en ' + nomPose(m)
+      + ', sous le plancher de ' + PLANCHER + ' px : la fenêtre est trop étroite. '
+      + 'Élargis-la, ou ouvre le jeu dans le navigateur plutôt que dans une fenêtre '
+      + 'de prévisualisation.';
   } else {
     a.hidden = false;
-    a.textContent = 'Place mesurée ici : tuiles de ' + m.t + ' px'
+    a.textContent = 'Place mesurée ici : tuiles de ' + m.t + ' px, en ' + nomPose(m)
       + (m.t >= CIBLE ? ' – au-dessus de la cible de ' + CIBLE + ' px.'
                       : ' – au-dessus du plancher de ' + PLANCHER + ' px, sous la cible de '
                         + CIBLE + ' px.');
   }
+  majConseil(m);
   $('b-jouer').disabled = !m.ok;
   $('b-reprendre').hidden = !STOCK.lire(CLE_PARTIE);
   $('b-reprendre').disabled = !m.ok;
@@ -2060,7 +2138,7 @@ window.addEventListener('resize', function(){
     if (!P){ majAccueil(); return; }
     rendre();
     if (!taille.ok) voilePlace();
-    else if ($('voile-jeu').hidden === false && $('vj-titre').textContent === 'Tourne l’appareil'){
+    else if ($('voile-jeu').hidden === false && $('vj-titre').textContent === 'Trop à l’étroit'){
       $('voile-jeu').hidden = true; lancerBoucle();
     }
   }, 160);
