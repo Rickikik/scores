@@ -151,6 +151,65 @@ body{display:flex;flex-direction:column}
 #voile-jeu .dedans{max-width:420px;width:100%}
 #voile-jeu h2{font-size:18px;margin:0 0 8px}
 #voile-jeu p{font-size:14px;color:#B6D0C4;margin:0 0 12px;line-height:1.5}
+
+/* ---------- accompagnement : panneau, désignation, flèche (§2.11.4) ---------- */
+/* Le panneau se pose juste au-dessus de la main, là où le regard est pendant
+   qu'on joue. Le pied d'écran ne l'était pas : le mode assisté y parlait déjà
+   et n'a pas été entendu – constat d'usage du 2026-08-30. Il prend sa hauteur
+   sur la défausse, seule zone élastique de la table : la mesure du §2.10.5
+   part de la hauteur de la table, la tuile ne perd donc pas un pixel. */
+#guide{flex:0 0 auto;background:#2A2415;border:1px solid #C7A24B;border-left-width:4px;
+  border-radius:9px;padding:7px 9px;font-size:13px;line-height:1.35;color:var(--ivoire)}
+#guide .corps{min-width:0}
+#guide .rang{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
+  color:#E3C77E;font-weight:700;margin-bottom:2px}
+#guide .geste{display:block;font-weight:700}
+#guide .raison{display:block;font-size:12.5px;color:#D9CFB2;margin-top:2px}
+#guide.libre .raison{font-size:13px;color:var(--ivoire);margin-top:0}
+#guide .cotes{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+#guide button{min-height:32px;padding:0 10px;border-radius:8px;border:1px solid #C7A24B;
+  background:#3D3212;color:var(--ivoire);font:inherit;font-size:12.5px;cursor:pointer}
+#guide button.discret{border-color:#5C4C1E;background:transparent;color:#D9CFB2}
+/* Table courte – le paysage du téléphone : le panneau passe en ligne, texte à
+   gauche et boutons à droite. Empilé, il mangeait un tiers de la table. */
+@media(max-height:620px){
+  #guide{display:flex;align-items:center;gap:12px}
+  #guide .corps{flex:1 1 auto}
+  #guide .cotes{margin-top:0;flex:0 0 auto;flex-wrap:nowrap}
+}
+
+/* La pulsation fait un cycle en 1,6 s – 0,6 alternance par seconde, très en
+   dessous des trois qui fatiguent et posent un risque photosensible. Ce n'est
+   pas un clignotement : la bague ne s'éteint jamais complètement. */
+.tuile.designee::after{content:"";position:absolute;inset:-4px;border:3px solid #F2C75C;
+  border-radius:8px;pointer-events:none;box-shadow:0 0 12px rgba(242,199,92,.5);
+  animation:designer 1.6s ease-in-out infinite}
+@keyframes designer{
+  0%,100%{opacity:1;transform:scale(1.04)}
+  50%{opacity:.34;transform:scale(1)}
+}
+#actions button.designe{animation:designer-bouton 1.6s ease-in-out infinite}
+@keyframes designer-bouton{
+  0%,100%{box-shadow:0 0 0 3px #F2C75C}
+  50%{box-shadow:0 0 0 3px rgba(242,199,92,.3)}
+}
+/* La flèche fait le lien entre la phrase et l'objet : sans elle, le joueur lit
+   un texte et cherche de quoi il parle. Elle ne sort jamais de la table – au
+   ras du bord haut elle passe sous la tuile et pointe vers le haut. */
+#fleche{position:absolute;width:26px;height:30px;z-index:120;pointer-events:none;
+  animation:bond 1.6s ease-in-out infinite}
+#fleche svg{display:block;width:26px;height:30px}
+#fleche.bas svg{transform:rotate(180deg)}
+@keyframes bond{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+#fleche.bas{animation-name:bond-bas}
+@keyframes bond-bas{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+/* Tout mouvement se fige sur son état haut : la désignation doit tenir dans la
+   position seule, la flèche demeure. */
+@media(prefers-reduced-motion:reduce){
+  .tuile.designee::after{animation:none;opacity:1;transform:scale(1.04)}
+  #actions button.designe{animation:none;box-shadow:0 0 0 3px #F2C75C}
+  #fleche{animation:none}
+}
 [hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){ .tuile.choisie{transform:none;opacity:.75} }
 </style></head>
@@ -170,6 +229,22 @@ body{display:flex;flex-direction:column}
 <main id="table">
   <div id="adversaires"></div>
   <div id="defausse"></div>
+  <div id="guide" hidden aria-live="polite">
+    <div class="corps">
+      <span class="rang" id="g-rang"></span>
+      <span class="geste" id="g-geste"></span>
+      <span class="raison" id="g-raison"></span>
+    </div>
+    <div class="cotes">
+      <button id="g-suivant" hidden>Compris</button>
+      <button id="g-regles" class="discret" hidden>Je connais le jeu</button>
+      <button id="g-fin" class="discret">Fin du guide</button>
+    </div>
+  </div>
+  <div id="fleche" hidden><svg viewBox="0 0 26 30" aria-hidden="true" focusable="false">
+    <path d="M13 2 V18" stroke="#F2C75C" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M3 16 L13 29 L23 16 Z" fill="#F2C75C"/>
+  </svg></div>
   <div id="moi">
     <div id="mes-ensembles"></div>
     <div id="ma-main"></div>
@@ -237,7 +312,12 @@ body{display:flex;flex-direction:column}
   <div class="ligne">Mode assisté<span class="sep"></span>
     <button class="inter" id="o-assiste" aria-pressed="true" aria-label="Mode assisté"></button></div>
   <p class="sous" style="margin:4px 0 0">Signale à chaque tour les coups possibles et ce
-    qu’ils impliquent.</p>
+    qu’ils impliquent, au-dessus de ta main. Il porte aussi le guide pas-à-pas.</p>
+  <div class="ligne">Guide pas-à-pas<span class="sep"></span>
+    <button class="secondaire" id="o-guide"
+      style="width:auto;min-height:36px;margin:0;padding:0 12px">Reprendre au début</button></div>
+  <p class="sous" style="margin:4px 0 0">Huit paliers, dans l’ordre. Il se lance seul à la
+    première partie et se tait ensuite. Les paliers de règle se sautent d’un geste.</p>
   <div class="ligne">Trier ma main<span class="sep"></span>
     <button class="inter" id="o-tri" aria-pressed="true" aria-label="Trier ma main"></button></div>
   <h2>Code de reprise</h2>
@@ -1552,8 +1632,12 @@ function decoder(str){
 }
 
 /* --- état de session --- */
+/* guide : i = palier courant, vu = déjà traversé (il se tait), r = paliers de
+   règle sautés. Rangé dans la clé de réglages qui existe déjà – aucune clé
+   nouvelle, §2.11.4. */
 var S = {mode:'manche', seuil:1, niveau:1, assiste:true, tri:true,
-         manche:1, cumul:[0,0,0,0], est:0, ventTour:0};
+         manche:1, cumul:[0,0,0,0], est:0, ventTour:0,
+         guide:{i:0, vu:false, r:false}};
 var P = null, sel = -1, depart = 0, ecoule = 0, enMarche = false, soldee = false,
     signatureDef = '', taille = {t:0, ok:false};
 
@@ -1566,11 +1650,16 @@ var P = null, sel = -1, depart = 0, ecoule = 0, enMarche = false, soldee = false
     if (v.mode) S.mode = v.mode;
     if (v.assiste !== undefined) S.assiste = !!v.assiste;
     if (v.tri !== undefined) S.tri = !!v.tri;
+    if (v.guide){
+      if (v.guide.i !== undefined) S.guide.i = Math.max(0, Math.min(8, v.guide.i|0));
+      S.guide.vu = !!v.guide.vu; S.guide.r = !!v.guide.r;
+    }
   } catch(e){} }
 })();
 function sauverOptions(){
   STOCK.ecrire(CLE_OPT, JSON.stringify({seuil:S.seuil, niveau:S.niveau, mode:S.mode,
-                                        assiste:S.assiste, tri:S.tri}));
+                                        assiste:S.assiste, tri:S.tri,
+                                        guide:{i:S.guide.i, vu:S.guide.vu, r:S.guide.r}}));
 }
 function secondes(){ return Math.floor((ecoule + (depart ? Date.now() - depart : 0)) / 1000); }
 function sauver(){ if (P && !P.fini) STOCK.ecrire(CLE_PARTIE, encoder()); }
@@ -1632,6 +1721,7 @@ function rendre(){
   rendreDefausse();
   rendreMoi();
   rendreActions();
+  majGuide();
 }
 
 function groupeEnsemble(e, t){
@@ -1774,7 +1864,7 @@ function rendreActions(){
       var tu = main[sel];
       l.push({texte:'Jeter ' + libelle(tu), fort:!a.actions.mahjong, fn:function(){ jeter(tu); }});
     }
-    boutons(l, texteAideDefausse(a));
+    boutons(l, aidePied(texteAideDefausse(a)));
     return;
   }
   if (a.type === 'reclamation'){
@@ -1789,7 +1879,7 @@ function rendreActions(){
                fn:function(){ repondre({type:'chow', base:b}); }});
     });
     li.push({texte:'Passer', fn:function(){ repondre(null); }});
-    boutons(li, texteAideReclamation(a));
+    boutons(li, aidePied(texteAideReclamation(a)));
     return;
   }
   if (a.type === 'vol'){
@@ -1797,10 +1887,15 @@ function rendreActions(){
       {texte:'Voler le kong · ' + (a.evaluation ? a.evaluation.faan + ' faan' : ''), fort:true,
        fn:function(){ avancerAvec(function(){ return N.agirVol(P, true); }); }},
       {texte:'Laisser', fn:function(){ avancerAvec(function(){ return N.agirVol(P, false); }); }}
-    ], nomJoueur(a.depuis) + ' ajoute la quatrième ' + libelle(a.tuile)
-      + ' à son pong. Tu peux la lui prendre pour gagner : c’est un vol de kong.');
+    ], aidePied(texteAideVol(a)));
   }
 }
+
+/* Le texte de l'accompagnement passe dans le panneau, au-dessus de la main :
+   le laisser aussi en pied d'écran le dirait deux fois au même moment. Quand
+   le mode assisté est coupé, le panneau n'existe pas et le pied reprend sa
+   ligne – c'est la seule instruction qui reste alors. */
+function aidePied(txt){ return S.assiste ? '' : txt; }
 
 function libelle(i){
   var t = N.TYPES[i];
@@ -1844,6 +1939,188 @@ function texteAideReclamation(a){
   return base + ' ' + bouts.join(' ; ') + '.';
 }
 
+function texteAideVol(a){
+  return nomJoueur(a.depuis) + ' ajoute la quatrième ' + libelle(a.tuile)
+    + ' à son pong. Tu peux la lui prendre pour gagner : c’est un vol de kong.';
+}
+
+/* ================= accompagnement : le mode assisté enrichi (§2.11.4) =======
+   Pas un troisième dispositif : le tuto consultable répond à une question
+   posée, celui-ci accompagne le tour en cours. Il ne bloque aucun geste légal
+   et ne présente aucun coup unique comme le bon. */
+var PALIERS = [
+ {t:'Quatre ensembles et une paire', n:'regle',
+  g:'Vise quatre ensembles et une paire : quatorze tuiles en tout.',
+  r:'C’est la seule condition de victoire – tout le reste du jeu en découle.'},
+ {t:'Lire une tuile', n:'regle',
+  g:'Regarde la tuile désignée : elle porte une famille, et souvent une valeur.',
+  r:'Caractères, bambous et cercles vont de 1 à 9 ; vents et dragons n’ont pas de valeur. Sans cette lecture, la main n’est qu’un alignement de dessins.'},
+ {t:'Piocher puis défausser', n:'geste',
+  g:'Tu viens de piocher : touche une tuile, puis touche-la à nouveau pour la jeter.',
+  r:'Chaque tour ajoute une tuile et en retire une – c’est pourquoi la main retombe toujours à treize.'},
+ {t:'Choisir sa défausse', n:'geste',
+  g:'Jette la tuile la plus éloignée de tout ensemble. La tuile désignée, elle, est celle qui te rapproche le plus : garde-la.',
+  r:'Se séparer de ce qui ne sert à rien est le premier vrai choix du jeu.'},
+ {t:'Chow, pong, kong', n:'regle',
+  g:'Tu peux prendre la tuile désignée, qui vient d’être jetée, pour former un ensemble tout de suite.',
+  r:'Tu gagnes en vitesse et tu perds le faan de main fermée – et le chow ne se prend que sur le joueur de gauche.'},
+ {t:'Fleurs et saisons', n:'regle',
+  g:'Une fleur ou une saison est arrivée : elle s’est posée toute seule à côté de ta main.',
+  r:'Elle ne compte pas dans les quatorze tuiles, elle est remplacée aussitôt, et elle rapporte du faan.'},
+ {t:'Le seuil de faan', n:'regle',
+  g:'Ta main approche : vérifie qu’elle vaudra au moins le seuil affiché en haut de l’écran.',
+  r:'Une main complète mais sans figure est refusée – d’où le seuil, laissé à 1 faan pour découvrir.'},
+ {t:'Déclarer mahjong', n:'geste',
+  g:'Ta main est complète : touche le bouton Mahjong, en bas de l’écran.',
+  r:'Personne ne devine ce geste, et il passe avant tout pong ou chow sur la même tuile jetée.'}
+];
+
+function guideActif(){ return S.assiste && !S.guide.vu && S.guide.i < PALIERS.length; }
+
+/* Ordre imposé : chaque palier suppose le précédent acquis. Un palier dont la
+   condition n'est pas réunie ne se déclenche pas, et le guide se tait – le
+   panneau porte alors le texte du mode assisté. */
+function palierPret(k, a){
+  var moi = P.joueurs[0];
+  if (k === 0 || k === 1 || k === 2 || k === 3) return !!a && a.type === 'defausse';
+  if (k === 4) return !!a && a.type === 'reclamation'
+    && !!(a.actions.pong || a.actions.kong || (a.actions.chow && a.actions.chow.length));
+  if (k === 5) return moi.bonus.length > 0;
+  if (k === 6) return !!a && a.type === 'defausse'
+    && N.distance(moi.main, moi.ensembles.length) <= 1;
+  if (k === 7) return !!a && (a.type === 'defausse' || a.type === 'reclamation')
+    && !!a.actions.mahjong;
+  return false;
+}
+
+/* La désignation ne pointe que des objets de la table. Le palier 8 vise un
+   bouton du pied d'écran : il est pulsé sur place, sans flèche, parce que la
+   flèche ne sort jamais de la table. */
+function cibleDesignation(k){
+  var q, c, d = null;
+  if (k === 1){ q = $('ma-main').querySelectorAll('.tuile'); return q.length ? q[0] : null; }
+  if (k === 2) return $('ma-main').querySelector('.tuile.decalee');
+  if (k === 3) return sel >= 0 ? null : $('ma-main').querySelector('.tuile.conseil');
+  if (k === 4){
+    d = $('defausse').lastElementChild;
+    return (d && d.classList.contains('tuile')) ? d : null;
+  }
+  if (k === 5){
+    c = $('mes-ensembles').children;
+    for (q=0; q<c.length; q++) if (c[q].classList.contains('tuile')) d = c[q];
+    return d;
+  }
+  return null;
+}
+
+function effacerDesignation(){
+  var n = document.querySelectorAll('.tuile.designee'), k;
+  for (k=0; k<n.length; k++) n[k].classList.remove('designee');
+  var b = $('actions').querySelector('button.designe');
+  if (b) b.classList.remove('designe');
+  $('fleche').hidden = true;
+}
+function cacherGuide(){
+  $('guide').hidden = true;
+  effacerDesignation();
+}
+
+/* La flèche se place en coordonnées de table, jamais au-delà de ses bords.
+   Au ras du bord haut elle passe sous la tuile et se retourne. */
+function placerFleche(el){
+  var f = $('fleche');
+  if (!el){ f.hidden = true; return; }
+  var z = $('table'), rz = z.getBoundingClientRect(), r = el.getBoundingClientRect();
+  var L = 26, H = 30, marge = 2;
+  var haut = r.top - rz.top - H - marge, bas = r.bottom - rz.top + marge;
+  var dessous = haut < 0;
+  if (dessous && bas + H > z.clientHeight && haut > -H) dessous = false;
+  var x = r.left - rz.left + r.width/2 - L/2, y = dessous ? bas : haut;
+  x = Math.max(0, Math.min(x, Math.max(0, z.clientWidth - L)));
+  y = Math.max(0, Math.min(y, Math.max(0, z.clientHeight - H)));
+  f.classList.toggle('bas', dessous);
+  f.style.left = Math.round(x) + 'px';
+  f.style.top = Math.round(y) + 'px';
+  f.hidden = false;
+}
+
+function designer(k){
+  effacerDesignation();
+  if (k === 7){
+    var b = $('actions').querySelector('button.fort');
+    if (b) b.classList.add('designe');
+    return;
+  }
+  var el = cibleDesignation(k);
+  if (!el) return;
+  el.classList.add('designee');
+  placerFleche(el);
+}
+
+/* Le panneau est une zone vivante (aria-live) : réécrire le même texte à
+   chaque pas de la boucle le ferait relire en entier par un lecteur d'écran.
+   On n'écrit que ce qui change. */
+function poser(id, txt){
+  var e = $(id);
+  if (e.textContent !== txt) e.textContent = txt;
+}
+var palierAffiche = false;
+function majGuide(){
+  var g = $('guide');
+  palierAffiche = false;
+  if (!P || P.fini || !S.assiste){ cacherGuide(); return; }
+  var a = P.attente;
+  if (!a){ cacherGuide(); return; }
+
+  if (S.guide.r) while (S.guide.i < PALIERS.length && PALIERS[S.guide.i].n === 'regle') S.guide.i++;
+  var k = S.guide.i, actif = guideActif() && palierPret(k, a);
+
+  if (actif){
+    var p = PALIERS[k];
+    g.classList.remove('libre');
+    $('g-rang').hidden = false;
+    poser('g-rang', 'Palier ' + (k+1) + ' sur ' + PALIERS.length + ' · ' + p.t);
+    $('g-geste').hidden = false; poser('g-geste', p.g);
+    poser('g-raison', p.r);
+    $('g-suivant').hidden = (p.n !== 'regle');
+    $('g-regles').hidden = (p.n !== 'regle') || S.guide.r;
+    $('g-fin').textContent = 'Fin du guide';
+    palierAffiche = true;
+    designer(k);
+  } else {
+    /* Hors palier, le panneau porte le texte du mode assisté – même
+       dispositif, seulement placé là où le regard est. */
+    g.classList.add('libre');
+    $('g-rang').hidden = true; $('g-geste').hidden = true;
+    poser('g-rang', ''); poser('g-geste', '');
+    poser('g-raison', (a.type === 'defausse') ? texteAideDefausse(a)
+      : (a.type === 'reclamation') ? texteAideReclamation(a)
+      : (a.type === 'vol') ? texteAideVol(a) : '');
+    $('g-suivant').hidden = true; $('g-regles').hidden = true;
+    $('g-fin').textContent = 'Couper l’aide';
+    effacerDesignation();
+  }
+  g.hidden = false;
+}
+
+function avancerPalier(redessiner){
+  S.guide.i++;
+  if (S.guide.i >= PALIERS.length) S.guide.vu = true;
+  sauverOptions();
+  if (redessiner === false) return;
+  if (P) rendre(); else cacherGuide();
+}
+/* Un palier de geste s'acquitte en faisant le geste, pas en cliquant : le
+   redessin suit l'action elle-même, il n'est pas déclenché ici. */
+function guideGeste(quoi){
+  if (!guideActif()) return;
+  var k = S.guide.i;
+  if (quoi === 'jeter' && (k === 2 || k === 3)) avancerPalier(false);
+  /* Réclamer, c'est avoir compris le palier chow-pong-kong : il n'a pas
+     besoin d'être acquitté deux fois. */
+  if (quoi === 'reclamer' && k === 4) avancerPalier(false);
+}
+
 /* --- interactions --- */
 $('ma-main').addEventListener('click', function(ev){
   if (!P || !P.attente || P.attente.type !== 'defausse') return;
@@ -1851,7 +2128,7 @@ $('ma-main').addEventListener('click', function(ev){
   if (!el) return;
   var k = +el.dataset.k;
   if (sel === k){ jeter(+el.dataset.tuile); return; }
-  sel = k; majSelection(); rendreActions();
+  sel = k; majSelection(); rendreActions(); majGuide();
 });
 
 /* Choisir une tuile ne reconstruit pas la rangée : reconstruire détacherait
@@ -1867,10 +2144,12 @@ function majSelection(){
 
 function jeter(tuile){
   sel = -1;
+  guideGeste('jeter');
   avancerAvec(function(){ return N.agirDefausse(P, {type:'jeter', tuile:tuile}); });
 }
 function repondre(choix){
   sel = -1;
+  guideGeste('reclamer');
   avancerAvec(function(){ return N.agirReclamation(P, choix); });
 }
 function avancerAvec(fn){
@@ -1909,6 +2188,10 @@ function finDeManche(){
   if (soldee) return;
   soldee = true;
   depart = 0;
+  /* « Il se lance seul à la première partie, se tait ensuite, et reste
+     rappelable » (§2.11.4) : la première manche jouée suffit à le clore. */
+  if (!S.guide.vu){ S.guide.vu = true; sauverOptions(); }
+  cacherGuide();
   var r = P.resultat, k;
   for (k=0; k<4; k++) S.cumul[k] += P.joueurs[k].points;
   STOCK.effacer(CLE_PARTIE);
@@ -2007,6 +2290,7 @@ function reprendre(v){
 /* --- accueil --- */
 function ouvrirAccueil(){
   P = null; depart = 0;
+  cacherGuide();
   appliquerTaille();
   $('accueil').hidden = false;
   majAccueil();
@@ -2119,6 +2403,31 @@ bascule('o-tri', function(){
   S.tri = !S.tri; sauverOptions();
   $('o-tri').setAttribute('aria-pressed', S.tri);
   sel = -1; if (P) rendre();
+});
+bascule('g-suivant', function(){ avancerPalier(); });
+/* Sauter les paliers de règle d'un geste : qui connaît déjà le mahjong ne
+   garde que les trois paliers de geste, qui ne se sautent pas (§2.11.4). */
+bascule('g-regles', function(){
+  S.guide.r = true;
+  while (S.guide.i < PALIERS.length && PALIERS[S.guide.i].n === 'regle') S.guide.i++;
+  if (S.guide.i >= PALIERS.length) S.guide.vu = true;
+  sauverOptions();
+  if (P) rendre(); else cacherGuide();
+});
+/* Un geste coupe l'accompagnement : le guide d'abord, l'aide ensuite. */
+bascule('g-fin', function(){
+  if (palierAffiche){ S.guide.i = PALIERS.length; S.guide.vu = true; }
+  else { S.assiste = false; $('o-assiste').setAttribute('aria-pressed', false); }
+  sauverOptions();
+  if (P) rendre(); else cacherGuide();
+});
+bascule('o-guide', function(){
+  S.guide = {i:0, vu:false, r:false};
+  if (!S.assiste){ S.assiste = true; $('o-assiste').setAttribute('aria-pressed', true); }
+  sauverOptions();
+  $('panneau').hidden = true;
+  if (P) rendre();
+  bandeau('Guide repris au premier palier.');
 });
 bascule('b-copier', function(){
   if (!P){ bandeau('Aucune partie en cours.'); return; }
