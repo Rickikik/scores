@@ -298,6 +298,18 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .mahjong i:nth-child(4){left:11px;top:0;color:#22405E}
 .mahjong i:nth-child(5){left:33px;top:0;color:#1E7A4C}
 
+/* Reussite : trois cartes en pile descendante */
+.reus{position:relative;width:52px;height:66px}
+.reus i{
+  position:absolute;left:0;width:44px;height:40px;border-radius:5px;
+  background:#FAF5E7;box-shadow:0 2px 5px rgba(0,0,0,.34), inset 0 0 0 1px #D9C89C;
+  display:block;font-size:13px;font-weight:800;font-style:normal;line-height:1.05;
+  padding:4px 5px;letter-spacing:-.02em
+}
+.reus i:nth-child(1){top:0;color:#1B1B1D}
+.reus i:nth-child(2){top:13px;color:#B8352C}
+.reus i:nth-child(3){top:26px;color:#1B1B1D}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -525,6 +537,16 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Mahjong hongkongais</div>
         <div class="det">Main de quatorze tuiles</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="reussite.html">
+      <div class="vignette">
+        <div class="reus"><i>R&#9824;</i><i>D&#9829;</i><i>V&#9824;</i></div>
+      </div>
+      <div>
+        <div class="jeu">Réussite</div>
+        <div class="det">Klondike, en solitaire</div>
       </div>
     </a>
 
