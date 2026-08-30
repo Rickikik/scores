@@ -2020,9 +2020,12 @@ function nomPose(m){
    ne se referme pas et n'écrit aucune clé de stockage. */
 function majConseil(m){
   var z = $('conseil-tourner'), autre = mesurerTourne();
-  /* Ne jamais conseiller une rotation qui ne rend pas le jeu jouable :
-     sous le plancher des deux côtés, seul l'avis de place a un sens. */
-  if (autre.t <= m.t || !autre.ok){ z.hidden = true; return; }
+  /* Trois conditions, spec v1.13 §2.10.5. Au-dessus de la cible, la rotation
+     n'a plus d'objet : sur un écran de 448 px elle rapporte 2 px, et un
+     conseil qui argumente 2 px décrédibilise l'argument par la mesure au lieu
+     de le servir. Et jamais conseiller une rotation qui ne rend pas le jeu
+     jouable : sous le plancher des deux côtés, seul l'avis de place a un sens. */
+  if (m.t >= CIBLE || autre.t <= m.t || !autre.ok){ z.hidden = true; return; }
   $('conseil-texte').innerHTML = 'Tuiles de <span class="chiffre">' + m.t
     + ' px</span> ici, en ' + nomPose(m) + '. En tournant l’appareil : '
     + '<span class="chiffre">' + autre.t + ' px</span>, en ' + nomPose(autre) + '.'
