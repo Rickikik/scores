@@ -19,12 +19,25 @@ html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--tapis)
   background:var(--tapis);box-shadow:inset 0 0 0 3px var(--bois)}
 
 /* ---------- barre : 96 px, hypothèse du §2.12.5 ---------- */
+/* 6 + 44 + 6 + 34 + 6 = 96 : la barre ne grandit pas, le tableau tient */
 #barre{height:96px;flex:0 0 96px;display:flex;flex-direction:column;
-  justify-content:center;gap:8px;padding:8px 10px;border-bottom:1px solid #3A3F48}
-#ligne1{display:flex;align-items:center;gap:8px}
-#titre{font-size:15px;font-weight:600;letter-spacing:.3px;color:var(--or);flex:1}
-#etat{font-size:11px;color:#9AA0AA;text-align:right;line-height:1.25}
-#ligne2{display:flex;gap:6px}
+  justify-content:center;gap:6px;padding:6px 10px;border-bottom:1px solid #3A3F48}
+#ligne1{display:flex;align-items:center;gap:8px;height:44px;flex:0 0 44px}
+.retour{display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;min-width:44px;padding:0 12px;border-radius:22px;
+  background:var(--creme);color:var(--nuit);font-weight:600;font-size:15px;
+  text-decoration:none;flex:0 0 auto}
+.retour i{font-style:normal;margin-left:6px}
+#titre{font-size:15px;font-weight:600;letter-spacing:.3px;color:var(--or);flex:1;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#etat{font-size:11px;color:#9AA0AA;text-align:right;line-height:1.25;
+  flex:0 0 auto;white-space:nowrap}
+#ligne2{display:flex;gap:6px;height:34px;flex:0 0 34px}
+@media (max-width:399px){
+  .retour i{display:none}
+  .retour{padding:0;min-width:44px}
+  #titre{font-size:14px}
+}
 button{font:inherit;font-size:12.5px;color:var(--creme);background:#31353D;
   border:1px solid #464C56;border-radius:8px;padding:8px 10px;min-height:34px;
   cursor:pointer;flex:1;white-space:nowrap}
@@ -43,6 +56,11 @@ button.actif{background:#4A4030;border-color:var(--or);color:var(--or)}
 .carte svg{display:block;width:100%;height:100%}
 .carte.prise{opacity:.34}
 #ghost{position:absolute;left:0;top:0;pointer-events:none;z-index:60;line-height:0}
+/* éventail de victoire – doctrine visuelle, 1,2 s, sans coupure */
+#eventail{position:absolute;left:50%;transform:translateX(-50%);top:0;
+  z-index:100;pointer-events:none;display:none}
+#eventail.on{display:block}
+#eventail .carte{transition:transform 280ms cubic-bezier(.22,.61,.36,1)}
 #ghost .carte{filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
 .refus{animation:refus 260ms ease}
 @keyframes refus{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}
@@ -101,6 +119,7 @@ button.actif{background:#4A4030;border-color:var(--or);color:var(--or)}
 
 @media (prefers-reduced-motion:reduce){
   .designe::after{animation:none;box-shadow:0 0 12px 5px rgba(217,200,156,.45);opacity:1}
+  #eventail .carte{transition:none!important;transform:none!important}
   #tel{animation:none;transform:rotate(-90deg)}
   .refus{animation:none}
 }
@@ -169,7 +188,7 @@ button.actif{background:#4A4030;border-color:var(--or);color:var(--or)}
 
 <div id="app">
   <header id="barre">
-    <div id="ligne1"><span id="titre">Réussite – Klondike</span><span id="etat"></span></div>
+    <div id="ligne1"><a class="retour" href="./index.html" aria-label="Retour au portail">←<i>Scores</i></a><span id="titre">Réussite – Klondike</span><span id="etat"></span></div>
     <div id="ligne2">
       <button id="bNouv">Nouvelle donne</button>
       <button id="bAnn">Annuler</button>
@@ -180,6 +199,7 @@ button.actif{background:#4A4030;border-color:var(--or);color:var(--or)}
   <main id="table">
     <div id="plateau"></div>
     <div id="ghost"></div>
+    <div id="eventail"></div>
     <div id="fleche"></div>
     <div id="bulle"></div>
   </main>
@@ -217,8 +237,9 @@ button.actif{background:#4A4030;border-color:var(--or);color:var(--or)}
   <p><b>Ce qui sort de l’appareil.</b> Rien. Aucun appel réseau, aucune police
      distante, aucune image chargée.</p>
   <p><b>Limites.</b> Le hasard vient de <i>Math.random</i>. La sauvegarde est propre à
-     cet appareil et à ce navigateur. Le paysage n’est pas jouable : une colonne
-     ne tient pas dans la hauteur.</p>
+     cet appareil et à ce navigateur. Sous une certaine taille d’écran le jeu se met
+     en attente : la carte passerait sous 44 px et ne serait plus saisissable au
+     doigt. Seule la mesure décide, jamais l’orientation.</p>
   <p id="pStock" style="color:#D2A24C"></p>
   <div class="opt" style="margin-top:14px"><button id="bFerme">Fermer</button></div>
 </div></div>
@@ -232,6 +253,7 @@ var RANGS=[null,"A","2","3","4","5","6","7","8","9","10","V","D","R"];
 var FIG={11:"#fV",12:"#fD",13:"#fR"};
 var CLE_PARTIE="reussite-partie", CLE_REG="reussite-reglages";
 var PLANCHER=44, CIBLE=56, MARGE=16, ECART=4, BARRE=96, GAPV=12;
+var HAUTEURS=7.2;                           /* rangée du haut + 6,2 de colonne */
 var CACHE=0.2, VISIBLE=1/3;                 /* chevauchements, §2.12.5 */
 function rouge(s){return s===1||s===2;}
 
@@ -323,8 +345,8 @@ function deplacer(p,cible){
   var f=retourner();
   if(f)G&&G.evt("retourne");
   G&&G.evt("deplace");
-  if(gagne()){E.fini=true;efface(CLE_PARTIE);setTimeout(function(){
-    document.getElementById("fin").classList.add("on");},260);}
+  if(gagne()){E.fini=true;efface(CLE_PARTIE);
+    setTimeout(victoire,0);}          /* après le rendu, jamais pendant */
   else sauvePartie();
   return true;
 }
@@ -367,10 +389,12 @@ function calcul(){
   var W=document.documentElement.clientWidth, H=document.documentElement.clientHeight;
   var paysage=W>H;
   var tl=(W-MARGE-6*ECART)/7;                 /* terme de largeur */
-  var th=(H-BARRE-GAPV)/10.08;                /* terme de hauteur = plafond */
+  var th=(H-BARRE-GAPV)/(HAUTEURS*1.4);       /* terme de hauteur, rangée du haut comprise */
   var w=Math.min(tl,th);
+  /* La disponibilité est une mesure, et rien d'autre : l'orientation n'y entre pas. */
   geo={W:W,H:H,paysage:paysage,termeLargeur:tl,termeHauteur:th,
-       w:w,h:w*1.4,dispo:!paysage&&w>=PLANCHER,sousCible:w<CIBLE};
+       contraint:(th<tl)?"hauteur":"largeur",
+       w:w,h:w*1.4,dispo:w>=PLANCHER,sousCible:w<CIBLE};
   return geo;
 }
 
@@ -434,16 +458,23 @@ function rendre(){
   var vl=document.getElementById("voile");
   if(!geo.dispo){
     vl.classList.add("on");
-    document.getElementById("vTitre").textContent=geo.paysage?
-      "Tourne l’appareil":"Écran trop étroit";
-    document.getElementById("vTexte").textContent=geo.paysage?
-      "Même à la plus petite carte lisible, une colonne de Klondike demande "+
-      Math.round(6.2*1.4*PLANCHER+GAPV)+" px de haut, l’écran n’en offre que "+
+    var parHaut=(geo.contraint==="hauteur");
+    var exige=Math.ceil(HAUTEURS*1.4*PLANCHER+GAPV);
+    /* On ne propose de tourner que si la mesure, une fois tournée, redevient jouable. */
+    var tlR=(geo.H-MARGE-6*ECART)/7, thR=(geo.W-BARRE-GAPV)/(HAUTEURS*1.4);
+    var aide=Math.min(tlR,thR)>=PLANCHER;
+    document.getElementById("tel").style.display=aide?"block":"none";
+    document.getElementById("vTitre").textContent=parHaut?
+      "Écran trop bas":"Écran trop étroit";
+    document.getElementById("vTexte").textContent=parHaut?
+      "À la plus petite carte saisissable, la rangée du haut et la plus longue "+
+      "colonne demandent "+exige+" px de haut ; l’écran n’en offre que "+
       Math.round(geo.H-BARRE)+". La donne en cours est conservée."
       :"La carte tomberait à "+Math.round(geo.w)+" px, sous le plancher de "+PLANCHER+
        " px : elle ne serait plus saisissable au doigt. La donne en cours est conservée.";
-    document.getElementById("vRepli").textContent=geo.paysage?
-      "Si l’appareil ne peut pas tourner, ouvre le jeu dans le navigateur.":"";
+    document.getElementById("vRepli").textContent=aide?
+      "Tourne l’appareil : à cette taille, la donne redevient jouable."
+      :"Agrandis la fenêtre, ou ouvre le jeu sur un écran plus grand.";
     return;
   }
   vl.classList.remove("on");
@@ -479,9 +510,54 @@ function rendre(){
   var pass=REG.talon===1?(2-E.passes)+" passage"+((2-E.passes)>1?"s":""):"illimité";
   document.getElementById("etat").innerHTML=
     "Talon "+E.stock.length+" · défausse "+E.def.length+"<br>Repasses : "+pass;
+  if(EVT.ouvert)placerEventail(true);          /* redimensionnement pendant l'éventail */
   document.getElementById("bAnn").disabled=!annul;
   document.getElementById("bGuide").classList.toggle("actif",!!(G&&G.actif));
   if(G)G.rafraichir();
+}
+
+/* ============ éventail de victoire – doctrine visuelle ============
+   Les fondations s'ouvrent sur la table, une rangée par enseigne. Le panneau
+   de fin attend la fin de l'animation. Aucune coupure au doigt : à 1,2 s un
+   bouton coûterait plus d'attention qu'il n'en ferait gagner. */
+var EVT={ouvert:false,pas:0,duree:0};
+var PAS_EVT=17, GLISSE_EVT=280, TENUE_EVT=53;   /* 51x17 + 280 + 53 = 1 200 ms */
+function reduit(){
+  try{return window.matchMedia("(prefers-reduced-motion:reduce)").matches;}
+  catch(e){return false;}
+}
+function placerEventail(instant){
+  var ev=document.getElementById("eventail");
+  var w=geo.w,h=geo.h,pw=7*w+6*ECART+MARGE,ph=h+GAPV+6.2*h;
+  ev.style.width=pw+"px"; ev.style.height=ph+"px";
+  var pas=(pw-w)/12, gapr=h*0.12, haut=4*h+3*gapr, y0=(ph-haut)/2;
+  var s="",j,k,i;
+  for(j=0;j<13;j++)for(k=0;k<4;k++){
+    var x=MARGE/2+j*pas, y=y0+k*(h+gapr);
+    var sx=colX(3+k)-x, sy=-y;                  /* départ : la fondation */
+    s+='<div class="carte" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+
+       'px;width:'+w.toFixed(1)+'px;height:'+h.toFixed(1)+'px;z-index:'+(10+j)+
+       ';border-radius:'+(w*0.07).toFixed(1)+'px;transform:translate('+sx.toFixed(1)+
+       'px,'+sy.toFixed(1)+'px);transition-delay:'+(instant?0:(j*4+k)*PAS_EVT)+'ms">'+
+       svgCarte({r:j+1,s:k})+'</div>';
+  }
+  ev.innerHTML=s; ev.classList.add("on");
+  EVT.ouvert=true; EVT.pas=pas; EVT.duree=51*PAS_EVT+GLISSE_EVT+TENUE_EVT;
+  var q=ev.querySelectorAll(".carte");
+  if(instant){for(i=0;i<q.length;i++){q[i].style.transition="none";
+    q[i].style.transform="none";} return;}
+  void ev.offsetHeight;                          /* reflow avant de relâcher */
+  for(i=0;i<q.length;i++)q[i].style.transform="none";
+}
+function victoire(){
+  var doux=reduit();
+  placerEventail(doux);
+  if(doux){document.getElementById("fin").classList.add("on");return;}
+  setTimeout(function(){document.getElementById("fin").classList.add("on");},EVT.duree);
+}
+function fermerEventail(){
+  var ev=document.getElementById("eventail");
+  ev.classList.remove("on"); ev.innerHTML=""; EVT.ouvert=false;
 }
 
 /* ================= gestes ================= */
@@ -680,7 +756,7 @@ G={
 };
 
 /* ================= interface ================= */
-function nouvelle(){donner();
+function nouvelle(){fermerEventail();donner();
   if(!REG.guideVu)G.lance(false); else {G.actif=false;G.masque();}
   sauvePartie();rendre();}
 
@@ -727,7 +803,9 @@ rendre();
 window.R={E:function(){return E;},geo:function(){return calcul();},REG:REG,
   donner:donner,rendre:rendre,poseTableau:poseTableau,poseFond:poseFond,
   suiteOK:suiteOK,prise:prise,deplacer:deplacer,piocher:piocher,retourner:retourner,
-  G:G,cles:function(){var a=[],i;try{for(i=0;i<localStorage.length;i++)a.push(localStorage.key(i));}catch(e){}return a;},
+  G:G,EVT:EVT,victoire:victoire,placerEventail:placerEventail,
+  fermerEventail:fermerEventail,reduit:reduit,choisir:choisir,colX:colX,
+  cles:function(){var a=[],i;try{for(i=0;i<localStorage.length;i++)a.push(localStorage.key(i));}catch(e){}return a;},
   stockOK:stockOK};
 })();
 </script>
