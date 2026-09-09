@@ -310,6 +310,36 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
 .reus i:nth-child(2){top:13px;color:#B8352C}
 .reus i:nth-child(3){top:26px;color:#1B1B1D}
 
+/* Faisceau : la fiche anthropometrique, face et profil */
+.fais{
+  position:relative;width:72px;height:64px;border-radius:4px;
+  padding:6px 6px 14px;display:flex;gap:5px;
+  background:linear-gradient(180deg,#EFE7D2 0%,#E0D5B9 100%);
+  box-shadow:0 2px 6px rgba(0,0,0,.36), inset 0 0 0 1px #C8B893
+}
+.fais i{
+  flex:1;border-radius:2px;background:#6E6A60;
+  position:relative;overflow:hidden;display:block
+}
+.fais i::before{
+  content:"";position:absolute;left:50%;top:7px;width:15px;height:17px;
+  margin-left:-7.5px;border-radius:50% 50% 44% 44%;background:#CFC7B6
+}
+.fais i::after{
+  content:"";position:absolute;left:50%;bottom:0;width:26px;height:12px;
+  margin-left:-13px;border-radius:9px 9px 0 0;background:#3B3833
+}
+.fais i.pr::before{margin-left:-3px}
+.fais i.pr::after{margin-left:-8px}
+.fais s{
+  position:absolute;left:7px;right:26px;bottom:7px;height:3px;
+  border-radius:2px;background:#A79878;display:block;text-decoration:none
+}
+.fais u{
+  position:absolute;right:7px;width:15px;bottom:7px;height:3px;
+  border-radius:2px;background:#B8352C;display:block;text-decoration:none
+}
+
 /* Piece : un disque dore */
 .jeton{
   width:60px;height:60px;border-radius:50%;
@@ -547,6 +577,16 @@ a.tuile:active{transform:scale(.975);background:rgba(255,255,255,.17)}
       <div>
         <div class="jeu">Réussite</div>
         <div class="det">Klondike, en solitaire</div>
+      </div>
+    </a>
+
+    <a class="tuile" href="faisceau.html">
+      <div class="vignette">
+        <div class="fais"><i></i><i class="pr"></i><s></s><u></u></div>
+      </div>
+      <div>
+        <div class="jeu">Faisceau</div>
+        <div class="det">Enquête générée, 18 ans et plus</div>
       </div>
     </a>
 
